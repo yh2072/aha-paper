@@ -15,11 +15,10 @@ from . import config
 from . import llm
 from . import pi_models
 from .pipeline import art_cover, interactive, deep_script, explainer, page_highlight
-from .pipeline import (align, anim, broll, carousel, copywriter, cover, edit, figures, musetalk, pdf_extract, slideshow, wechat)
+from .pipeline import (align, anim, cover, edit, figures, pdf_extract, slideshow)
 
 # 数字人推理专属单工位队列：天然串行防内存爆，且不占用渲染工位（否则等锁的
 # 数字人任务会堵死 _EXECUTOR，批量出片时渲染全部停摆——踩过的坑）
-_MUSETALK_EXEC = ThreadPoolExecutor(max_workers=1)
 
 _EXECUTOR = ThreadPoolExecutor(max_workers=2)  # 同时跑 2 篇，避免打爆 API 限速
 _LOCK = threading.Lock()
@@ -260,34 +259,10 @@ def _st_images(proj: "Project", ctx: dict):
     proj.save(images=names)
 
 
-def _st_broll(proj: "Project", ctx: dict):
-    if not broll.available():
-        proj.log("  未配置实拍素材来源，跳过")
-        return
-    board = ctx["board"]
-    plans = broll.plan(board["scenes"], log=proj.log)
-    est = [max(len(sc["text"]) * 0.21, 8) for sc in board["scenes"]]
-    credits = broll.collect(board["scenes"], plans, proj.dir / "broll",
-                            durations=est, log=proj.log)
-    for c in credits:
-        board["scenes"][c["scene"] - 1]["broll_credit"] = c["author"]
-    proj.save(storyboard=board, broll_credits=credits)
-
-
 def _st_cover(proj: "Project", ctx: dict):
     if proj.load().get("engine") == "pi-canvas":
         name=art_cover.generate(proj.load(),proj.dir / "images",log=proj.log)
         proj.save(cover=name,cover_engine="ai-image")
-
-
-def _st_carousel(proj: "Project", ctx: dict):
-    files = carousel.build(proj.dir, proj.load(), log=proj.log)
-    proj.save(carousel=files)
-
-
-def _st_wechat(proj: "Project", ctx: dict):
-    wechat.build_article(proj.dir, proj.load(), log=proj.log)
-    proj.save(wechat="wechat.docx")
 
 
 def _code_done(proj: "Project", m: dict) -> bool:
@@ -317,20 +292,14 @@ STAGES = [
     ("code",       "章节画面",      _st_code,     _code_done, True),
     ("copy",       "摘要与标题",    _st_copy,       lambda p, m: bool(m.get("intro")), False),
     ("images",     "整理章节配图",  _st_images,     lambda p, m: bool(m.get("images")), False),
-    ("broll",      "实拍素材",      _st_broll,
-     lambda p, m: any(sc.get("broll_path")
-                      for sc in (m.get("storyboard") or {}).get("scenes") or []), False),
     ("cover",      "制作封面",      _st_cover,      lambda p, m: (p.dir / "images" / "cover.png").exists() and (m.get("engine") != "pi-canvas" or m.get("cover_engine") == "ai-image"), False),
-    ("carousel",   "小红书图文版",  _st_carousel,
-     lambda p, m: bool(m.get("carousel")), False),
-    ("wechat",     "公众号图文",    _st_wechat,     lambda p, m: (p.dir / "wechat.docx").exists(), False),
 ]
 STAGE_NAMES = {k: n for k, n, *_ in STAGES}
 # 下游依赖：重试上游后，这些环节的产物就对不上了，只提示不自动重做（重做要花钱）
 _DOWNSTREAM = {
     "figures": ["script", "storyboard", "cover"],
-    "script": ["storyboard", "copy", "images", "broll", "cover", "wechat"],
-    "storyboard": ["code", "copy", "images", "broll", "cover"],
+    "script": ["storyboard", "copy", "images", "cover"],
+    "storyboard": ["code", "copy", "images", "cover"],
 }
 
 
@@ -343,8 +312,6 @@ def _run_generation(pid: str, only: list[str] | None = None):
         proj.save(state="running", error="")
         m = proj.load()
         for key, name, fn, done, fatal in STAGES:
-            if m.get("engine") == "pi-canvas" and key in ("broll","carousel","wechat"):
-                continue
             if m.get("engine") != "pi-canvas" and key == "code":
                 continue
             forced = only is not None and key in only
@@ -419,14 +386,9 @@ def _run_edit(pid: str):
         scenes = meta["storyboard"]["scenes"]
         spans = align.align_scenes(video, scenes, log=proj.log)
         proj.save(spans=spans, stage="ffmpeg 剪辑合成")
-        # 每个场景的画面：实拍素材 > 讲图光标动画 > 手绘图
+        # 每个场景的画面：讲图光标动画 > 论文主图
         images = []
         for i, n in enumerate(meta.get("images", [])):
-            sc = scenes[i] if i < len(scenes) else {}
-            bp = Path(sc["broll_path"]) if sc.get("broll_path") else None
-            if bp and bp.exists():
-                images.append(bp)
-                continue
             a = proj.dir / "images" / f"anim_{i:02d}.mp4"
             images.append(a if a.exists() else (proj.dir / "images" / n if n else None))
         edit.render_video(video, images, spans, proj.dir / "final.mp4", log=proj.log)
@@ -477,11 +439,8 @@ def _run_tts_video(pid: str, force_video: bool = False):
             proj.save(interactive="experience.json",segment_count=len(manifest["segments"]),
                       stage="互动视频完成 ✓")
         proj.log("aha-paper 分章节视频完成 ✓")
-        # 手动上传的数字人（HeyGen 等）优先，其次才是本机 MuseTalk 推理
         if _avatar_path(proj):
             _apply_avatar(proj)
-        elif musetalk.available():
-            _submit(_MUSETALK_EXEC, _run_musetalk, pid)
     except Exception as e:  # noqa: BLE001
         proj.log(f"TTS 成片出错: {e}")
         proj.save(state="error", error=str(e))
@@ -530,92 +489,7 @@ def _apply_avatar(proj: Project):
 
 
 @_tracked
-def _run_musetalk(pid: str):
-    """分段 MuseTalk 推理 + 圆形角标合成（讲图时段无人像）。"""
-    proj = Project(pid)
-    meta = proj.load()
-    try:
-        proj.save(stage="数字人推理中（分段）")
-        clip, segments = musetalk.generate(
-            proj.dir, meta["storyboard"]["scenes"], log=proj.log)
-        proj.save(stage="数字人角标合成")
-        tmp = proj.dir / "slideshow_avatar.mp4"
-        edit.add_avatar_bubbles_segmented(
-            proj.dir / "slideshow.mp4", clip, segments, tmp, log=proj.log)
-        tmp.replace(proj.dir / "slideshow.mp4")
-        # 抽帧进封面
-        try:  # 视觉模型选"睁眼上镜"的一帧做封面头像（每篇各不相同）
-            figures.pick_avatar_face(clip, proj.dir / "images" / "avatar_face.png",
-                                     log=proj.log)
-        except Exception as e:  # noqa: BLE001
-            proj.log(f"  选帧失败: {e}")
-        if meta.get("title"):
-            set_title(pid, meta["title"])
-        proj.save(avatar="musetalk", stage="TTS 成片完成（含数字人）✓")
-        proj.log("分段数字人角标完成 ✓")
-    except Exception as e:  # noqa: BLE001 - 数字人失败不影响成片本身
-        proj.log(f"数字人环节失败（成片仍可用）: {e}")
-        proj.save(stage="TTS 成片完成（数字人失败）")
-
-
 @_tracked
-def _run_broll(pid: str, rerender: bool = True):
-    """给已有项目补搜实拍素材，完成后可自动重渲成片。"""
-    proj = Project(pid)
-    meta = proj.load()
-    board = meta.get("storyboard") or {}
-    scenes = board.get("scenes") or []
-    try:
-        proj.save(stage="搜集实拍素材")
-        plans = broll.plan(scenes, log=proj.log)
-        est = [max(len(sc["text"]) * 0.21, 8) for sc in scenes]
-        credits = broll.collect(scenes, plans, proj.dir / "broll",
-                                durations=est, log=proj.log)
-        for c in credits:
-            scenes[c["scene"] - 1]["broll_credit"] = c["author"]
-        board["scenes"] = scenes
-        proj.save(storyboard=board, broll_credits=credits,
-                  stage=f"实拍素材 {len(credits)} 段 ✓")
-        proj.log(f"实拍素材完成：{len(credits)} 段")
-        if rerender:  # 按项目类型重渲：口播项目走剪辑，TTS 项目走图文成片
-            if meta.get("video"):
-                _submit(_EXECUTOR, _run_edit, pid)
-            elif meta.get("tts_output"):
-                _submit(_EXECUTOR, _run_tts_video, pid)
-    except Exception as e:  # noqa: BLE001
-        proj.log(f"实拍素材失败: {e}")
-        proj.save(stage="实拍素材失败")
-
-
-def start_broll(pid: str, rerender: bool = True) -> None:
-    _submit(_EXECUTOR, _run_broll, pid, rerender)
-
-
-def start_musetalk(pid: str) -> None:
-    _submit(_MUSETALK_EXEC, _run_musetalk, pid)
-
-
-def attach_avatar(pid: str, filename: str, data: bytes) -> dict:
-    proj = Project(pid)
-    for ext in (".mp4", ".mov", ".webm", ".m4v"):  # 清掉旧的
-        (proj.dir / f"avatar{ext}").unlink(missing_ok=True)
-    ext = Path(filename).suffix.lower() or ".mp4"
-    (proj.dir / f"avatar{ext}").write_bytes(data)
-    meta = proj.save(avatar=f"avatar{ext}")
-    # 抽一帧做封面的圆形头像角标，并重排封面
-    try:
-        figures.pick_avatar_face(proj.dir / f"avatar{ext}",
-                                 proj.dir / "images" / "avatar_face.png",
-                                 log=proj.log)
-    except Exception as e:  # noqa: BLE001
-        proj.log(f"  选帧失败: {e}")
-    if meta.get("title"):
-        set_title(pid, meta["title"])
-    if (proj.dir / "slideshow.mp4").exists():  # 已有成片 → 立即合成
-        _apply_avatar(proj)
-    return meta
-
-
 def start_tts_video(pid: str) -> None:
     Project(pid).save(state="queued", stage="MP4 导出排队中")
     _submit(_EXECUTOR, _run_tts_video, pid, True)
@@ -658,23 +532,11 @@ def set_title(pid: str, title: str) -> dict:
     return meta
 
 
-def regen_copy(pid: str) -> dict:
-    proj = Project(pid)
-    meta = proj.load()
-    social = copywriter.generate_social_copy(meta["script"],
-                                             meta.get("paper_title", ""))
-    titles = social["title_options"]
-    if meta.get("title") and meta["title"] not in titles:
-        titles = [meta["title"][:15]] + titles[:2]
-    return proj.save(intro=social["intro"], title_options=titles)
-
-
 EXPORT_KINDS = {  # kind → (源文件, 导出名模板)
     "slideshow": ("slideshow.mp4", "{name}.mp4"),
     "final": ("final.mp4", "{name}_口播版.mp4"),
     "cover": ("images/cover.png", "{name}_封面.png"),
     "narration": ("narration.wav", "{name}_配音.wav"),
-    "wechat": ("wechat.docx", "{name}_公众号.docx"),
 }
 
 
@@ -700,8 +562,6 @@ def export_projects(pids: list[str], dest: str,
                 shutil.copy(proj.dir / src, dest_dir / dst)
                 written.append(dst)
         if "copy" in include and (meta.get("intro") or meta.get("title")):
-            # 不再附素材出处：Pexels 允许商用且不要求署名，发布文案里不需要。
-            # 出处仍留在 meta 的 broll_credits 里备查。
             txt = (f"【标题】{meta.get('title', '')}\n\n"
                    f"【简介】\n{meta.get('intro', '（未生成）')}\n\n"
                    f"【候选标题】\n" +

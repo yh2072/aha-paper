@@ -49,7 +49,7 @@ def health():
     now = _code_mtime()
     return {"code_stale": now > _BOOT_CODE_MTIME + 1,
             "busy": jobs.busy_count(),
-            "avatar_enabled": config.AVATAR_ENABLED}
+            }
 
 
 @app.get("/")
@@ -202,65 +202,6 @@ async def upload_video(pid: str, file: UploadFile):
     return {"ok": True}
 
 
-@app.post("/api/broll/{pid}")
-def add_broll(pid: str):
-    """给已有项目补 YouTube 实拍素材，完成后自动重渲成片。"""
-    meta = jobs.Project(pid).load()
-    if not meta.get("storyboard"):
-        raise HTTPException(400, "请先生成文稿和配图")
-    from .pipeline import broll as br  # noqa: PLC0415
-    if not br.available():
-        raise HTTPException(400, "实拍素材不可用（缺 youtube-know 项目或 yt-dlp）")
-    jobs.start_broll(pid)
-    return {"ok": True}
-
-
-@app.post("/api/carousel/{pid}")
-def build_carousel(pid: str):
-    """（重新）生成小红书图文版多页卡片。"""
-    if not jobs.Project(pid).load().get("script"):
-        raise HTTPException(400, "请先生成文稿")
-    jobs.start_generation(pid, only=["carousel"])
-    return {"ok": True}
-
-
-@app.post("/api/wechat/{pid}")
-def build_wechat(pid: str):
-    """（重新）生成公众号图文 docx。"""
-    proj = jobs.Project(pid)
-    meta = proj.load()
-    if not meta.get("storyboard"):
-        raise HTTPException(400, "请先生成文稿和配图")
-    from .pipeline import wechat as wc  # noqa: PLC0415
-    wc.build_article(proj.dir, meta, log=proj.log)
-    proj.save(wechat="wechat.docx")
-    return {"ok": True}
-
-
-@app.post("/api/musetalk/{pid}")
-def run_musetalk(pid: str):
-    """手动触发分段数字人推理（出片后默认也会自动排队）。"""
-    if not config.AVATAR_ENABLED:
-        raise HTTPException(400, "数字人已在 .env 里关闭（AVATAR_ENABLED=0）")
-    meta = jobs.Project(pid).load()
-    if not meta.get("tts_output"):
-        raise HTTPException(400, "请先生成 TTS 成片")
-    from .pipeline import musetalk as mt  # noqa: PLC0415
-    if not mt.available():
-        raise HTTPException(400, "MuseTalk 未就绪（缺模型或 avatar 源视频）")
-    jobs.start_musetalk(pid)
-    return {"ok": True}
-
-
-@app.post("/api/upload/avatar/{pid}")
-async def upload_avatar(pid: str, file: UploadFile):
-    """上传数字人口播视频：圆形角标合成进 TTS 成片（已有成片则立即合成）。"""
-    if not jobs.Project(pid).meta_path.exists():
-        raise HTTPException(404)
-    jobs.attach_avatar(pid, file.filename or "avatar.mp4", await file.read())
-    return {"ok": True}
-
-
 @app.post("/api/upload/videos")
 async def upload_videos_batch(files: list[UploadFile]):
     """批量上传口播视频：按文件名自动匹配论文项目，匹配上即自动开剪。"""
@@ -295,15 +236,6 @@ def edit_intro(pid: str, body: IntroEdit):
     if not jobs.Project(pid).meta_path.exists():
         raise HTTPException(404)
     jobs.Project(pid).save(intro=body.intro)
-    return {"ok": True}
-
-
-@app.post("/api/copy/{pid}")
-def regen_copy(pid: str):
-    meta = jobs.Project(pid).load()
-    if not meta.get("script"):
-        raise HTTPException(400, "请先生成文稿")
-    jobs.regen_copy(pid)
     return {"ok": True}
 
 
