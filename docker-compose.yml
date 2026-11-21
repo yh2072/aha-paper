@@ -1,0 +1,16 @@
+services:
+  aha-paper:
+    build: .
+    ports:
+      - "8321:8321"
+    volumes:
+      # Papers and everything generated from them.
+      - ./data:/app/data
+      # The provider credential store, written by the login flow.
+      - ./.runtime:/app/.runtime
+      # Keys stay on the host, never in the image. This is a bind mount rather
+      # than env_file because saving models or a voice in the interface writes
+      # back to .env; with only env_file those edits die with the container.
+      # Create it first: cp .env.example .env
+      - ./.env:/app/.env
+    restart: unless-stopped

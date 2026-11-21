@@ -31,6 +31,21 @@ Open <http://localhost:8321> and drop in a PDF. Keys are written only to a local
 
 **Requirements** — Python 3.11+, Node 22+, FFmpeg. Edge TTS needs no key but does need network.
 
+#### With Docker
+
+```sh
+cp .env.example .env          # must exist: it is bind-mounted, not baked in
+docker compose up --build
+```
+
+Three paths live on the host, not in the image: `data/` (papers and everything
+generated from them), `.runtime/` (the provider credential store) and `.env`.
+Saving a model or a voice in the interface writes back to `.env`, which is why it
+is mounted rather than passed as environment variables.
+
+This is a long-running service that writes files and shells out to ffmpeg, so it
+belongs on a machine that stays up — not on a serverless platform.
+
 ### What it does
 
 ```
@@ -121,6 +136,19 @@ cp .env.example .env          # 填入 OPENROUTER_API_KEY
 打开 <http://localhost:8321> ，拖进一个 PDF。Key 只写入本机 `.env`，接口只回「是否已配置」，绝不回传凭据本身。
 
 **运行依赖** —— Python 3.11+、Node 22+、FFmpeg。Edge TTS 不需要 Key，但需要联网。
+
+#### 用 Docker
+
+```sh
+cp .env.example .env          # 必须先建：它是挂进去的，不打进镜像
+docker compose up --build
+```
+
+三个路径留在宿主机而不进镜像：`data/`（论文与全部产出）、`.runtime/`（供应商凭据）
+和 `.env`。在界面里改模型或音色会写回 `.env`，所以用挂载而不是环境变量传入。
+
+它是一个要常驻、要写盘、要调 ffmpeg 的服务，适合跑在一台不关机的机器上，
+不适合 serverless 平台。
 
 ### 它做什么
 
