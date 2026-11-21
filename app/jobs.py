@@ -230,20 +230,11 @@ def _st_storyboard(proj: "Project", ctx: dict):
 
 
 def _st_copy(proj: "Project", ctx: dict):
-    if proj.load().get("script_profile") == deep_script.PROFILE:
-        board=ctx["board"]
-        proj.save(intro=board.get("subtitle","")+"\n"+ctx["script"][:280],
-                  title_options=[board["title"]])
-        return
-    social = copywriter.generate_social_copy(ctx["script"], ctx.get("paper_title", ""))
-    titles = social["title_options"]
-    board_title = (ctx["board"] or {}).get("title")
-    if board_title and board_title not in titles:
-        titles = [board_title[:15]] + titles[:2]
-    for t, lv in zip(titles, social.get("title_levers", []) or [""] * 3):
-        proj.log(f"  候选标题[{lv or '?'}] {t}")
-    proj.save(intro=social["intro"], title_options=titles,
-              title_levers=social.get("title_levers", []))
+    """The blurb and title the card shows. Taken from the chapter outline the
+    writer already produced, not written a second time."""
+    board = ctx["board"]
+    proj.save(intro=board.get("subtitle", "") + "\n" + ctx["script"][:280],
+              title_options=[board["title"]])
 
 
 def _st_code(proj: "Project", ctx: dict):
@@ -255,17 +246,18 @@ def _st_code(proj: "Project", ctx: dict):
 
 
 def _st_images(proj: "Project", ctx: dict):
-    if proj.load().get("engine") == "pi-canvas":
-        (proj.dir / "images").mkdir(exist_ok=True)
-        imgs=[]
-        for i,sc in enumerate(ctx["board"]["scenes"]):
-            if sc.get("figure_path"):
-                name=f"scene_{i:02d}.png"
-                (proj.dir / "images" / name).write_bytes(Path(sc["figure_path"]).read_bytes())
-                imgs.append(name)
-            else:
-                imgs.append("")
-        proj.save(images=imgs)
+    """Collect the figures the chapters use. Nothing is drawn here -- these are the
+    paper's own figures, copied where the player and the exporters look for them."""
+    (proj.dir / "images").mkdir(exist_ok=True)
+    names = []
+    for i, scene in enumerate(ctx["board"]["scenes"]):
+        if not scene.get("figure_path"):
+            names.append("")
+            continue
+        name = f"scene_{i:02d}.png"
+        (proj.dir / "images" / name).write_bytes(Path(scene["figure_path"]).read_bytes())
+        names.append(name)
+    proj.save(images=names)
 
 
 def _st_broll(proj: "Project", ctx: dict):
@@ -323,8 +315,8 @@ STAGES = [
     ("script",     "生成口播稿",    _st_script,     lambda p, m: bool(m.get("script")) and (m.get("engine") != "pi-canvas" or m.get("script_profile") == deep_script.PROFILE), True),
     ("storyboard", "生成分镜",      _st_storyboard, lambda p, m: bool(m.get("storyboard")), True),
     ("code",       "章节画面",      _st_code,     _code_done, True),
-    ("copy",       "小红书文案",    _st_copy,       lambda p, m: bool(m.get("intro")), False),
-    ("images",     "批量绘图",      _st_images,     lambda p, m: bool(m.get("images")), False),
+    ("copy",       "摘要与标题",    _st_copy,       lambda p, m: bool(m.get("intro")), False),
+    ("images",     "整理章节配图",  _st_images,     lambda p, m: bool(m.get("images")), False),
     ("broll",      "实拍素材",      _st_broll,
      lambda p, m: any(sc.get("broll_path")
                       for sc in (m.get("storyboard") or {}).get("scenes") or []), False),
