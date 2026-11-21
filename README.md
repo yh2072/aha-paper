@@ -84,7 +84,6 @@ EDGE_TTS_VOICE=zh-CN-XiaoxiaoNeural
 
 ## 许可证
 
-- [riso-windowseat](https://github.com/sevenevesai/riso-windowseat)：MIT，`web/riso-kit.js` 的美术参考，见 `references/RISO-LICENSE`。
 - [Twemoji](https://github.com/jdecked/twemoji)：图形 CC-BY 4.0，界面图标，见 `web/emoji/LICENSE.txt`。
 - [Pi](https://github.com/earendil-works/pi)：MIT，供应商与模型目录，随 npm 依赖安装。
 - [Edge TTS](https://github.com/rany2/edge-tts)：在线语音合成。

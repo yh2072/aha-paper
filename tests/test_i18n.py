@@ -18,7 +18,7 @@ I18N = (WEB / 'i18n.js').read_text(encoding='utf-8')
 HAN = re.compile(r'[㐀-䶿一-鿿]')
 
 # Chinese here is animation content and matching logic, not interface. See the module docstring.
-EXCLUDED_FILES = {'motion-diagrams.js', 'riso-kit.js', 'i18n.js'}
+EXCLUDED_FILES = {'i18n.js'}
 # Comment prose and dev-only log text that never reaches a translated node.
 EXCLUDED = {
     '可重试环节清单，启动时拉一次', '数字人总开关（来自 /api/health）',

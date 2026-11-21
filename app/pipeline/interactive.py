@@ -14,7 +14,7 @@ from . import tts
 # listing them twice let i18n.js be referenced but not shipped.
 # The flat emoji the watch page uses are served from web/emoji; a bundle opened
 # from disk has no network, so the ones it references travel with it.
-BUNDLE_ASSETS=('watch.css','refine.css','watch.js','riso-kit.js',
+BUNDLE_ASSETS=('watch.css','refine.css','watch.js',
                'explainer-player.js','i18n.js',
                'emoji/1f5a5.svg','emoji/LICENSE.txt')
 
