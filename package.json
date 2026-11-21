@@ -1,0 +1,9 @@
+{
+  "name": "aha-paper",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@earendil-works/pi-ai": "1.5.2",
+    "@earendil-works/pi-agent-core": "1.5.2"
+  }
+}

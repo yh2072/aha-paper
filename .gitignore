@@ -1,0 +1,27 @@
+# A pattern line is taken whole: git has no trailing comments. Writing
+#   .runtime/        # credentials
+# makes the pattern ".runtime/        # credentials", which matches nothing, and
+# the credential store gets committed. Every comment here is on its own line.
+
+# --- secrets: never ---
+.env
+.env.*
+!.env.example
+# Pi credential store (credentials.json, mode 0600)
+.runtime/
+*.pem
+*.key
+
+# --- papers and everything generated from them ---
+data/
+
+# --- environments and dependencies ---
+.venv/
+node_modules/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# --- os / editor ---
+.DS_Store
+*.log

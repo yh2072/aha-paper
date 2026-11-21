@@ -1,0 +1,292 @@
+/* A reading tool, not a landing page.
+
+   The sheets this loads after were tuned for a warm riso-print look: cream paper,
+   sage and lime, wide radii, a hero the height of the screen. That reads as a
+   consumer product. The people using this are reading papers, so the surface gets
+   out of the way: near-white ground, one accent, hairlines instead of fills, and
+   the library dense enough to scan rather than browse.
+
+   Everything here is an override on purpose. Keeping it in one file means the old
+   look is one <link> away, and nothing below is load-bearing for behaviour. */
+
+:root,
+.aha-home {
+  --paper: #ffffff;
+  --panel: #fafaf9;
+  --ink: #18181b;
+  --muted: #71717a;
+  --faint: #a1a1aa;
+  --line: #e4e4e7;
+  --line-soft: #f1f1ef;
+  --accent: #1f6f4f;
+  --accent-ink: #14532d;
+  --accent-soft: #eef5f1;
+  --green: var(--accent);
+  --gold: var(--muted);
+}
+
+/* ---------- ground ---------- */
+body, .aha-home { background: var(--paper); color: var(--ink); }
+.aha-home .sidebar, .sidebar { background: var(--panel); border-right: 1px solid var(--line); }
+main, .aha-home .home-main { max-width: 1280px; }
+.aha-home .topbar, .topbar { border-bottom: 1px solid var(--line-soft); color: var(--muted); }
+
+/* ---------- brand ---------- */
+.home-mark {
+  background: var(--accent); color: #fff; border-radius: 7px;
+  width: 26px; height: 26px; font-size: 19px;
+}
+.home-brand { font-size: 17px; letter-spacing: -.2px; margin-bottom: 26px; }
+.home-brand strong { font-weight: 650; }
+.watch-brand span, .brand-mark > span, .home-mark { color: #fff; }
+
+/* ---------- navigation ---------- */
+.aha-home .nav, .nav { border-radius: 6px; font-size: 13px; color: var(--muted); padding: 9px 11px; }
+.aha-home .nav.active, .nav.active { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
+.aha-home .nav:hover, .nav:hover { background: var(--line-soft); }
+.nav-divider { background: var(--line); }
+.home-side-note { display: none; }           /* a slogan is not navigation */
+.local-account { border-top: 1px solid var(--line); }
+.local-avatar { background: var(--line-soft); color: var(--muted); border-radius: 6px; }
+
+/* ---------- the opening ---------- */
+.home-start { max-width: 760px; margin: 48px auto 56px; }
+.home-eyebrow { display: none; }
+.home-start h1 {
+  font-size: clamp(22px, 2.1vw, 28px); font-weight: 650;
+  letter-spacing: -.5px; line-height: 1.35; margin-bottom: 10px;
+}
+.home-start h1 span { color: var(--accent); }
+.home-subtitle { font-size: 12.5px; color: var(--muted); margin-bottom: 22px; }
+
+/* ---------- composer ---------- */
+.paper-composer {
+  border: 1px solid var(--line); border-radius: 10px; box-shadow: none;
+  background: #fff; padding: 16px 16px 12px;
+}
+.paper-composer:focus-within { border-color: #c7cdc9; }
+.paper-composer.dragging { border-color: var(--accent); background: var(--accent-soft); }
+.paper-composer textarea { min-height: 96px; font-size: 13.5px; line-height: 1.8; color: var(--ink); }
+.paper-composer textarea::placeholder { color: var(--faint); }
+.attach-paper, .composer-time {
+  background: #fff; border: 1px solid var(--line); border-radius: 6px;
+  font-size: 11px; color: var(--muted); padding: 6px 10px;
+}
+.attach-paper:hover, .composer-time:hover { background: var(--panel); }
+.composer-chip { display: none; }            /* restating the mode on every visit */
+.composer-submit {
+  background: var(--accent); color: #fff; border-radius: 6px; box-shadow: none;
+  font-size: 12px; font-weight: 550; gap: 8px; padding: 9px 14px;
+}
+.composer-submit:hover { background: var(--accent-ink); }
+.composer-submit:disabled { background: var(--line-soft); color: var(--faint); }
+.composer-footnote { color: var(--faint); font-size: 10px; }
+.composer-footnote button { color: var(--muted); }
+.starter-prompts button {
+  border: 1px solid var(--line); border-radius: 6px; color: var(--muted);
+  font-size: 11px; padding: 7px 11px;
+}
+.starter-prompts button:hover { background: var(--panel); color: var(--ink); }
+.paper-attachment { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; color: var(--muted); }
+
+/* ---------- library: a list you scan, not covers you browse ---------- */
+.library-heading h2, .collection-title { font-size: 15px; font-weight: 650; letter-spacing: -.2px; }
+.library-tools input, .library-tools .small-button, .small-button {
+  border: 1px solid var(--line); border-radius: 6px; font-size: 11px; color: var(--ink);
+}
+/* home.css reaches these through .aha-home, so these must too or the card keeps
+   its magazine cover and its three-up grid. */
+.aha-home .projects, .projects { grid-template-columns: 1fr; gap: 8px; }
+.aha-home .project, .project {
+  display: grid; grid-template-columns: 116px 1fr; gap: 0; align-items: stretch;
+  background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 0;
+}
+.aha-home .project:hover, .project:hover { border-color: #d4d4d8; }
+.aha-home .project-cover, .project-cover {
+  aspect-ratio: auto; height: auto; min-height: 0;
+  border-right: 1px solid var(--line-soft); background: var(--panel);
+}
+.aha-home .project-cover img, .project-cover img { object-position: center 30%; }
+.project-placeholder { background: var(--panel); padding: 10px; }
+.project-placeholder:after { display: none; }
+.aha-home .project h3, .project h3 {
+  font-family: Georgia, "Songti SC", serif; font-size: 14.5px; font-weight: 600;
+  line-height: 1.45; margin: 0 0 4px; -webkit-line-clamp: 2;
+}
+.aha-home .project-body, .project-body { padding: 13px 15px 11px; }
+/* The tag sits inside the thumbnail. Taking it out of the flow was wrong -- it
+   then shares the box with the image and shoves it aside. */
+.project-tag {
+  position: absolute; left: 6px; top: 6px; right: 6px;
+  background: #ffffffe8 !important; border: 1px solid var(--line);
+  color: var(--muted); border-radius: 4px; font-size: 8.5px; padding: 3px 6px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: none;
+}
+.project-placeholder { display: grid; place-items: center; }
+.aha-home .project-placeholder span, .project-placeholder span {
+  font-size: 11px; line-height: 1.5; color: var(--faint); text-align: center;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden; word-break: break-word;
+}
+.project-body { padding: 14px 16px 12px; display: flex; flex-direction: column; }
+.project h3 {
+  font-family: Georgia, "Songti SC", serif; font-size: 15px; font-weight: 600;
+  line-height: 1.45; margin: 0 0 4px;
+}
+.project-source, .project-figures { font-size: 10.5px; color: var(--faint); margin-bottom: 8px; }
+.project-footer { border-top: 1px solid var(--line-soft); padding-top: 10px; margin-top: auto; gap: 6px; }
+.project-footer button, .project-footer a {
+  border: 1px solid var(--line); border-radius: 5px; font-size: 10.5px; color: var(--muted); padding: 6px 9px;
+}
+.project-footer button:hover, .project-footer a:hover { background: var(--panel); color: var(--ink); }
+.project-footer .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.project-footer .primary:hover { background: var(--accent-ink); color: #fff; }
+.project-progress { background: var(--line-soft); height: 2px; }
+.project-progress > span { background: var(--accent); }
+.project-error { color: #b91c1c; }
+.empty { border: 1px dashed var(--line); border-radius: 8px; }
+.empty > span, .mini-flower { color: var(--line); }
+.empty h3 { font-size: 16px; }
+.empty p { color: var(--muted); }
+
+/* ---------- dialogs ---------- */
+dialog { background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 16px 48px #18181b1f; }
+dialog::backdrop { background: #18181b4d; backdrop-filter: blur(2px); }
+dialog h2 { font-size: 19px; font-weight: 650; font-family: inherit; letter-spacing: -.2px; }
+dialog p, .field small, .use-note { color: var(--muted); }
+.eyebrow { color: var(--faint); letter-spacing: 1.4px; }
+.field input, .field select, .script-editor, .use-row select {
+  background: #fff; border: 1px solid var(--line); border-radius: 6px; color: var(--ink);
+}
+.dialog-actions .primary { background: var(--accent); border-radius: 6px; }
+.dialog-actions .primary:hover { background: var(--accent-ink); }
+.provider-card, .conn-row, .outline-pick { border-color: var(--line); border-radius: 8px; background: #fff; }
+.provider-head { background: var(--panel); border-bottom: 1px solid var(--line); }
+.provider-head h3, .conn-row b, .use-row b { color: var(--ink); }
+.provider-head small, .conn-row small, .provider-body > small { color: var(--muted); }
+.provider-tag { background: var(--line-soft); color: var(--muted); border-radius: 4px; }
+.provider-state { border-radius: 4px; color: var(--faint); border-color: var(--line); }
+.provider-state.on { background: var(--accent-soft); color: var(--accent-ink); border-color: #cfe3d8; }
+.conn-empty { border-color: var(--line); border-radius: 8px; color: var(--muted); }
+.use-row { border-bottom: 1px solid var(--line-soft); }
+.log { background: var(--panel); border-radius: 6px; }
+.toast { background: var(--ink); color: #fff; border-radius: 6px; }
+.status-dot { background: var(--accent); }
+.connection, .aha-home .connection {
+  border: 1px solid var(--line); border-radius: 6px; color: var(--muted); background: #fff;
+}
+
+/* ---------- the player ---------- */
+.watch-header { border-bottom: 1px solid var(--line); }
+.watch-tagline { display: none; }
+.watch-brand { font-weight: 650; letter-spacing: -.2px; }
+.outline, .theatre { color: var(--ink); }
+.outline-top h2 { font-size: 15px; font-weight: 650; }
+.outline-hint, .outline-bottom small { color: var(--faint); }
+.chapter { border-radius: 6px; }
+.chapter.active { background: var(--accent-soft); }
+.video-badge { background: #fff; border: 1px solid var(--line); color: var(--muted); border-radius: 5px; }
+.visual-stage { background: var(--panel); border-radius: 6px; }
+.live-caption { background: #ffffffee; color: var(--ink); border-radius: 6px; }
+.zoom-toggle { border-radius: 5px; border: 1px solid var(--line); background: #fff; color: var(--muted); }
+.segment-sources a, .segment-sources span {
+  border: 1px solid var(--line); border-radius: 5px; color: var(--muted); background: #fff;
+}
+.segment-navigation button, #downloadVideo, #downloadBundle {
+  border: 1px solid var(--line); border-radius: 5px; color: var(--muted); background: #fff;
+}
+.segment-navigation button:hover, #downloadVideo:hover, #downloadBundle:hover { background: var(--panel); color: var(--ink); }
+footer { color: var(--faint); }
+
+/* ---------- motion ---------- */
+.project, .nav, .starter-prompts button, .small-button, .composer-submit,
+.project-footer button, .project-footer a { transition: background .12s, border-color .12s, color .12s; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ---------- narrow ---------- */
+/* The sidebar becomes a top bar here and the labels collapse to icons. Setting a
+   font-size on .nav above undid that collapse and pushed the bar off-screen. */
+@media (max-width: 780px) {
+  .aha-home .nav, .nav { font-size: 0; padding: 8px; gap: 0; }
+  .aha-home .nav span, .nav span { font-size: 18px; width: auto; }
+  .aha-home .nav i, .nav i { display: none; }
+  .home-brand { margin: 0 8px 0 0; font-size: 14px; }
+  .home-start { margin: 28px auto 32px; }
+  .home-start h1 { font-size: 20px; }
+  .aha-home .project, .project { grid-template-columns: 84px 1fr; }
+  .aha-home .project-body, .project-body { padding: 11px 12px 10px; }
+  .aha-home .project h3, .project h3 { font-size: 13.5px; }
+}
+
+/* ---------- the reading stage ---------- */
+/* The page was floating in an olive mat: a tinted shell, a tinted stage inside it
+   and a tinted canvas inside that. One hairline is enough; the paper is the thing
+   being looked at. */
+.video-shell { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 0; }
+.visual-stage { background: #fff; border-radius: 0; inset: 0 0 58px; }
+.explainer-shell video { min-height: 0; }
+.video-badge {
+  background: #ffffffe6; border: 1px solid var(--line); color: var(--muted);
+  border-radius: 4px; font-size: 10px; padding: 4px 8px;
+}
+.live-caption {
+  background: #fff; border-top: 1px solid var(--line); border-radius: 0;
+  left: 0; right: 0; bottom: 0; padding: 11px 16px; max-height: 32%;
+  color: var(--ink); font-size: clamp(12px, 1.15vw, 15px); line-height: 1.7;
+  box-shadow: none;
+}
+.zoom-toggle { font-size: 10px; padding: 5px 9px; }
+
+/* ---------- chapter list ---------- */
+.outline {
+  background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 14px 12px;
+}
+.outline .eyebrow { display: none; }
+.outline h2 { font-family: inherit; font-size: 14px; font-weight: 650; letter-spacing: -.2px; }
+.outline-top > span { font-family: inherit; font-style: normal; font-size: 12px; color: var(--faint); }
+.outline-hint { display: none; }
+.outline-bottom { border-top: 1px solid var(--line-soft); padding-top: 14px; }
+
+.chapter { padding: 8px 9px; margin: 1px 0; gap: 10px; align-items: center; }
+.chapter:hover { background: var(--line-soft); }
+.chapter.active { background: var(--accent-soft); }
+/* The six-colour rotation said nothing: the colour did not mean anything, it just
+   cycled. A number is enough, and the one you are on is the one that is marked. */
+.chapter .chapter-number,
+.chapter:nth-child(6n+2) .chapter-number,
+.chapter:nth-child(6n+3) .chapter-number,
+.chapter:nth-child(6n+4) .chapter-number,
+.chapter:nth-child(6n+5) .chapter-number,
+.chapter:nth-child(6n) .chapter-number {
+  background: transparent; color: var(--faint); border: 0; border-radius: 0;
+  font-family: inherit; font-size: 11px; font-variant-numeric: tabular-nums;
+  width: 20px; flex: 0 0 20px; height: auto; justify-content: flex-start;
+}
+.chapter.active .chapter-number { color: var(--accent); font-weight: 650; }
+.chapter-title { font-size: 12.5px; line-height: 1.5; }
+.chapter.active .chapter-title { font-weight: 600; }
+.chapter-meta { font-size: 10px; color: var(--faint); font-variant-numeric: tabular-nums; }
+
+/* ---------- heading under the stage ---------- */
+.theatre > .watch-heading h1 { font-size: 18px; font-weight: 650; letter-spacing: -.2px; }
+.theatre > .watch-heading > div > p:last-child { color: var(--faint); }
+.segment-caption #segmentNumber { color: var(--faint); font-style: normal; font-family: inherit; }
+.segment-caption h2 { font-size: 15px; font-weight: 650; }
+.segment-summary { background: var(--panel); border: 1px solid var(--line-soft); border-radius: 8px; color: var(--ink); }
+
+/* watch.css reaches the caption through `.explainer-shell > .live-caption`, so a
+   bare `.live-caption` loses to it however late this file loads. */
+.explainer-shell > .live-caption {
+  background: #fff; border-top: 1px solid var(--line); color: var(--ink);
+  padding: 12px 16px; font-size: clamp(12.5px, 1.1vw, 15px); line-height: 1.7;
+  min-height: 0; max-height: 160px;
+}
+
+/* watch.css sets the two-column grid once more *after* its own narrow-screen
+   rules, with no media query, so below 851px the first column collapsed to 0 and
+   the 400px chapter rail hung off the side. One column until there is room. */
+@media (max-width: 1180px) {
+  .experience-layout { grid-template-columns: minmax(0, 1fr); }
+}
+.theatre, .outline { min-width: 0; }
+.video-shell { max-width: 100%; }

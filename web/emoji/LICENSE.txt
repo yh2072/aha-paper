@@ -1,0 +1,10 @@
+Flat emoji artwork in this folder is Twemoji.
+
+Copyright Twitter, Inc and other contributors; maintained at
+https://github.com/jdecked/twemoji (v15.1.0).
+
+Graphics licensed under CC-BY 4.0: https://creativecommons.org/licenses/by/4.0/
+
+They are served locally rather than from a CDN so that an exported offline
+bundle keeps its icons with no network, and are used instead of the platform
+emoji font, whose glyphs are glossy and three-dimensional on macOS.
