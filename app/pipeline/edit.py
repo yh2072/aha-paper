@@ -244,15 +244,11 @@ def _piece_gap(dur: float, out: Path) -> Path:
 
 
 def _piece_material(img: Path, dur: float, out: Path, work: Path) -> Path:
-    """一段素材（图片卡 / 实拍视频 / 讲图动画）铺在纯色底上的整幅画面。"""
+    """一段素材（图片卡 / 讲图动画）铺在纯色底上的整幅画面。"""
     mx, my, mw, mh = MAT_BOX
     base = ["ffmpeg", "-y", "-f", "lavfi",
             "-i", f"color=c={BG_COLOR}:s={OUT_W}x{OUT_H}:r=30"]
-    if "broll" in img.name:                      # 实拍：铺满整个画面（不进框）
-        cmd = ["ffmpeg", "-y", "-stream_loop", "-1", "-i", str(img), "-vf",
-               f"scale={OUT_W}:{OUT_H}:force_original_aspect_ratio=increase,"
-               f"crop={OUT_W}:{OUT_H},fps=30"]
-    elif img.suffix == ".mp4":                   # 讲图光标动画：等比放入，不裁切
+    if img.suffix == ".mp4":                     # 讲图光标动画：等比放入，不裁切
         cmd = base + ["-stream_loop", "-1", "-i", str(img), "-filter_complex",
                       f"[1:v]scale={mw}:{mh}:force_original_aspect_ratio=decrease,"
                       f"fps=30[m];[0:v][m]overlay=({mx}+({mw}-w)/2):"

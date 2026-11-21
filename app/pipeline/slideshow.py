@@ -79,12 +79,8 @@ def _draw_badge(draw: ImageDraw.ImageDraw, idx: int, total: int):
     draw.text((W - bw - 56, y0 + 8), badge, font=bfont, fill=(255, 250, 242))
 
 
-def badge_layer(idx: int, total: int, out_path: Path, credit: str = "") -> Path:
-    """透明底的角标图层，用于叠在视频画面之上。
-
-    credit 参数保留但不再画出来：Pexels 允许商用且不要求署名，画面上不出现
-    素材来源。来源仍然记在 meta 的 broll_credits 里备查。
-    """
+def badge_layer(idx: int, total: int, out_path: Path) -> Path:
+    """透明底的角标图层，用于叠在视频画面之上。"""
     layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     _draw_badge(ImageDraw.Draw(layer), idx, total)
     layer.save(out_path)
@@ -135,7 +131,7 @@ def subtitle_layers(sentences: list[str], durs: list[float], work: Path,
     """逐句字幕图层：一次只显示当前这句，压在画面底部。
 
     素材已经通屏铺满，字幕直接叠在画面上，所以：
-    - 底下垫一层半透明深色衬底，否则白字压在浅色实拍上会看不清
+    - 底下垫一层半透明深色衬底，否则白字压在浅色画面上会看不清
     - 未读态用半透明白、已读态用纯白 + 描边，卡拉OK擦除时对比才明显
     （之前那版是把整段话一次全铺出来，六七行占掉半屏，才显得像块牛皮癣）
     """
@@ -282,12 +278,6 @@ def render_slideshow(scenes: list[dict], images: list[Path | None],
             overlay_vid = anim_dir / f"anim_{i:02d}.mp4" if anim_dir else None
             overlay_vid = overlay_vid if overlay_vid and overlay_vid.exists() else None
 
-        # 实拍素材优先于手绘图：满铺卡片区，循环补足场景时长
-        broll = Path(scene["broll_path"]) if scene.get("broll_path") else None
-        broll = broll if broll and broll.exists() else None
-        if broll:
-            overlay_vid = broll
-
         speech_dur = tts.duration_of(wav)
         dur = speech_dur + TAIL_SILENCE
         seg = work_dir / f"seg_{i:02d}.mp4"
@@ -299,28 +289,16 @@ def render_slideshow(scenes: list[dict], images: list[Path | None],
         cmd = ["ffmpeg", "-y", "-loop", "1", "-i", str(frame)]
         f = ["[0:v]fps=30[b0];"]
         base, nxt = "b0", 1
-        if overlay_vid:  # 白卡底帧 + 视频（光标动画 / 实拍素材）+ 角标图层
-            credit = scene.get("broll_credit", "") if broll else ""
-            badge = badge_layer(i, len(scenes), work_dir / f"badge_{i:02d}.png",
-                                credit=credit)
-            if broll:  # 实拍：满铺卡片区并循环
-                cmd += ["-stream_loop", "-1", "-i", str(overlay_vid),
-                        "-loop", "1", "-i", str(badge)]
-                cw, ch = CARD_BOX[2], CARD_BOX[3]
-                f.append(
-                    f"[1:v]scale={cw}:{ch}:force_original_aspect_ratio=increase,"
-                    f"crop={cw}:{ch},fps=30[a];"
-                    f"[{base}][a]overlay={CARD_BOX[0]}:{CARD_BOX[1]}[t1];"
-                    f"[t1][2:v]overlay=0:0[t2];")
-            else:      # 光标动画：等比放进卡片
-                aw, ah = _video_size(overlay_vid)
-                sc_ = min(CARD_FIT[0] / aw, CARD_FIT[1] / ah)
-                ow, oh = int(aw * sc_) // 2 * 2, int(ah * sc_) // 2 * 2
-                ox = CARD_BOX[0] + (CARD_BOX[2] - ow) // 2
-                oy = CARD_BOX[1] + (CARD_BOX[3] - oh) // 2
-                cmd += ["-i", str(overlay_vid), "-loop", "1", "-i", str(badge)]
-                f.append(f"[1:v]scale={ow}:{oh}[a];[{base}][a]overlay={ox}:{oy}[t1];"
-                         f"[t1][2:v]overlay=0:0[t2];")
+        if overlay_vid:  # 白卡底帧 + 光标动画 + 角标图层
+            badge = badge_layer(i, len(scenes), work_dir / f"badge_{i:02d}.png")
+            aw, ah = _video_size(overlay_vid)          # 等比放进卡片
+            sc_ = min(CARD_FIT[0] / aw, CARD_FIT[1] / ah)
+            ow, oh = int(aw * sc_) // 2 * 2, int(ah * sc_) // 2 * 2
+            ox = CARD_BOX[0] + (CARD_BOX[2] - ow) // 2
+            oy = CARD_BOX[1] + (CARD_BOX[3] - oh) // 2
+            cmd += ["-i", str(overlay_vid), "-loop", "1", "-i", str(badge)]
+            f.append(f"[1:v]scale={ow}:{oh}[a];[{base}][a]overlay={ox}:{oy}[t1];"
+                     f"[t1][2:v]overlay=0:0[t2];")
             base, nxt = "t2", 3
         aud = nxt
         cmd += ["-i", str(wav)]
