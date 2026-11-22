@@ -13,4 +13,9 @@ services:
       # back to .env; with only env_file those edits die with the container.
       # Create it first: cp .env.example .env
       - ./.env:/app/.env
+    environment:
+      # Set this and the whole app sits behind one shared password. Leave it out
+      # and there is no gate at all, which is only safe on a private network:
+      # every button in the studio spends your own model credits.
+      AHA_ACCESS_PASSWORD: ${AHA_ACCESS_PASSWORD:-}
     restart: unless-stopped

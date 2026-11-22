@@ -262,7 +262,6 @@
     '请先生成 TTS 成片': 'Generate the TTS video first',
     '实拍素材不可用（缺 youtube-know 项目或 yt-dlp）':
       'B-roll unavailable (youtube-know project or yt-dlp missing)',
-    '数字人已在 .env 里关闭（AVATAR_ENABLED=0）': 'Avatar is switched off in .env (AVATAR_ENABLED=0)',
     'MuseTalk 未就绪（缺模型或 avatar 源视频）': 'MuseTalk not ready (model or avatar source video missing)',
     '该项目还没有上传口播视频': 'No talking-head video uploaded for this project',
     '有任务运行中，完成后再修改设置': 'A job is running — change settings after it finishes',

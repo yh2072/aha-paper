@@ -24,6 +24,10 @@ MODEL_TEXT = os.getenv("OPENAI_MODEL", "google/gemini-3.7-flash")
 MODEL_IMAGE = os.getenv("OPENAI_MODEL_IMAGE", "google/gemini-3.1-flash-image")
 MODEL_AUDIO = os.getenv("OPENAI_MODEL_AUDIO", "openai/gpt-audio-mini")
 
+# 访问口令：留空＝不设门（本机跑就是这种）。一旦部署到公网必须设，
+# 因为界面上每个按钮花的都是运营者自己的模型额度。详见 app/access.py。
+ACCESS_PASSWORD = os.getenv("AHA_ACCESS_PASSWORD", "").strip()
+
 DATA_DIR = ROOT / "data"
 DATA_DIR.mkdir(exist_ok=True)
 
@@ -32,10 +36,6 @@ MAX_SCRIPT_CHARS = 1500
 MODEL_HUMANIZER = os.getenv("OPENAI_MODEL_HUMANIZER", "openai/gpt-5.6-sol-pro")
 SCRIPT_ITERATIONS = 3          # 初稿 + 最多 N 轮「评审→修改」
 SCRIPT_PASS_SCORE = 8.5        # 评审平均分达到即提前收工
-
-# 数字人总开关。关掉后：出片不再自动排推理、手动接口拒绝、前端按钮隐藏。
-# 推理一次要二十多分钟本地算力，不想要的时候必须能一刀切干净。
-AVATAR_ENABLED = os.getenv("AVATAR_ENABLED", "1").lower() not in ("0", "false", "no")
 
 MODEL_COVER = os.getenv("OPENROUTER_MODEL_COVER", "openai/gpt-image-2")
 EDGE_TTS_VOICE = os.getenv("EDGE_TTS_VOICE", "zh-CN-XiaoxiaoNeural")

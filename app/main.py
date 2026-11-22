@@ -1,12 +1,13 @@
 """FastAPI 入口：REST API + 静态 GUI。启动: uvicorn app.main:app --port 8321"""
+import hmac
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import config, jobs, pi_models, studio_settings
+from . import access, config, jobs, pi_models, studio_settings
 from .pipeline import deep_script, outline
 from fastapi import Request
 from fastapi.responses import JSONResponse
@@ -23,6 +24,16 @@ async def local_origin_guard(request: Request, call_next):
         if request.headers.get("sec-fetch-site") == "cross-site" or (origin and origin != str(request.base_url).rstrip("/")):
             return JSONResponse({"detail":"仅允许工作室页面发起操作"},status_code=403)
     return await call_next(request)
+
+
+# 注册顺序＝生效顺序的反面：Starlette 把最后注册的中间件放在最外层，
+# 所以这道门先跑，没带口令的请求根本到不了上面的同源检查和任何路由。
+# 挂载的静态目录（/assets、/files）同样被它包住——只拦 /api 等于把
+# 整个 data/ 目录（论文原文、成片）敞开给所有人。
+@app.middleware("http")
+async def access_gate(request: Request, call_next):
+    denied = access.check(request)
+    return denied if denied is not None else await call_next(request)
 
 
 app.mount("/files", StaticFiles(directory=config.DATA_DIR), name="files")
@@ -43,6 +54,14 @@ def _code_mtime() -> float:
 _BOOT_CODE_MTIME = _code_mtime()
 
 
+@app.get("/api/ping")
+def ping():
+    """存活探针，不设门。编排平台的健康检查要是被口令拦住，容器会被判定
+    不健康然后无限重启——它服务得好好的。这里只回 ok，别的什么都不说；
+    /api/health 带着构建新旧和任务数，那是给运营者看的，照常要口令。"""
+    return {"ok": True}
+
+
 @app.get("/api/health")
 def health():
     """code_stale=True 表示磁盘上的代码比服务启动时新，需要重启才能生效。"""
@@ -50,6 +69,40 @@ def health():
     return {"code_stale": now > _BOOT_CODE_MTIME + 1,
             "busy": jobs.busy_count(),
             }
+
+
+@app.get("/login")
+def login_page(request: Request, next: str = "/"):
+    if not access.enabled():
+        return RedirectResponse("/", status_code=303)
+    if access.valid(request.cookies.get(access.COOKIE, "")):
+        return RedirectResponse(access.safe_next(next), status_code=303)
+    return access.page(request, access.safe_next(next))
+
+
+@app.post("/api/login")
+async def login(request: Request):
+    """原生表单提交：不依赖 JS，也不依赖 /assets（那是被门拦着的）。"""
+    form = await request.form()
+    nxt = access.safe_next(str(form.get("next") or "/"))
+    if not access.enabled():
+        return RedirectResponse(nxt, status_code=303)
+    if access.locked(request):
+        return access.page(request, nxt, "尝试过多，请稍后再试 · too many attempts", 429)
+    if not hmac.compare_digest(str(form.get("password") or ""), config.ACCESS_PASSWORD):
+        access.note_failure(request)
+        return access.page(request, nxt, "口令不对 · wrong password", 401)
+    access.forget(request)
+    response = RedirectResponse(nxt, status_code=303)
+    access.grant(response, request)
+    return response
+
+
+@app.post("/api/logout")
+def logout():
+    response = JSONResponse({"ok": True})
+    access.revoke(response)
+    return response
 
 
 @app.get("/")

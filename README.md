@@ -51,18 +51,23 @@ suits anything that runs the container and keeps it up — Railway, Fly.io, Rend
 or a small VPS with `docker compose`. The image reads `$PORT` where the platform
 sets one.
 
-Two constraints to carry over:
+Three constraints to carry over:
 
 - **Mount a volume at `/app/data`.** Without one, every paper and everything
   generated from it disappears on each deploy.
 - **One replica.** In-flight jobs live in a thread pool and a dict inside the
   process; a second instance would not see them.
+- **Set `AHA_ACCESS_PASSWORD`.** Unset, there is no gate: anyone with the URL
+  can upload papers, open the settings and spend your API credit.
 
-And one thing to decide before exposing it: **there is no authentication.** The
-only middleware refuses cross-site writes, which is not a login. Anyone with the
-URL can upload papers, open the settings and spend your API credit. Put it behind
-your platform's access control, a reverse proxy with basic auth, or a private
-network.
+Set, it puts one shared password in front of everything — studio, player, API
+and the `data/` directory — and remembers it in a signed, `HttpOnly` cookie for
+30 days. It is a door, not a user system: one password, no accounts, no roles.
+Changing it signs everyone out. Guesses are rate-limited per client and in total.
+
+Point the platform's health check at **`/api/ping`**, which stays open and
+answers `{"ok": true}`. `/api/health` is behind the password, and a probe that
+gets a 401 will have the platform restart a container that is serving fine.
 
 ### What it does
 
@@ -109,6 +114,7 @@ The interface is bilingual, translated at the DOM layer and keyed on the Chinese
 Connect a provider once; every use shares its endpoint and credential, and each use picks its own model.
 
 ```dotenv
+AHA_ACCESS_PASSWORD=                        # blank: no gate, for local use
 LANGUAGE_PROVIDER=openrouter
 OPENAI_MODEL=google/gemini-3.7-flash        # script and narration; needs image input
 OPENROUTER_MODEL_COVER=openai/gpt-image-2   # cover
@@ -171,14 +177,19 @@ docker compose up --build
 这几条把 serverless 排除了。能跑容器并让它常驻的都合适——Railway、Fly.io、Render，
 或者一台小 VPS 上 `docker compose`。平台注入 `$PORT` 时镜像会读它。
 
-有两条约束要一起带过去：
+有三条约束要一起带过去：
 
 - **给 `/app/data` 挂卷。**不挂的话，每次部署论文和全部产出都会消失。
 - **只能单副本。**在跑的任务存在进程内的线程池和字典里，第二个实例看不到它们。
+- **设 `AHA_ACCESS_PASSWORD`。**不设就是完全没有门：任何拿到网址的人都能上传论文、
+  打开设置页、花掉你的 API 余额。
 
-还有一件事要在公开之前想清楚：**这个应用没有鉴权。**唯一的中间件只是拒绝跨站写入，
-那不是登录。任何拿到网址的人都能上传论文、打开设置页、花掉你的 API 余额。
-请放在平台的访问控制、带 basic auth 的反向代理，或者内网之后。
+设了之后，工作室、播放页、API 和 `data/` 目录全部在一个共享口令后面，用签名的
+`HttpOnly` cookie 记住 30 天。它只是一道门，不是账号系统：一个口令，没有账号也没有角色。
+改口令等于把所有人登出。猜口令按客户端和全局两重限速。
+
+平台的健康检查请指向 **`/api/ping`**——它不设门，只回 `{"ok": true}`。
+`/api/health` 在口令后面，探针拿到 401 会让平台把一个服务正常的容器反复重启。
 
 ### 它做什么
 
@@ -225,6 +236,7 @@ data/<id>/
 供应商连接一次，所有用途共用它的端点与凭据；每种用途再各自挑一个模型。
 
 ```dotenv
+AHA_ACCESS_PASSWORD=                        # 留空＝不设门，本机跑用这个
 LANGUAGE_PROVIDER=openrouter
 OPENAI_MODEL=google/gemini-3.7-flash        # 文稿与讲解，需支持图像输入
 OPENROUTER_MODEL_COVER=openai/gpt-image-2   # 封面

@@ -4,7 +4,7 @@ let projects=[],settings={},view='all',uploading=false,lastSignature='',showAll=
 const busy=p=>['queued','running','editing'].includes(p.state);
 const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const file=(p,name)=>'/files/'+encodeURIComponent(p.id)+'/'+name.split('/').map(encodeURIComponent).join('/');
-async function api(path,options={}){const res=await fetch(path,options);let data;try{data=await res.json()}catch{throw Error('服务暂时不可用')}if(!res.ok)throw Error(typeof data.detail==='string'?data.detail:'请求失败，请稍后重试');return data}
+async function api(path,options={}){const res=await fetch(path,options);if(res.status===401){location.href='/login?next='+encodeURIComponent(location.pathname+location.search);return new Promise(()=>{})}let data;try{data=await res.json()}catch{throw Error('服务暂时不可用')}if(!res.ok)throw Error(typeof data.detail==='string'?data.detail:'请求失败，请稍后重试');return data}
 const jsonOptions=(method,data)=>({method,headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
 let toastTimer;
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),4500)}
