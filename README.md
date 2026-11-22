@@ -43,8 +43,26 @@ generated from them), `.runtime/` (the provider credential store) and `.env`.
 Saving a model or a voice in the interface writes back to `.env`, which is why it
 is mounted rather than passed as environment variables.
 
-This is a long-running service that writes files and shells out to ffmpeg, so it
-belongs on a machine that stays up — not on a serverless platform.
+#### Hosting it
+
+A run takes about 18 minutes, writes roughly 86 MB per paper, and keeps working
+on background threads after the HTTP response. That rules out serverless. It
+suits anything that runs the container and keeps it up — Railway, Fly.io, Render,
+or a small VPS with `docker compose`. The image reads `$PORT` where the platform
+sets one.
+
+Two constraints to carry over:
+
+- **Mount a volume at `/app/data`.** Without one, every paper and everything
+  generated from it disappears on each deploy.
+- **One replica.** In-flight jobs live in a thread pool and a dict inside the
+  process; a second instance would not see them.
+
+And one thing to decide before exposing it: **there is no authentication.** The
+only middleware refuses cross-site writes, which is not a login. Anyone with the
+URL can upload papers, open the settings and spend your API credit. Put it behind
+your platform's access control, a reverse proxy with basic auth, or a private
+network.
 
 ### What it does
 
@@ -147,8 +165,20 @@ docker compose up --build
 三个路径留在宿主机而不进镜像：`data/`（论文与全部产出）、`.runtime/`（供应商凭据）
 和 `.env`。在界面里改模型或音色会写回 `.env`，所以用挂载而不是环境变量传入。
 
-它是一个要常驻、要写盘、要调 ffmpeg 的服务，适合跑在一台不关机的机器上，
-不适合 serverless 平台。
+#### 部署到哪里
+
+一次任务约 18 分钟，每篇论文写出约 86 MB，而且 HTTP 响应返回后还在后台线程里继续跑。
+这几条把 serverless 排除了。能跑容器并让它常驻的都合适——Railway、Fly.io、Render，
+或者一台小 VPS 上 `docker compose`。平台注入 `$PORT` 时镜像会读它。
+
+有两条约束要一起带过去：
+
+- **给 `/app/data` 挂卷。**不挂的话，每次部署论文和全部产出都会消失。
+- **只能单副本。**在跑的任务存在进程内的线程池和字典里，第二个实例看不到它们。
+
+还有一件事要在公开之前想清楚：**这个应用没有鉴权。**唯一的中间件只是拒绝跨站写入，
+那不是登录。任何拿到网址的人都能上传论文、打开设置页、花掉你的 API 余额。
+请放在平台的访问控制、带 basic auth 的反向代理，或者内网之后。
 
 ### 它做什么
 

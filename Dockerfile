@@ -37,6 +37,8 @@ EXPOSE 8321
 
 # No curl in the slim image; the interpreter is already here.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
-  CMD python3 -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8321/api/health',timeout=4).status==200 else 1)"
+  CMD python3 -c "import os,urllib.request,sys; p=os.environ.get('PORT','8321'); sys.exit(0 if urllib.request.urlopen(f'http://127.0.0.1:{p}/api/health',timeout=4).status==200 else 1)"
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8321"]
+# Railway, Render and Fly hand the port in through $PORT; 8321 is the local
+# default. exec keeps uvicorn as PID 1 so the platform can stop it cleanly.
+CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8321}"]
