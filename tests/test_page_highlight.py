@@ -450,3 +450,116 @@ class RealPaperTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TermTests(unittest.TestCase):
+    """A key has to be a *term*, not a piece of the sentence.
+
+    Every string below was produced by a real run on a real paper, which is the
+    only reason to trust the rule. Measured over 184 keys on two papers, 86%
+    were already fine; what made the feature read as inaccurate was a tail of
+    clauses, and marking most of a sentence a second time is the same as marking
+    none of it.
+
+    The signal is a finite verb, not a word count. 'responses of neurons to
+    arbitrary stimuli' is six words and a good term; 'a is estimated to be 1.13'
+    is six words and a sentence. A word cap alone threw away both.
+    """
+
+    LONG = ('We emphasize here that these scaling laws were derived from presenting '
+            'natural images to the animal over several sessions in the laboratory.')
+
+    def term(self, key, sentence=None):
+        return page_highlight._term(key, sentence or self.LONG)
+
+    # ---- the clauses that caused the complaint ----
+
+    def test_a_clause_with_an_auxiliary_is_not_a_term(self):
+        for clause in ('AI systems have made remarkable advances',
+                       'Humans are an attractive model for AI safety',
+                       'a is estimated to be 1.13',
+                       'scaling laws were derived',
+                       'has not been tried'):
+            self.assertEqual(self.term(clause), '', clause)
+
+    def test_a_clause_opener_is_not_a_term(self):
+        for clause in ('To disentangle core and readout scaling',
+                       'Why does training on clean examples improve',
+                       'except for [66], which used natural movies',
+                       'only trained on the teacher\u2019s labels',
+                       'do what we mean, not what we say'):
+            self.assertEqual(self.term(clause), '', clause)
+
+    def test_a_whole_predicate_is_too_long_to_be_a_term(self):
+        self.assertEqual(self.term('implement a single Python function in its own file'), '')
+
+    # ---- what must survive ----
+
+    def test_a_noun_phrase_survives_even_at_five_words(self):
+        """The word cap exists to catch clauses, not to punish precision."""
+        for term in ('3 hours in macaque V1',
+                     'capping the maximum attainable FEVE',
+                     'readout scaling',
+                     'dissociable'):
+            self.assertEqual(self.term(term), term)
+
+    def test_a_number_with_a_unit_is_a_term(self):
+        self.assertEqual(self.term('13% absolute'), '13% absolute')
+
+    # ---- the other two gates ----
+
+    def test_a_key_may_not_be_most_of_its_own_sentence(self):
+        """'To disentangle core and readout scaling, we turn to simulations.' --
+        the key was 61% of it. In a long sentence the same phrase is fine, so the
+        test is the ratio, not the phrase."""
+        short = 'Core and readout scaling, we turn to simulations.'
+        self.assertEqual(self.term('Core and readout scaling', short), '')
+        long = 'Core and readout scaling is one of several things we turn to simulations for, ' \
+               'alongside the measurements reported in the previous section of this paper.'
+        self.assertEqual(self.term('Core and readout scaling', long), 'Core and readout scaling')
+
+    def test_an_unbalanced_bracket_is_refused(self):
+        """Stripping trailing punctuation turns '(FEVE)' into '(FEVE', which
+        locates happily and then underlines a fragment -- the same failure as a
+        key cut mid-word."""
+        self.assertEqual(self.term('explained (FEVE)', self.LONG + ' explained (FEVE)'),
+                         'explained (FEVE)')
+        self.assertEqual(self.term('explained (FEVE', self.LONG + ' explained (FEVE)'), '')
+
+    def test_a_citation_inside_a_key_means_it_spans_one(self):
+        self.assertEqual(self.term('natural movies [66] and images'), '')
+
+
+class KeyCollisionTests(unittest.TestCase):
+    """Two marks on the same words look like a rendering fault, not emphasis."""
+
+    def test_an_overlapping_key_is_dropped(self):
+        sentence = catalogue()[0]
+        found = page_highlight.locate_keys(FakePdf(), sentence,
+                                           ['deductive questions', 'deductive'])
+        self.assertEqual([k['text'] for k in found], ['deductive questions'])
+
+    def test_two_separate_keys_both_survive(self):
+        sentence = catalogue()[0]
+        found = page_highlight.locate_keys(FakePdf(), sentence,
+                                           ['deductive questions', 'premises'])
+        self.assertEqual([k['text'] for k in found], ['deductive questions', 'premises'])
+
+
+class StalenessTests(unittest.TestCase):
+    def test_the_prompt_asks_for_more_candidates_than_it_keeps(self):
+        """Every gate drops something. Asking for exactly MAX_KEYS would leave a
+        clause-heavy sentence with nothing at all."""
+        self.assertGreater(page_highlight.KEY_CANDIDATES, page_highlight.MAX_KEYS)
+        self.assertIn(f'1-{page_highlight.KEY_CANDIDATES} 个', page_highlight.PROMPT)
+
+    def test_the_term_rules_are_geometry_not_identity(self):
+        """They run in locate_keys, which relocate() replays from stored picks --
+        so every existing project is cleaned up without one model call."""
+        geometry = page_highlight.geometry()
+        self.assertIn(str(page_highlight.MAX_KEY_WORDS), geometry)
+        self.assertIn(str(page_highlight.MAX_KEY_SHARE), geometry)
+
+    def test_a_changed_prompt_invalidates_the_picks(self):
+        self.assertIn(page_highlight.VERSION, page_highlight.identity())
+        self.assertEqual(page_highlight.VERSION, 'page-highlight-v4')

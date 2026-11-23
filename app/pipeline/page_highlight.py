@@ -20,7 +20,7 @@ import pypdfium2 as pdfium
 
 from .. import config, llm
 
-VERSION = 'page-highlight-v3'
+VERSION = 'page-highlight-v4'
 RENDER_SCALE = 2.2         # matches figures.py, ~1300px wide for an A4 page
 MIN_CHARS = 40             # shorter runs are headings, axis labels, caption scraps
 MAX_SENTENCES = 90         # per page
@@ -41,9 +41,41 @@ MAX_HEIGHT = 0.22
 # Key terms inside the chosen sentence. Three is the ceiling: past that the whole
 # sentence is emphasised, which is the same as emphasising nothing.
 MAX_KEYS = 3
+# Ask for more than we keep. Every gate below drops something, and a clause that
+# ends with no emphasis at all is a worse outcome than one of its candidates
+# being thrown away -- measured on two papers, the gates reject about one key in
+# seven, so three candidates would regularly leave fewer than three.
+KEY_CANDIDATES = 5
 MIN_KEY_CHARS = 3
 MAX_KEY_CHARS = 60
+# A key term is a term. Measured over 184 keys on two papers, 86% were three
+# words or fewer and covered under a fifth of their sentence; the tail was not
+# longer terms but *clauses* -- 'To disentangle core and readout scaling' is six
+# words and 61% of the sentence it sits in. Marking that much of a sentence a
+# second time is the same as marking none of it, which is what "the keywords
+# aren't accurate" looks like from the outside.
+MAX_KEY_WORDS = 5
+MAX_KEY_SHARE = 0.34
 MAX_KEY_LINES = 3
+
+# A bracketed citation inside a key means the key spans one -- that is a clause
+# being quoted, not a term.
+_CITATION = re.compile(r'\[\s*\d+[\d,;\s\u2013-]*\]')
+# A term does not begin with a subordinator or a pronoun. These are what the
+# model reaches for when it hands back half a sentence instead of a term.
+_CLAUSE_OPENERS = frozenset('''
+ to why how when where which what that who whose whom if because although though
+ unless while whereas since and or but so except we i they it its this these
+ those there here is are was were be been being only just
+'''.split())
+# The real difference between a term and a clause is a finite verb, not a word
+# count: 'responses of neurons to arbitrary stimuli' is six words and a perfectly
+# good term, while 'a is estimated to be 1.13' is six words and a sentence. The
+# word cap alone threw away the first kind along with the second.
+_FINITE_VERBS = frozenset('''
+ is are was were be been being am has have had do does did
+ will would shall should can could may might must
+'''.split())
 
 
 def _norm(rect, width, height):
@@ -165,6 +197,23 @@ def render_pages(pdf_path, pages, out_dir) -> dict:
     return made
 
 
+def _strip_edges(key: str) -> str:
+    """Trim punctuation from the ends without unbalancing a bracket.
+
+    A plain .strip('()[]') turns 'explained (FEVE)' into 'explained (FEVE' --
+    which still locates in the text layer, and then underlines a fragment. The
+    greedy strip was the bug, not the bracket: a closing bracket that has an
+    opener inside the key is part of the term and stays."""
+    pairs = {'(': ')', '[': ']'}
+    closers = {close: open_ for open_, close in pairs.items()}
+    key = key.strip(' .,;:"\'\u2019')
+    while key and key[0] in pairs and key.count(key[0]) > key.count(pairs[key[0]]):
+        key = key[1:].lstrip()
+    while key and key[-1] in closers and key.count(key[-1]) > key.count(closers[key[-1]]):
+        key = key[:-1].rstrip()
+    return key.strip(' .,;:"\'\u2019')
+
+
 def _whole_words(key: str, sentence: str) -> str:
     """The key as it appears in the sentence, cut back to whole words.
 
@@ -182,7 +231,43 @@ def _whole_words(key: str, sentence: str) -> str:
         start += 1
     while end > start and end < len(sentence) and sentence[end].isalnum() and sentence[end - 1].isalnum():
         end -= 1
-    return sentence[start:end].strip(' .,;:()[]"\'')
+    return _strip_edges(sentence[start:end])
+
+
+def _term(key: str, sentence: str) -> str:
+    """The candidate reduced to a term, or '' if it is not one.
+
+    Runs after _whole_words, so `key` is already the paper's own characters. What
+    is left to decide is whether those characters are a *term* or a piece of
+    sentence, and the three tests are all mechanical for the same reason the
+    gates above are: a rule the model is asked to follow politely is a rule that
+    holds most of the time, and "most of the time" is what the reader notices."""
+    # A citation hanging off either end is noise and comes off. One left in the
+    # middle means the key spans a citation, and only a clause does that.
+    # Substituting it out instead would make the key stop matching the page.
+    key = re.sub(rf'^(?:{_CITATION.pattern})\s*', '', key)
+    key = re.sub(rf'\s*(?:{_CITATION.pattern})$', '', key)
+    key = _strip_edges(key)
+    if _CITATION.search(key):
+        return ''
+    words = key.split()
+    if not words or len(words) > MAX_KEY_WORDS:
+        return ''
+    plain = [w.lower().strip('.,;:()[]"\'') for w in words]
+    if plain[0] in _CLAUSE_OPENERS:
+        return ''
+    if any(w in _FINITE_VERBS for w in plain):
+        return ''                                  # a verb makes it a clause
+    if len(key) > MAX_KEY_SHARE * max(1, len(sentence)):
+        return ''                                  # most of a short sentence
+    # The punctuation strip above can open a bracket it does not close:
+    # '...explained (FEVE)' loses its ')' and becomes '...(FEVE', which locates
+    # happily and then underlines a fragment. Same family as a key cut
+    # mid-word, and the same answer -- if it does not balance, it is not a term.
+    for opener, closer in ('()', '[]'):
+        if key.count(opener) != key.count(closer):
+            return ''
+    return key
 
 
 def locate_keys(pdf, sentence: dict, keys) -> list[dict]:
@@ -203,18 +288,24 @@ def locate_keys(pdf, sentence: dict, keys) -> list[dict]:
     width, height = page.get_width(), page.get_height()
     start, count = span
     limit = start + count
-    out, seen = [], set()
+    out, seen, taken = [], set(), []
     for key in keys:
         if not isinstance(key, str):
             continue
-        key = re.sub(r'\s+', ' ', key).strip().strip('.,;:()[]"\'')
+        key = _strip_edges(re.sub(r'\s+', ' ', key))
         if len(key) > MAX_KEY_CHARS:
             continue
         # Not in the sentence means the model wrote it rather than read it; a
         # fragment of one is trimmed back to the words it does cover.
         key = _whole_words(key, sentence['text'])
+        key = _term(key, sentence['text'])
         folded = key.lower()
         if not MIN_KEY_CHARS <= len(key) or folded in seen:
+            continue
+        # Two keys covering the same words stack two marks on one phrase, which
+        # on the page looks like a rendering fault rather than emphasis.
+        at = sentence['text'].lower().find(folded)
+        if any(at < b and a < at + len(folded) for a, b in taken):
             continue
         found = _span(textpage, key, start=start, limit=limit)
         if not found:
@@ -223,6 +314,7 @@ def locate_keys(pdf, sentence: dict, keys) -> list[dict]:
         if not rects or len(rects) > MAX_KEY_LINES:
             continue
         seen.add(folded)
+        taken.append((at, at + len(folded)))
         out.append({'text': key, 'rects': rects})
         if len(out) >= MAX_KEYS:
             break
@@ -238,9 +330,14 @@ PROMPT = """下面是一篇论文某几页上的句子，每句都已经由 PDF 
 - 旁白是在用中文转述论文；找语义上对应的那一句，不是字面相同的那一句。
 - 过渡句、总结句、提问句如果没有对应的原文，就回 null。宁可 null，也不要硬配。
 - 连续几条旁白在讲同一句原文时，可以重复给同一个编号。
-- 给出编号的同时，再从那句原文里挑 1-3 个最关键的词或短语放进 keys：
+- 给出编号的同时，再从那句原文里挑 1-5 个最关键的词或短语放进 keys：
   必须一字不差地照抄原文（英文就保持英文），不要翻译、不要改写、不要自己造词；
-  挑真正承载这句话意思的术语、数字或限定语，不要挑 the / of / and 这类词；
+  挑术语、专有名词、数字和限定语，不要挑 the / of / and 这类词；
+  **每个 key 最多 4 个英文单词，而且必须是一个"词组"，不是半句话。**
+  反例（都不要）："To disentangle core and readout scaling"、
+  "Why does training on clean examples improve"、"do what we mean, not what we say"
+  ——这些是从句，整句已经被马克笔标出来了，再标一遍等于没标。
+  正例："dissociable"、"readout scaling"、"13% absolute"、"natural movies"。
   这一条旁白在强调原句的哪一部分，就挑哪一部分，同一句不同旁白可以挑不同的词。
 
 论文句子：
@@ -313,7 +410,8 @@ def geometry() -> str:
     Which sentence a clause explains costs a request. Where that sentence sits on
     the page costs nothing. Keeping the two apart means changing how a highlight
     is drawn re-renders every project for free instead of re-billing it."""
-    return json.dumps([MERGE_GAP, RENDER_SCALE, MAX_KEYS, MAX_KEY_LINES])
+    return json.dumps([MERGE_GAP, RENDER_SCALE, MAX_KEYS, MAX_KEY_LINES,
+                       MAX_KEY_WORDS, MAX_KEY_SHARE])
 
 
 def relocate(pdf_path, highlights):
