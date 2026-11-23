@@ -4,7 +4,7 @@ import json
 import subprocess
 from pathlib import Path
 from urllib.parse import quote
-from .. import config
+from .. import config, lang
 from . import figures,tts,cue_alignment,page_highlight
 from ..bin import ffmpeg as ffmpeg_bin
 
@@ -12,6 +12,10 @@ from ..bin import ffmpeg as ffmpeg_bin
 def build(project_dir:Path,meta:dict,log=print,progress=None):
     scenes=(meta.get('storyboard') or {}).get('scenes') or []
     if not scenes:raise ValueError('尚未生成深度章节')
+    # The narration's language decides the voice, where a sentence ends and where
+    # the cursor moves. An absent lang is a project made before the parameter
+    # existed, which is Chinese -- see lang.get.
+    profile=lang.get(meta.get('lang'))
     work=project_dir/'explainer_work';work.mkdir(exist_ok=True)
     if meta.get('script_profile')=='deep-science-v1':
         # A chapter with no figure reads the paper itself. There is no second
@@ -23,18 +27,18 @@ def build(project_dir:Path,meta:dict,log=print,progress=None):
     for i,scene in enumerate(scenes):
         if progress:progress(f'互动讲解配音与同步 {i+1}/{len(scenes)}')
         log(f'  实时章节 {i+1}/{len(scenes)}：配音与同步，不渲染视频帧')
-        sentences=tts.split_sentences(scene['text'])
+        sentences=tts.split_sentences(scene['text'],profile=profile)
         wav=work/f'seg_{i:02d}.wav';stamp=wav.with_suffix('.key');timing=wav.with_suffix('.durs.json')
-        key=hashlib.sha256((tts.cache_identity()+scene['text']).encode()).hexdigest()
+        key=hashlib.sha256((tts.cache_identity(profile)+scene['text']).encode()).hexdigest()
         if wav.exists() and stamp.exists() and stamp.read_text()==key and timing.exists():
             durs=json.loads(timing.read_text());log('    复用 Edge TTS 配音')
         else:
-            _,durs=tts.synthesize_sentences(sentences,wav,log=log)
+            _,durs=tts.synthesize_sentences(sentences,wav,log=log,profile=profile)
             timing.write_text(json.dumps(durs));stamp.write_text(key)
         duration=tts.duration_of(wav)
         timestamps=wav.with_suffix('.timestamps.json')
         if timestamps.exists():
-            sentences=cue_alignment.units(scene['text'])
+            sentences=cue_alignment.units(scene['text'],profile)
             cues,alignment=cue_alignment.align(sentences,json.loads(timestamps.read_text()),duration)
         else:
             cues=[];local=0.0

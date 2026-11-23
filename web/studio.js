@@ -71,10 +71,67 @@ $('#targetMinutes').onchange=()=>{const el=$('#targetMinutes'),raw=el.value.trim
  const n=Math.round(Number(raw));
  el.value=String(Number.isFinite(n)?Math.max(3,Math.min(30,n)):11)};
 
-$('#createExplain').onclick=async()=>{if(uploading||!pendingPapers.length)return;if(!settings.configured){showSettings();toast('先配置 API，已选论文会保留');return}uploading=true;attachments();$('#createExplain').innerHTML='正在提交…';try{const body=new FormData();pendingPapers.forEach(f=>body.append('files',f));const created=await api('/api/upload/papers',{method:'POST',body});const guidance=$('#creationPrompt').value.trim();const minutes=$('#targetMinutes').value?Number($('#targetMinutes').value):null;for(const p of created){if(guidance)await api('/api/projects/'+encodeURIComponent(p.id)+'/guidance',jsonOptions('PUT',{guidance}));const section_ids=await chooseSections(p);await api('/api/projects/'+encodeURIComponent(p.id)+'/plan',jsonOptions('PUT',{minutes,section_ids}));await generate(p)}pendingPapers=[];$('#creationPrompt').value='';toast(`${created.length} 篇论文已加入队列`)}catch(e){toast(e.message)}finally{uploading=false;attachments();$('#createExplain').innerHTML='生成讲解 <span><img class="emoji" src="/assets/emoji/2b06.svg" alt=""></span>';await refresh(true)}};
+$('#createExplain').onclick=async()=>{if(uploading||!pendingPapers.length)return;if(!settings.configured){showSettings();toast('先配置 API，已选论文会保留');return}uploading=true;attachments();$('#createExplain').innerHTML='正在提交…';try{const body=new FormData();pendingPapers.forEach(f=>body.append('files',f));const created=await api('/api/upload/papers',{method:'POST',body});const guidance=$('#creationPrompt').value.trim();const minutes=$('#targetMinutes').value?Number($('#targetMinutes').value):null;for(const p of created){if(guidance)await api('/api/projects/'+encodeURIComponent(p.id)+'/guidance',jsonOptions('PUT',{guidance}));const section_ids=await chooseSections(p);await api('/api/projects/'+encodeURIComponent(p.id)+'/plan',jsonOptions('PUT',{minutes,section_ids,lang:(window.i18n&&window.i18n.lang)||'zh'}));await generate(p)}pendingPapers=[];$('#creationPrompt').value='';toast(`${created.length} 篇论文已加入队列`)}catch(e){toast(e.message)}finally{uploading=false;attachments();$('#createExplain').innerHTML='生成讲解 <span><img class="emoji" src="/assets/emoji/2b06.svg" alt=""></span>';await refresh(true)}};
 $('#viewAll').onclick=()=>{showAll=!showAll;render()};
 $('#homeNav').onclick=()=>{view='all';showAll=false;document.querySelectorAll('[data-view]').forEach(b=>b.classList.remove('active'));$('#homeNav').classList.add('active');render();window.scrollTo({top:0,behavior:'smooth'})};
-document.querySelectorAll('[data-prompt]').forEach(b=>b.onclick=()=>{$('#creationPrompt').value=b.dataset.prompt;$('#creationPrompt').focus();$('#paperDrop').scrollIntoView({behavior:'smooth',block:'center'})});
+// ── 讲解重点预设 ──────────────────────────────────────────────────────
+// Served from /api/prompts rather than written into the page. A prompt travels
+// as a value, and i18n.js deliberately never rewrites a value or a
+// user-authored attribute -- which is why the Chinese preset used to survive
+// into the English interface.
+//
+// So the boundary runs through the middle of this row: #starterPrompts holds
+// API data and carries data-no-i18n because it renders itself in the current
+// language, while #managePrompts and the dialog below are ordinary interface
+// text that i18n.js translates like everything else. One owner per string.
+let promptBook={presets:[],custom:[],limits:{label:40,prompt:2000,custom:50}};
+const uiLang=()=>(window.i18n&&window.i18n.lang)||'zh';
+const promptById=id=>[...promptBook.presets,...promptBook.custom].find(p=>p.id===id);
+
+function usePrompt(text){if(!text)return;$('#creationPrompt').value=text;$('#creationPrompt').focus();$('#paperDrop').scrollIntoView({behavior:'smooth',block:'center'})}
+
+async function loadPrompts(){
+ try{promptBook=await api('/api/prompts?lang='+encodeURIComponent(uiLang()))}catch(e){/* 预设拿不到不该拖垮首页 */}
+ renderPrompts()}
+
+function renderPrompts(){
+ const box=$('#starterPrompts');if(!box)return;
+ box.innerHTML=[...promptBook.presets,...promptBook.custom].map(p=>
+  `<button data-use="${escapeHtml(p.id)}" title="${escapeHtml(p.prompt)}">${escapeHtml(p.label)} ↗</button>`).join('')}
+
+$('#starterPrompts').addEventListener('click',event=>{
+ const button=event.target.closest('button');if(!button)return;
+ const found=promptById(button.dataset.use);if(found)usePrompt(found.prompt)});
+
+// The explore card names a preset instead of carrying a copy of its text, so
+// the two can never drift apart.
+document.querySelectorAll('[data-prompt-id]').forEach(card=>card.onclick=()=>{
+ const found=promptById(card.dataset.promptId);if(found)usePrompt(found.prompt)});
+
+$('#managePrompts').onclick=()=>managePrompts();
+
+function managePrompts(){
+ const rows=promptBook.custom.length?promptBook.custom.map(p=>
+   `<div class="prompt-row"><div><b>${escapeHtml(p.label)}</b><small>${escapeHtml(p.prompt)}</small></div><button class="small-button" data-del="${escapeHtml(p.id)}">删除</button></div>`).join('')
+  :'<p class="prompt-empty">还没有保存过。</p>';
+ modal(`<h2>我的讲解重点</h2><p>保存在你这台电脑上，语言就是你写时的语言。内置预设不能改。</p>
+  <div class="prompt-list" id="promptList">${rows}</div>
+  <label class="prompt-field"><span>名称（可留空）</span><input id="promptLabel" maxlength="${promptBook.limits.label}"></label>
+  <label class="prompt-field"><span>讲解重点</span><textarea id="promptBody" maxlength="${promptBook.limits.prompt}" rows="4"></textarea></label>
+  <div class="dialog-actions"><button class="small-button" id="promptFromComposer">用输入框里的内容填充</button><button class="primary" id="promptSave">保存预设</button></div>`);
+ $('#promptFromComposer').onclick=()=>{$('#promptBody').value=$('#creationPrompt').value.trim()};
+ $('#promptSave').onclick=async()=>{
+  try{await api('/api/prompts',jsonOptions('POST',{label:$('#promptLabel').value,prompt:$('#promptBody').value}));
+   await loadPrompts();toast('预设已保存');managePrompts()}catch(e){toast(e.message)}};
+ $('#promptList').onclick=async event=>{
+  const button=event.target.closest('[data-del]');if(!button)return;
+  try{await api('/api/prompts/'+encodeURIComponent(button.dataset.del),{method:'DELETE'});
+   await loadPrompts();toast('预设已删除');managePrompts()}catch(e){toast(e.message)}}}
+
+// Presets are the one thing on this page i18n.js cannot retranslate, so they
+// reload themselves when the interface language changes.
+document.addEventListener('i18n:languagechange',loadPrompts);
+loadPrompts();
 $('#openSettingsInline').onclick=()=>showSettings();
 $('#projects').addEventListener('error',event=>{const img=event.target;if(img.tagName!=='IMG')return;const card=img.closest('[data-id]'),p=projects.find(p=>p.id===card?.dataset.id);if(!p)return;const step=Number(img.dataset.fallback||0);img.dataset.fallback=step+1;if(step===0)img.src=file(p,'images/cover_art.png');else if(step===1&&p.figures?.[0]?.file)img.src=file(p,'figures/'+p.figures[0].file);else img.replaceWith(Object.assign(document.createElement('div'),{className:'project-placeholder',textContent:p.title||p.paper_title||'论文讲解'}))},true);
 $('#projects').addEventListener('click',async event=>{const button=event.target.closest('[data-action]');if(!button)return;const p=projects.find(p=>p.id===button.closest('[data-id]').dataset.id);if(!p)return;try{switch(button.dataset.action){case 'generate':button.disabled=true;try{await generate(p)}finally{button.disabled=false}break;case 'mp4':await api('/api/tts_video/'+encodeURIComponent(p.id),{method:'POST'});toast('已开始按需渲染 MP4；互动网页版可直接观看。');await refresh(true);break;case 'preview':modal(`<h2>${escapeHtml(p.title||'论文短片')}</h2><video controls autoplay playsinline src="${file(p,p.tts_output||p.output)}"></video><p>论文原图 · 光标随讲解移动</p>`);break;case 'cover':modal(`<h2>作品封面</h2><img class="cover-preview" src="${file(p,'images/'+p.cover)}" alt="作品封面"><div class="dialog-actions"><a class="small-button" download href="${file(p,'images/'+p.cover)}">下载封面 ↓</a></div>`);break;case 'log':{const data=await api('/api/projects/'+encodeURIComponent(p.id)+'/log');modal(`<h2>运行日志</h2><pre class="log">${escapeHtml(data.log||'尚未开始生成。')}</pre>`);break}case 'script':modal(`<h2>讲稿</h2><textarea class="script-editor" id="scriptEditor" ${busy(p)?'readonly':''}>${escapeHtml(p.script)}</textarea><p>保存后需要重做分镜与下游环节，改动才会进到讲解里。</p><div class="dialog-actions"><button class="primary" id="saveScript" ${busy(p)?'disabled':''}>保存文稿</button></div>`);$('#saveScript').onclick=async()=>{try{await api('/api/projects/'+encodeURIComponent(p.id)+'/script',jsonOptions('PUT',{script:$('#scriptEditor').value}));toast('文稿已保存');$('#modal').close();await refresh(true)}catch(e){toast(e.message)}};break}}catch(e){toast(e.message)}});

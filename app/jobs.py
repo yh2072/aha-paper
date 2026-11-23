@@ -12,6 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from . import config
+from . import lang
 from . import llm
 from . import pi_models
 from .pipeline import art_cover, interactive, deep_script, explainer, page_highlight
@@ -200,12 +201,15 @@ def _st_figures(proj: "Project", ctx: dict):
 
 def _st_script(proj: "Project", ctx: dict):
     m=proj.load()
+    profile=lang.get(m.get("lang"))
     board=deep_script.generate(proj.dir/"paper.pdf",ctx["figs"],proj.dir/"figures",
             log=proj.log,guidance=m.get("generation_guidance",""),
-        minutes=m.get("target_minutes"),section_ids=m.get("section_ids"))
+        minutes=m.get("target_minutes"),section_ids=m.get("section_ids"),
+        lang_code=profile.code)
     script="\n\n".join(sc["text"] for sc in board["scenes"])
     ctx["script"]=script
     proj.save(script=script,deep_outline=board,script_profile=deep_script.PROFILE,
+              script_lang=profile.code,
               accuracy_review=board["corrections"],doi=board.get("doi",""),
               storyboard=None,images=[],video_engine=None,cover_engine=None)
 
@@ -266,6 +270,23 @@ def _st_cover(proj: "Project", ctx: dict):
         proj.save(cover=name,cover_engine="ai-image")
 
 
+def _script_done(proj: "Project", m: dict) -> bool:
+    """Whether the script on disk is the script this project now asks for.
+
+    Having a script is not enough. Changing the narration language leaves a
+    Chinese script that an English voice would then read aloud, so a script
+    written in another language counts as no script and the stage runs again.
+    Nothing is deleted here -- the old script stands until a new one replaces
+    it, because regenerating costs money and may never be asked for."""
+    if not m.get("script"):
+        return False
+    if m.get("engine") == "pi-canvas" and m.get("script_profile") != deep_script.PROFILE:
+        return False
+    # Both resolve through lang.get, so an absent field and an explicit 'zh'
+    # are the same answer -- which is what every pre-existing project is.
+    return lang.get(m.get("script_lang")).code == lang.get(m.get("lang")).code
+
+
 def _code_done(proj: "Project", m: dict) -> bool:
     """Whether every chapter already has the visual it is supposed to have.
 
@@ -288,7 +309,7 @@ def _code_done(proj: "Project", m: dict) -> bool:
 STAGES = [
     ("text",       "抽取PDF文本",   _st_text,       lambda p, m: bool(m.get("paper_title")), True),
     ("figures",    "检测论文主图",  _st_figures,    lambda p, m: m.get("figures") is not None, False),
-    ("script",     "生成口播稿",    _st_script,     lambda p, m: bool(m.get("script")) and (m.get("engine") != "pi-canvas" or m.get("script_profile") == deep_script.PROFILE), True),
+    ("script",     "生成口播稿",    _st_script,     _script_done,   True),
     ("storyboard", "生成分镜",      _st_storyboard, lambda p, m: bool(m.get("storyboard")), True),
     ("code",       "章节画面",      _st_code,     _code_done, True),
     ("copy",       "摘要与标题",    _st_copy,       lambda p, m: bool(m.get("intro")), False),
@@ -423,7 +444,8 @@ def _run_tts_video(pid: str, force_video: bool = False):
         images = [proj.dir / "images" / n if n else None for n in meta.get("images", [])]
         slideshow.render_slideshow(scenes, images, proj.dir / "tts_work",
                                    proj.dir / "slideshow.mp4", log=proj.log,
-                                   anim_dir=proj.dir / "images")
+                                   anim_dir=proj.dir / "images",
+                                   profile=lang.get(meta.get("lang")))
         proj.save(stage="叠加进度条")
         tmp_bar = proj.dir / "slideshow_bar.mp4"
         edit.add_progress_bar(proj.dir / "slideshow.mp4", tmp_bar, log=proj.log)

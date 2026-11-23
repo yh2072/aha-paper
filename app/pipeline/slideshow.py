@@ -228,7 +228,7 @@ def _video_size(path: Path) -> tuple[int, int]:
 
 def render_slideshow(scenes: list[dict], images: list[Path | None],
                      work_dir: Path, out_path: Path, log=print,
-                     anim_dir: Path | None = None) -> Path:
+                     anim_dir: Path | None = None, profile=None) -> Path:
     work_dir.mkdir(parents=True, exist_ok=True)
     seg_files = []
     import hashlib
@@ -242,18 +242,18 @@ def render_slideshow(scenes: list[dict], images: list[Path | None],
         key_f = work_dir / f"seg_{i:02d}.key"
         durs_f = work_dir / f"seg_{i:02d}.durs.json"
         key = hashlib.md5(
-            f"{tts.cache_identity()}|{bool(fig_path)}|{scene['text']}"
+            f"{tts.cache_identity(profile)}|{bool(fig_path)}|{scene['text']}"
             .encode()).hexdigest()
         cached = wav.exists() and key_f.exists() and key_f.read_text() == key
 
         if fig_path and fig_path.exists():
             # 讲图场景：逐句配音拿时长 → 每句映射图中区域 → 光标跟着讲解走
-            sents = tts.split_sentences(scene["text"])
+            sents = tts.split_sentences(scene["text"], profile=profile)
             if cached and durs_f.exists():
                 durs = _json.loads(durs_f.read_text())
                 log("    （复用缓存配音）")
             else:
-                wav, durs = tts.synthesize_sentences(sents, wav, log=log)
+                wav, durs = tts.synthesize_sentences(sents, wav, log=log, profile=profile)
                 durs_f.write_text(_json.dumps(durs))
                 key_f.write_text(key)
             regions = figures.map_sentences_to_regions(fig_path, sents, log=log)
@@ -261,12 +261,12 @@ def render_slideshow(scenes: list[dict], images: list[Path | None],
                 fig_path, list(zip(durs, regions)),
                 work_dir / f"guided_{i:02d}.mp4", log=log)
         else:
-            sents = tts.split_sentences(scene["text"])
+            sents = tts.split_sentences(scene["text"], profile=profile)
             if cached:
                 log("    （复用缓存配音）")
                 durs = _json.loads(durs_f.read_text()) if durs_f.exists() else None
             else:
-                _, durs = tts.synthesize_sentences(sents, wav, log=log)
+                _, durs = tts.synthesize_sentences(sents, wav, log=log, profile=profile)
                 durs_f.write_text(_json.dumps(durs))
                 key_f.write_text(key)
             if durs is None:

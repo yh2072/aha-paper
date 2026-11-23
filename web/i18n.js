@@ -373,6 +373,52 @@
     'TTS片': 'TTS cut',
     '口播片': 'Talking head',
     '配图': 'Illustrations',
+
+    /* ---- backend errors, second pass ----
+       Raised in Python and surfaced through toast() or a project card, so they
+       are ordinary text nodes by the time the observer sees them. Interpolated
+       ones live in RULES instead; the split is only about which mechanism can
+       match, not about where the message came from. */
+    '缺少深度大纲，请先重做「生成口播稿」': 'No chapter outline yet — redo “Write the narration” first',
+    '没有这条预设': 'No such preset',
+    '创作进行中，请完成后再改时长或章节': 'Creation in progress — change the duration or sections once it finishes',
+    '未配置支持的图片 API 协议': 'No supported image API protocol is configured',
+    '图片 API 未返回封面图片': 'The image API returned no cover image',
+    '图片 API 未返回 base64 或下载 URL': 'The image API returned neither base64 data nor a download URL',
+    '有讲解片段无法对应到实际词时间戳': 'A narration segment could not be matched to the real word timestamps',
+    '旁白子句时间边界重复或倒序': 'Narration clause timings are duplicated or out of order',
+    '深度文稿响应必须是结构化对象': 'The narration response must be a structured object',
+    '章节不能缺少正文': 'A chapter cannot be missing its body text',
+    '每章必须包含真实有效的 PDF 来源页码': 'Every chapter must cite real, valid PDF source pages',
+    '章节引用了不存在的论文主图': 'A chapter cites a figure that does not exist',
+    '深度讲解必须覆盖至少3张关键真实主图': 'An explainer must cover at least 3 of the paper’s real figures',
+    '尚未生成深度章节': 'No chapters have been generated yet',
+    '无法从视频抽帧': 'Could not extract a frame from the video',
+    '互动讲解尚未生成完成': 'The interactive explainer is not finished yet',
+    'Edge TTS 没有返回可对齐的词时间戳，请重试配音': 'Edge TTS returned no alignable word timestamps — try the narration again',
+    'Edge TTS 时间戳不完整，无法精确驱动光标': 'Edge TTS timestamps are incomplete, so the cursor cannot be driven precisely',
+    '配音文本不能为空': 'The narration text cannot be empty',
+    '请先写下讲解重点，再保存为预设': 'Write the focus first, then save it as a preset',
+    '内容包含无法保存的字符': 'The content contains characters that cannot be saved',
+    '这条讲解重点已经保存过了': 'That focus is already saved',
+    '内置预设不能改，可另存为自己的预设': 'A built-in preset cannot be edited — save your own copy instead',
+    '内置预设不能删除': 'A built-in preset cannot be deleted',
+
+    /* ---- focus presets: the dialog around them ----
+       The presets themselves are served already in the right language and sit
+       behind data-no-i18n. Everything here is the chrome around them, which is
+       ordinary interface text and belongs to this module. */
+    '＋ 我的预设': '+ My presets',
+    '我的讲解重点': 'My focus presets',
+    '保存在你这台电脑上，语言就是你写时的语言。内置预设不能改。':
+      'Saved on this computer, in the language you wrote them. Built-in presets cannot be changed.',
+    '还没有保存过。': 'Nothing saved yet.',
+    '名称（可留空）': 'Name (optional)',
+    '讲解重点': 'Focus',
+    '用输入框里的内容填充': 'Fill from the composer',
+    '保存预设': 'Save preset',
+    '预设已保存': 'Preset saved',
+    '预设已删除': 'Preset deleted',
   };
 
   /* Interpolated strings. A template's {} matches one run of text; the English
@@ -441,6 +487,38 @@
       '{} job(s) are running — restart once they finish.'],
     ['⚠️ 代码已更新但服务还在跑旧版本，改动尚未生效。当前有 {} 个任务在跑，等跑完再重启服务。',
       '⚠️ The code changed but the server is still running the old build, so your edits are not live. {} job(s) are running — restart once they finish.'],
+    /* ---- backend errors, interpolated ----
+       Anchored at both ends, which is what keeps '第{}页' above from swallowing
+       '第5页不在选定的章节范围内' here. */
+    ['找不到 {}（{}）。', 'Cannot find {} ({}).'],
+    ['供应商 {} 未连接：{}', 'Provider {} is not connected: {}'],
+    ['模型 {} 请求重试 {} 次仍失败：{}', 'Model {} still failed after {} retries: {}'],
+    ['模型 {} 是异步批处理版本，不能用于当前 Chat Completions / Pi 工作流。请在模型与声音中改用 {}。',
+      'Model {} is an async batch variant and cannot serve this Chat Completions / Pi workflow. Switch to {} under Models & voice.'],
+    ['时长请在 {}–{} 分钟之间', 'Duration must be between {} and {} minutes'],
+    ['不支持的讲解语言: {}', 'Unsupported narration language: {}'],
+    ['这篇论文没有这些小节: {}', 'This paper has no such sections: {}'],
+    ['光标动画编码失败: {}', 'Cursor animation encoding failed: {}'],
+    ['旁白词时间戳覆盖不足：{}', 'Narration word-timestamp coverage is too low: {}'],
+    ['深度内容需要{}–{}章，当前{}章', 'An explainer needs {}–{} chapters; this one has {}'],
+    ['第{}页不在选定的章节范围内，只能引用所选小节的页码',
+      'Page {} is outside the selected sections; only pages from those sections may be cited'],
+    ['深度正文需{}–{}字（约{}分钟），当前{}字',
+      'The narration needs {}–{} characters (about {} minutes); this one has {}'],
+    ['数字人合成失败: {}', 'Avatar compositing failed: {}'],
+    ['进度条合成失败: {}', 'Progress-bar compositing failed: {}'],
+    ['分段数字人合成失败: {}', 'Per-segment avatar compositing failed: {}'],
+    ['ffmpeg 失败: {}', 'ffmpeg failed: {}'],
+    ['拼接失败: {}', 'Concatenation failed: {}'],
+    ['ffmpeg 分段失败: {}', 'ffmpeg segment step failed: {}'],
+    ['ffmpeg 拼接失败: {}', 'ffmpeg concatenation failed: {}'],
+    ['章节{}的论文页渲染失败', 'Rendering the paper pages for chapter {} failed'],
+    ['章节{}既没有主图，也没有可读的论文 PDF',
+      'Chapter {} has neither a figure nor a readable paper PDF'],
+    ['旁白拼接失败: {}', 'Narration concatenation failed: {}'],
+    ['Edge TTS 音频转换失败: {}', 'Edge TTS audio conversion failed: {}'],
+    ['讲解重点请控制在{}字以内', 'Keep the focus under {} characters'],
+    ['自定义预设最多{}条，请先删掉一些', 'At most {} custom presets — delete some first'],
   ];
 
   const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -564,6 +642,12 @@
       button.setAttribute('aria-label', lang === 'en' ? 'Switch to Chinese' : '切换到英文');
       button.setAttribute('data-no-i18n', '');
     }
+    /* Content this module cannot translate -- anything that travels as a value
+       rather than as a text node, like the focus presets -- is rendered by its
+       own owner in the current language. That owner needs to know when the
+       language changed, and walk() cannot tell it: the whole point is that
+       walk() never touches those strings. */
+    document.dispatchEvent(new CustomEvent('i18n:languagechange', { detail: { lang } }));
   }
 
   /* characterData matters as much as childList: studio.js updates a heading with

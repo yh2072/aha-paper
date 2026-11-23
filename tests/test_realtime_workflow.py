@@ -17,7 +17,7 @@ class RealtimeWorkflowTests(unittest.TestCase):
             writer=PdfWriter()
             for _ in range(2):writer.add_blank_page(width=200,height=300)
             with open(root/'paper.pdf','wb') as handle:writer.write(handle)
-            def synth(sentences,path,log=print):
+            def synth(sentences,path,log=print,profile=None):
                 with wave.open(str(path),'wb') as audio:
                     audio.setnchannels(1);audio.setsampwidth(2);audio.setframerate(24000);audio.writeframes(b'\0\0'*24000)
                 return path,[1/len(sentences)]*len(sentences)

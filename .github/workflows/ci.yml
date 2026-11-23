@@ -1,0 +1,41 @@
+name: CI
+
+# Pull requests and the default branch. Nothing here needs a credential: the
+# suite never reaches a model provider, which is also why it can run on a fork.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      # unittest, not pytest: the suite is stdlib and the project does not
+      # depend on a test runner it would then have to pin.
+      - run: python -m unittest discover -s tests -q
+
+  translations:
+    # The interface is bilingual by contract, not by habit. A Chinese error
+    # string added without its English twin fails here rather than appearing in
+    # an English interface three releases later.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/check_translations.py

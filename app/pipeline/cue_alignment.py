@@ -1,14 +1,17 @@
 """Source clauses aligned to the word timestamps returned by the actual narration."""
 from difflib import SequenceMatcher
-import re
+from .. import lang
 
 VERSION='word-clause-v3'
 
 def normalize(text):return ''.join(c for c in text if c.isalnum()).lower()
 
-def units(text):
-    # Split a change of referenced panel even inside one grammatical sentence.
-    return [s for s in re.split(r'(?<=[。！？!?；;])|(?<=[，,：:])(?=(?:子图|图[a-kA-K]|再看|接着看|随后|左侧|右侧|左上|右上|下方|上方))',text.strip()) if s.strip()]
+def units(text,profile=None):
+    """The cursor's targets: a change of referenced panel breaks one even inside
+    a single grammatical sentence. The rule is the narration language's, because
+    an English chapter split by Chinese full stops is one unit -- a cursor that
+    never moves for three minutes. See Profile.split_cues."""
+    return (profile or lang.get(None)).split_cues(text)
 
 def align(parts,events,total):
     source=normalize(''.join(parts));spoken='';owners=[]

@@ -482,3 +482,31 @@ dialog { box-shadow: 0 24px 64px #4a447326; }
    from it rather than from a number tuned against one rendering. */
 
 .composer-time input:placeholder-shown { width: 4em; }
+
+/* 讲解重点预设：芯片行里多出一颗「我的预设」，以及它的管理弹窗。
+   #starterPrompts 只是数据的容器，display:contents 让它的芯片直接参与
+   .starter-prompts 这一行的 flex 布局，而不是自成一个盒子。 */
+#starterPrompts { display: contents; }
+.starter-prompts button.prompt-manage {
+  border-style: dashed; border-color: var(--line); color: var(--muted);
+}
+.starter-prompts button.prompt-manage:hover { border-style: solid; }
+.prompt-list { margin: 14px 0 6px; display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; }
+.prompt-row {
+  display: flex; align-items: center; gap: 12px; justify-content: space-between;
+  border: 1px solid var(--line); border-radius: 11px; padding: 10px 12px;
+}
+.prompt-row b { font-size: 12px; font-weight: 600; display: block; }
+.prompt-row small {
+  display: block; font-size: 10px; color: var(--muted); margin-top: 4px; line-height: 1.7;
+  max-width: 440px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.prompt-row button { flex: none; }
+.prompt-empty { font-size: 11px; color: var(--faint); margin: 14px 0; }
+.prompt-field { display: block; margin-top: 12px; }
+.prompt-field span { display: block; font-size: 10px; color: var(--muted); margin-bottom: 6px; }
+.prompt-field input, .prompt-field textarea {
+  width: 100%; font: inherit; font-size: 12px; line-height: 1.8; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 11px; background: var(--panel); color: var(--ink);
+  resize: vertical; box-sizing: border-box;
+}

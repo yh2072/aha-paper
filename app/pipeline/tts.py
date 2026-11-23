@@ -4,26 +4,43 @@ import json
 import re
 import subprocess
 from pathlib import Path
-from .. import config
+from .. import config, lang
 from ..bin import ffmpeg as ffmpeg_bin, ffprobe as ffprobe_bin
 
 MODEL_TTS = 'edge-tts'
 VOICE = 'zh-CN-XiaoxiaoNeural'  # compatibility; runtime settings come from config
-_SENT_SPLIT = re.compile(r'(?<=[。！？!?；;])')
+_SENT_SPLIT = lang.ZH_SPLIT     # compatibility; the split now comes from the profile
 
 
-def split_sentences(text: str, min_len: int = 6) -> list[str]:
-    merged = []
-    for part in (s for s in _SENT_SPLIT.split(text.strip()) if s.strip()):
-        if merged and (len(part.strip()) < min_len or len(merged[-1].strip()) < min_len):
-            merged[-1] += part
-        else:
-            merged.append(part)
-    return merged
+def voice_of(profile=None) -> str:
+    """The voice this narration is spoken in: the configured one while it speaks
+    the right language, the profile's own otherwise. See lang.voice_for."""
+    return lang.voice_for(profile or lang.get(None), config.EDGE_TTS_VOICE)
 
 
-def cache_identity():
-    return f'edge-tts-v1|{config.EDGE_TTS_VOICE}|{config.EDGE_TTS_RATE}'
+def split_sentences(text: str, min_len: int | None = None, profile=None) -> list[str]:
+    """The narration cut into the units the cursor is driven by.
+
+    Chinese and English end a sentence by different rules, and the English one
+    cannot be a regex on its own -- see app/lang.py. Both are lossless:
+    ''.join(split_sentences(t)) == t, which synthesize_sentences relies on when
+    it sends the whole narration to Edge TTS in one piece.
+    """
+    return (profile or lang.get(None)).split_narration(text, min_len)
+
+
+def cache_identity(profile=None):
+    """What a cached narration was made with. Anything that would change the
+    audio, or change which sentence each duration belongs to, has to be in here.
+
+    The language code is in it even though the voice already implies it today.
+    The cached durs list is zipped with a freshly computed sentence split, so a
+    change to the split rule that did not change the key would pair every
+    sentence with the wrong duration -- and the cursor would drift silently,
+    with correct-looking audio. Two languages sharing a voice is enough to
+    cause that, so the key does not rely on the voice to encode the language."""
+    profile = profile or lang.get(None)
+    return f'edge-tts-v1|{profile.code}|{voice_of(profile)}|{config.EDGE_TTS_RATE}'
 
 
 def duration_of(audio: Path) -> float:
@@ -32,10 +49,10 @@ def duration_of(audio: Path) -> float:
     return float(result.stdout.strip())
 
 
-async def _stream(text: str, mp3: Path) -> list[dict]:
+async def _stream(text: str, mp3: Path, voice: str) -> list[dict]:
     import edge_tts
     events = []
-    communicate = edge_tts.Communicate(text, config.EDGE_TTS_VOICE,
+    communicate = edge_tts.Communicate(text, voice,
         rate=config.EDGE_TTS_RATE, boundary='WordBoundary')
     with mp3.open('wb') as stream:
         async for event in communicate.stream():
@@ -76,13 +93,14 @@ def sentence_durations(sentences: list[str], events: list[dict], total: float) -
     return [b-a for a,b in zip(starts, starts[1:]+[total])]
 
 
-def synthesize_sentences(sentences: list[str], out_path: Path, log=print):
+def synthesize_sentences(sentences: list[str], out_path: Path, log=print, profile=None):
     if not sentences or not ''.join(sentences).strip():
         raise ValueError('配音文本不能为空')
     out_path.parent.mkdir(parents=True, exist_ok=True)
     mp3 = out_path.with_suffix('.edge.mp3')
-    log(f'    Edge TTS · {config.EDGE_TTS_VOICE} · {config.EDGE_TTS_RATE}')
-    events = asyncio.run(_stream(''.join(sentences), mp3))
+    voice = voice_of(profile)
+    log(f'    Edge TTS · {voice} · {config.EDGE_TTS_RATE}')
+    events = asyncio.run(_stream(''.join(sentences), mp3, voice))
     result = subprocess.run([ffmpeg_bin(),'-y','-v','error','-i',str(mp3),'-ar','24000',
         '-ac','1','-c:a','pcm_s16le',str(out_path)], capture_output=True,text=True)
     if result.returncode:
@@ -93,5 +111,6 @@ def synthesize_sentences(sentences: list[str], out_path: Path, log=print):
     return out_path, durations
 
 
-def synthesize(text: str, out_path: Path, log=print) -> Path:
-    return synthesize_sentences(split_sentences(text), out_path, log)[0]
+def synthesize(text: str, out_path: Path, log=print, profile=None) -> Path:
+    return synthesize_sentences(split_sentences(text, profile=profile),
+                                out_path, log, profile=profile)[0]

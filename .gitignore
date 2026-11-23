@@ -14,6 +14,10 @@
 
 # --- papers and everything generated from them ---
 data/
+# The user's own saved focus presets. State for this machine, like .env above:
+# someone else's checkout must not inherit the prompts you wrote.
+prompts.json
+prompts.json.tmp
 
 # --- environments and dependencies ---
 .venv/

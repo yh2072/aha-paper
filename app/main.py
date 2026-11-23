@@ -2,12 +2,12 @@
 import hmac
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import FastAPI, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import access, bin as binaries, config, jobs, pi_models, studio_settings
+from . import access, bin as binaries, config, jobs, lang, pi_models, prompts, studio_settings
 from .pipeline import deep_script, outline
 from fastapi import Request
 from fastapi.responses import JSONResponse
@@ -169,6 +169,52 @@ def run_all():
     return {"started": started}
 
 
+class PromptBody(BaseModel):
+    label: str = ""
+    prompt: str
+
+
+@app.get("/api/prompts")
+def list_prompts(code: str = Query("zh", alias="lang")):
+    """The focus chips the composer offers.
+
+    Served rather than written into the page, because a prompt is the one piece
+    of text on the home page that web/i18n.js cannot translate: it travels as a
+    value, and the DOM translator never rewrites a value or a user-authored
+    attribute -- which is exactly why the Chinese preset used to survive into
+    the English interface."""
+    return prompts.listing(code)
+
+
+@app.post("/api/prompts")
+def create_prompt(body: PromptBody):
+    try:
+        return prompts.add(body.label, body.prompt)
+    except ValueError as problem:
+        raise HTTPException(400, str(problem))
+
+
+@app.put("/api/prompts/{prompt_id}")
+def edit_prompt(prompt_id: str, body: PromptBody):
+    try:
+        return prompts.update(prompt_id, body.label, body.prompt)
+    except ValueError as problem:
+        raise HTTPException(400, str(problem))
+    except KeyError:
+        raise HTTPException(404, "没有这条预设")
+
+
+@app.delete("/api/prompts/{prompt_id}")
+def delete_prompt(prompt_id: str):
+    try:
+        prompts.remove(prompt_id)
+    except ValueError as problem:
+        raise HTTPException(400, str(problem))
+    except KeyError:
+        raise HTTPException(404, "没有这条预设")
+    return {"ok": True}
+
+
 class GenerationGuidance(BaseModel):
     guidance: str
 
@@ -176,6 +222,7 @@ class GenerationGuidance(BaseModel):
 class ExplainerPlan(BaseModel):
     minutes: int | None = None
     section_ids: list[str] | None = None
+    lang: str | None = None
 
 
 @app.get("/api/projects/{pid}/outline")
@@ -195,7 +242,10 @@ def paper_outline(pid: str):
             "minutes": saved.get("target_minutes"),
             "default_minutes": deep_script.DEFAULT_MINUTES,
             "min_minutes": deep_script.MIN_MINUTES,
-            "max_minutes": deep_script.MAX_MINUTES}
+            "max_minutes": deep_script.MAX_MINUTES,
+            "lang": lang.get(saved.get("lang")).code,
+            "languages": [{"code": p.code, "label": p.label}
+                          for p in lang.PROFILES.values()]}
 
 
 @app.put("/api/projects/{pid}/plan")
@@ -209,6 +259,13 @@ def edit_plan(pid: str, body: ExplainerPlan):
     minutes = body.minutes
     if minutes is not None and not deep_script.MIN_MINUTES <= minutes <= deep_script.MAX_MINUTES:
         raise HTTPException(400, f"时长请在 {deep_script.MIN_MINUTES}–{deep_script.MAX_MINUTES} 分钟之间")
+    # An unknown code would silently fall back to Chinese inside lang.get, which
+    # is right for a project saved before the field existed and wrong for a
+    # request that asks for a language this build cannot narrate.
+    code = body.lang
+    if code is not None and code.lower() not in lang.PROFILES:
+        raise HTTPException(400, f"不支持的讲解语言: {code}")
+    profile = lang.get(code)
     ids = body.section_ids or []
     if ids:
         # An id the paper's own outline does not hold cannot be turned into pages,
@@ -217,9 +274,9 @@ def edit_plan(pid: str, body: ExplainerPlan):
         unknown = [i for i in ids if i not in known]
         if unknown:
             raise HTTPException(400, f"这篇论文没有这些小节: {'、'.join(unknown[:3])}")
-    proj.save(target_minutes=minutes, section_ids=ids)
-    return {"ok": True, "minutes": minutes, "sections": len(ids),
-            "budget": deep_script.budget(minutes)}
+    proj.save(target_minutes=minutes, section_ids=ids, lang=profile.code)
+    return {"ok": True, "minutes": minutes, "sections": len(ids), "lang": profile.code,
+            "budget": deep_script.budget(minutes, profile)}
 
 
 @app.put("/api/projects/{pid}/guidance")
