@@ -313,7 +313,7 @@ class CoverageTests(unittest.TestCase):
         test below would pass while translating nothing."""
         strings = ui_strings()
         self.assertGreater(len(strings), 150, 'the scan stopped finding UI text')
-        self.assertIn('开始创作', strings)
+        self.assertIn('生成讲解', strings)
         self.assertIn('全屏观看', strings)
 
     def test_every_interface_string_has_english(self):
