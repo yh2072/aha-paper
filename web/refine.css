@@ -29,7 +29,7 @@
 :root,
 .aha-home {
   --paper: #faf8f3;        /* unprimed linen, not white */
-  --panel: #edefee;        /* the rail is the shade: cool against the warm page */
+  --panel: #eaedf1;        /* the rail is the shade: cool against the warm page */
   --card: #fffdf8;         /* surfaces lift off the ground by warming, not whitening */
   --card-veil: #fffdf8ee;  /* the same surface where it floats over video */
   --ink: #30323f;          /* blue-black; a shadow is never neutral */
@@ -37,7 +37,7 @@
   --faint: #a4a1b0;
   --line: #e6e0d4;         /* warm hairline */
   --line-soft: #efebe1;
-  --line-cool: #e0e4e3;    /* the hairline on the cool side */
+  --line-cool: #dfe3e9;    /* the hairline on the cool side */
   --accent: #4e8273;       /* lily pad, greyed */
   --accent-ink: #35604f;
   --accent-soft: #e9f0ea;
@@ -372,3 +372,100 @@ body, .aha-home {
   background-attachment: fixed;
   background-repeat: no-repeat;
 }
+
+
+/* ---------- the icons ----------
+
+   Twemoji are full-colour cartoons. The house alone carries seven fills, among
+   them a postbox red and a sky blue, and against a palette this greyed they
+   were the loudest thing in the window -- more saturated than anything the page
+   is actually about.
+
+   grayscale, not brightness(0). Collapsing each one to a silhouette looked
+   right until it was rendered: ▶ ⬆ 🔄 are a blue square with a WHITE glyph cut
+   into them, so flattening them to one colour fills the glyph in as well and
+   leaves three identical grey squares. (Reading the fills was what misled me --
+   the white shapes are written #FFF, three digits, and a search for six-digit
+   colours does not see them.) Desaturating keeps every internal edge.
+
+   The opacity lets the warm ground through, so they are tinted by what sits
+   under them instead of being a flat grey -- the same reason the shadows here
+   are violet rather than black. */
+
+.emoji { filter: grayscale(1) brightness(1.04) opacity(.7); }
+.nav .emoji { filter: grayscale(1) opacity(.62); }
+.nav:hover .emoji { filter: grayscale(1) opacity(.8); }
+.nav.active .emoji { filter: grayscale(1) opacity(.95); }
+
+/* The primary action keeps its words and loses its badge. No filter makes a
+   blue-square emoji sit well on a green button, and "开始创作" already says
+   what the arrow was repeating. */
+.composer-submit .emoji { display: none; }
+.composer-submit span:empty { display: none; }
+
+/* ---------- lift ----------
+
+   The surfaces were a 2% step off the ground, which is not a surface, it is a
+   slightly different patch of the same thing. They keep their fill; what they
+   gain is a shadow -- violet, because that is what a shadow is here, and at an
+   opacity where you would have to be told it is there. */
+
+.paper-composer, .project, .video-shell, .provider-card, .outline-pick {
+  box-shadow: 0 1px 2px #4a44730f, 0 10px 28px #4a44730a;
+}
+dialog { box-shadow: 0 24px 64px #4a447326; }
+
+
+/* ---------- the direction cards ----------
+
+   These three were the last thing still wearing the old sheet's colours --
+   home.css gives them a lime, a lavender and a cream, and nothing here
+   overrode them. On the repainted ground the lavender one was the loudest
+   object in the window by a wide margin.
+
+   They are kept as three different colours rather than flattened to one,
+   because that is the pair the palette is built on: a green, a violet and an
+   ochre, each a wash of the token it comes from. Same hues as before, a third
+   of the saturation. */
+
+.explore-card {
+  background: var(--accent-soft); border-color: var(--line); color: var(--accent-ink);
+  border-radius: 10px;
+}
+.explore-figure { background: #eceaf2; border-color: #e3e0ea; color: #53507a; }
+.explore-play { background: var(--warm-soft); border-color: #ecdcc5; color: #8a5f33; }
+
+/* The big glyph is a watermark, not a picture. It was carrying more colour
+   than the heading it sits behind. */
+.explore-art { color: #4e827322; }
+.explore-figure .explore-art { color: #6b679a22; }
+.explore-play .explore-art { color: #c2824c26; }
+
+
+/* ---------- out-specifying home.css ----------
+
+   home.css writes its colours as `.aha-home .thing`, two classes. Most of this
+   sheet writes `.thing`, one class -- which loses, whatever the load order.
+   Twelve rules were still wearing the old riso palette because of it, and they
+   are invisible until you reach the state that shows them: the primary button
+   on a project card, the primary button in every dialog, every toast.
+
+   So these repeat the prefix. They are not more opinionated than the rules
+   above, only more specific, and the comment is here because the next person to
+   add a colour will write the one-class form and wonder why nothing happened. */
+
+.aha-home .nav { color: var(--muted); }
+.aha-home .library-heading h2 span { color: var(--faint); }
+.aha-home .library-tools input { background: var(--card); }
+.aha-home .project-source { color: var(--faint); }
+.aha-home .project-footer { border-color: var(--line-soft); }
+.aha-home .project-footer button,
+.aha-home .project-footer a { border-color: var(--line); color: var(--muted); }
+.aha-home .project-footer .primary {
+  background: var(--accent); border-color: var(--accent); color: var(--on-accent);
+}
+.aha-home .project-footer .primary:hover { background: var(--accent-ink); }
+.aha-home footer { color: var(--faint); }
+.aha-home dialog { background: var(--card); }
+.aha-home .dialog-actions .primary { background: var(--accent); color: var(--on-accent); }
+.aha-home .toast { background: var(--ink); color: var(--on-accent); }
