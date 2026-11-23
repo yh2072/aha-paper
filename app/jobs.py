@@ -16,6 +16,7 @@ from . import llm
 from . import pi_models
 from .pipeline import art_cover, interactive, deep_script, explainer, page_highlight
 from .pipeline import (align, anim, cover, edit, figures, pdf_extract, slideshow)
+from .bin import ffmpeg as ffmpeg_bin, ffprobe as ffprobe_bin
 
 # 数字人推理专属单工位队列：天然串行防内存爆，且不占用渲染工位（否则等锁的
 # 数字人任务会堵死 _EXECUTOR，批量出片时渲染全部停摆——踩过的坑）
@@ -428,7 +429,7 @@ def _run_tts_video(pid: str, force_video: bool = False):
         edit.add_progress_bar(proj.dir / "slideshow.mp4", tmp_bar, log=proj.log)
         tmp_bar.replace(proj.dir / "slideshow.mp4")
         # 导出纯配音（驱动数字人克隆工具用）
-        subprocess.run(["ffmpeg", "-y", "-i", str(proj.dir / "slideshow.mp4"),
+        subprocess.run([ffmpeg_bin(), "-y", "-i", str(proj.dir / "slideshow.mp4"),
                         "-vn", "-acodec", "pcm_s16le",
                         str(proj.dir / "narration.wav")], capture_output=True)
         proj.save(tts_output="slideshow.mp4",
@@ -462,7 +463,7 @@ def _figure_scene_spans(proj: Project, meta: dict) -> list:
         seg = proj.dir / "tts_work" / f"seg_{i:02d}.mp4"
         if not seg.exists():
             return []
-        out = subprocess.run(["ffprobe", "-v", "quiet", "-show_entries",
+        out = subprocess.run([ffprobe_bin(), "-v", "quiet", "-show_entries",
                               "format=duration", "-of", "csv=p=0", str(seg)],
                              capture_output=True, text=True)
         dur = float(out.stdout.strip() or 0)

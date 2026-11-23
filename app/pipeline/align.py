@@ -8,11 +8,12 @@ import json
 import re
 import subprocess
 from pathlib import Path
+from ..bin import ffmpeg as ffmpeg_bin, ffprobe as ffprobe_bin
 
 
 def _ffprobe_duration(video: Path) -> float:
     out = subprocess.run(
-        ["ffprobe", "-v", "quiet", "-print_format", "json", "-show_format", str(video)],
+        [ffprobe_bin(), "-v", "quiet", "-print_format", "json", "-show_format", str(video)],
         capture_output=True, text=True, check=True)
     return float(json.loads(out.stdout)["format"]["duration"])
 
@@ -20,7 +21,7 @@ def _ffprobe_duration(video: Path) -> float:
 def _speech_span(video: Path, duration: float) -> tuple[float, float]:
     """用静音检测估计开头/结尾的留白，返回实际说话的 (start, end)。"""
     proc = subprocess.run(
-        ["ffmpeg", "-i", str(video), "-af", "silencedetect=noise=-35dB:d=0.45",
+        [ffmpeg_bin(), "-i", str(video), "-af", "silencedetect=noise=-35dB:d=0.45",
          "-f", "null", "-"], capture_output=True, text=True)
     starts = [float(m) for m in re.findall(r"silence_start: ([\d.]+)", proc.stderr)]
     ends = [float(m) for m in re.findall(r"silence_end: ([\d.]+)", proc.stderr)]

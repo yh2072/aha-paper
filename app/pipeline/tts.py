@@ -5,6 +5,7 @@ import re
 import subprocess
 from pathlib import Path
 from .. import config
+from ..bin import ffmpeg as ffmpeg_bin, ffprobe as ffprobe_bin
 
 MODEL_TTS = 'edge-tts'
 VOICE = 'zh-CN-XiaoxiaoNeural'  # compatibility; runtime settings come from config
@@ -26,7 +27,7 @@ def cache_identity():
 
 
 def duration_of(audio: Path) -> float:
-    result = subprocess.run(['ffprobe','-v','quiet','-show_entries','format=duration',
+    result = subprocess.run([ffprobe_bin(),'-v','quiet','-show_entries','format=duration',
         '-of','csv=p=0',str(audio)],capture_output=True,text=True,check=True)
     return float(result.stdout.strip())
 
@@ -82,7 +83,7 @@ def synthesize_sentences(sentences: list[str], out_path: Path, log=print):
     mp3 = out_path.with_suffix('.edge.mp3')
     log(f'    Edge TTS · {config.EDGE_TTS_VOICE} · {config.EDGE_TTS_RATE}')
     events = asyncio.run(_stream(''.join(sentences), mp3))
-    result = subprocess.run(['ffmpeg','-y','-v','error','-i',str(mp3),'-ar','24000',
+    result = subprocess.run([ffmpeg_bin(),'-y','-v','error','-i',str(mp3),'-ar','24000',
         '-ac','1','-c:a','pcm_s16le',str(out_path)], capture_output=True,text=True)
     if result.returncode:
         raise RuntimeError(f'Edge TTS 音频转换失败: {result.stderr[-500:]}')

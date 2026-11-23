@@ -8,6 +8,7 @@ import pypdfium2 as pdfium
 from PIL import Image
 
 from .. import config, llm
+from ..bin import ffmpeg as ffmpeg_bin, ffprobe as ffprobe_bin
 
 MODEL_PATH = config.ROOT / "models" / "main-figure-best.onnx"
 IMGSZ = 640
@@ -309,14 +310,14 @@ def pick_avatar_face(video: Path, out_png: Path, log=print) -> Path:
     import subprocess  # noqa: PLC0415
     import tempfile  # noqa: PLC0415
     dur = float(subprocess.run(
-        ["ffprobe", "-v", "quiet", "-show_entries", "format=duration",
+        [ffprobe_bin(), "-v", "quiet", "-show_entries", "format=duration",
          "-of", "csv=p=0", str(video)], capture_output=True, text=True).stdout or 10)
     times = [0.5 + (dur - 1.0) * k / 8 for k in range(9)]
     with tempfile.TemporaryDirectory() as td:
         cells = []
         for k, t in enumerate(times):
             f = Path(td) / f"c{k}.png"
-            subprocess.run(["ffmpeg", "-y", "-ss", f"{t:.2f}", "-i", str(video),
+            subprocess.run([ffmpeg_bin(), "-y", "-ss", f"{t:.2f}", "-i", str(video),
                             "-frames:v", "1", "-vf", "scale=300:-2", str(f)],
                            capture_output=True)
             if f.exists():
@@ -352,7 +353,7 @@ def pick_avatar_face(video: Path, out_png: Path, log=print) -> Path:
         except Exception as e:  # noqa: BLE001
             log(f"  选帧失败用中间帧: {e}")
         t_best = cells[min(pick, len(cells) - 1)][1]
-    subprocess.run(["ffmpeg", "-y", "-ss", f"{t_best:.2f}", "-i", str(video),
+    subprocess.run([ffmpeg_bin(), "-y", "-ss", f"{t_best:.2f}", "-i", str(video),
                     "-frames:v", "1", str(out_png)], capture_output=True)
     log(f"  头像选帧 t={t_best:.1f}s ✓")
     return out_png

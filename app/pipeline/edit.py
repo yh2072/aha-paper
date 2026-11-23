@@ -2,6 +2,7 @@
 import json
 import subprocess
 from pathlib import Path
+from ..bin import ffmpeg as ffmpeg_bin, ffprobe as ffprobe_bin
 
 FADE = 0.4       # 淡入淡出时长
 MARGIN_T = 0.05  # 卡片距顶部比例
@@ -35,7 +36,7 @@ def add_avatar_bubble(video: Path, avatar: Path, out_path: Path,
     ring.save(ring_p)
 
     dur = subprocess.run(
-        ["ffprobe", "-v", "quiet", "-show_entries", "format=duration",
+        [ffprobe_bin(), "-v", "quiet", "-show_entries", "format=duration",
          "-of", "csv=p=0", str(video)], capture_output=True, text=True).stdout.strip()
     x = OUT_W - d - 22
     y = OUT_H - d - 40     # 全屏右下角（素材已通屏，不再有字幕区要避让）
@@ -44,7 +45,7 @@ def add_avatar_bubble(video: Path, avatar: Path, out_path: Path,
         cond = "+".join(f"between(t,{s:.2f},{e:.2f})" for s, e in hide_spans)
         enable = f":enable='lt({cond},1)'"
     # 帧率必须全链路统一，否则时间基错配会疯狂补帧
-    cmd = ["ffmpeg", "-y", "-i", str(video), "-i", str(avatar),
+    cmd = [ffmpeg_bin(), "-y", "-i", str(video), "-i", str(avatar),
            "-loop", "1", "-framerate", "30", "-i", str(mask_p),
            "-loop", "1", "-framerate", "30", "-i", str(ring_p),
            "-filter_complex",
@@ -67,7 +68,7 @@ def add_avatar_bubble(video: Path, avatar: Path, out_path: Path,
 def add_progress_bar(video: Path, out_path: Path, log=print) -> Path:
     """顶部进度条：淡灰底轨，随播放进度填充成珊瑚色。"""
     dur = subprocess.run(
-        ["ffprobe", "-v", "quiet", "-show_entries", "format=duration",
+        [ffprobe_bin(), "-v", "quiet", "-show_entries", "format=duration",
          "-of", "csv=p=0", str(video)], capture_output=True, text=True).stdout.strip()
     h = 16  # 通栏贴顶
     # drawbox 的 w 表达式只在初始化求值一次，不能用于动画！
@@ -79,7 +80,7 @@ def add_progress_bar(video: Path, out_path: Path, log=print) -> Path:
           f"[trk][1:v]overlay=x='-{OUT_W}+{OUT_W}*min(t/{dur},1)':y=0[v]")
     log("  叠加顶部进度条…")
     proc = subprocess.run(
-        ["ffmpeg", "-y", "-i", str(video),
+        [ffmpeg_bin(), "-y", "-i", str(video),
          "-loop", "1", "-framerate", "30", "-i", str(fill_png),
          "-filter_complex", vf, "-map", "[v]", "-map", "0:a",
          "-t", dur or "600",
@@ -113,7 +114,7 @@ def add_avatar_bubbles_segmented(video: Path, avatar: Path, segments: list[dict]
     ring.save(work / "_bubble_ring.png")
 
     dur = subprocess.run(
-        ["ffprobe", "-v", "quiet", "-show_entries", "format=duration",
+        [ffprobe_bin(), "-v", "quiet", "-show_entries", "format=duration",
          "-of", "csv=p=0", str(video)], capture_output=True, text=True).stdout.strip()
     x = OUT_W - d - 22
     y = OUT_H - d - 40     # 全屏右下角
@@ -137,7 +138,7 @@ def add_avatar_bubbles_segmented(video: Path, avatar: Path, segments: list[dict]
     ring_enable = "+".join(ring_windows)
     f.append(f"[{prev}][3:v]overlay={x}:{y}:eof_action=repeat:"
              f"enable='gte({ring_enable},1)',fps=30[v]")
-    cmd = ["ffmpeg", "-y", "-i", str(video), "-i", str(avatar),
+    cmd = [ffmpeg_bin(), "-y", "-i", str(video), "-i", str(avatar),
            "-loop", "1", "-framerate", "30", "-i", str(work / "_bubble_mask.png"),
            "-loop", "1", "-framerate", "30", "-i", str(work / "_bubble_ring.png"),
            "-filter_complex", "".join(f),
@@ -153,7 +154,7 @@ def add_avatar_bubbles_segmented(video: Path, avatar: Path, segments: list[dict]
 
 def _probe_size(video: Path) -> tuple[int, int]:
     out = subprocess.run(
-        ["ffprobe", "-v", "quiet", "-print_format", "json", "-show_streams",
+        [ffprobe_bin(), "-v", "quiet", "-print_format", "json", "-show_streams",
          "-select_streams", "v:0", str(video)],
         capture_output=True, text=True, check=True)
     st = json.loads(out.stdout)["streams"][0]
@@ -236,7 +237,7 @@ def _corner_frame_png(work: Path) -> Path:
 
 
 def _piece_gap(dur: float, out: Path) -> Path:
-    subprocess.run(["ffmpeg", "-y", "-f", "lavfi",
+    subprocess.run([ffmpeg_bin(), "-y", "-f", "lavfi",
                     "-i", f"color=c={BG_COLOR}:s={OUT_W}x{OUT_H}:r=30",
                     "-t", f"{dur:.3f}", *ENC, str(out)],
                    capture_output=True, check=True)
@@ -246,7 +247,7 @@ def _piece_gap(dur: float, out: Path) -> Path:
 def _piece_material(img: Path, dur: float, out: Path, work: Path) -> Path:
     """一段素材（图片卡 / 讲图动画）铺在纯色底上的整幅画面。"""
     mx, my, mw, mh = MAT_BOX
-    base = ["ffmpeg", "-y", "-f", "lavfi",
+    base = [ffmpeg_bin(), "-y", "-f", "lavfi",
             "-i", f"color=c={BG_COLOR}:s={OUT_W}x{OUT_H}:r=30"]
     if img.suffix == ".mp4":                     # 讲图光标动画：等比放入，不裁切
         cmd = base + ["-stream_loop", "-1", "-i", str(img), "-filter_complex",
@@ -274,14 +275,14 @@ def render_video(video: Path, images: list[Path | None],
     ring, rpad = _circle_ring_png(d, work)
 
     total = float(subprocess.run(
-        ["ffprobe", "-v", "quiet", "-show_entries", "format=duration",
+        [ffprobe_bin(), "-v", "quiet", "-show_entries", "format=duration",
          "-of", "csv=p=0", str(video)], capture_output=True, text=True).stdout or 0)
     intro = min(INTRO_SEC, max(total - 2, 0))
 
     # 第一段：开头全屏人像（单独渲染，避免 split+enable 的滤镜死锁）
     seg_intro = work / "seg_intro.mp4"
     subprocess.run(
-        ["ffmpeg", "-y", "-t", f"{intro:.2f}", "-i", str(video),
+        [ffmpeg_bin(), "-y", "-t", f"{intro:.2f}", "-i", str(video),
          "-vf", f"scale={OUT_W}:{OUT_H}:force_original_aspect_ratio=increase,"
                 f"crop={OUT_W}:{OUT_H},setsar=1,fps=30",
          *VENC,
@@ -315,7 +316,7 @@ def render_video(video: Path, images: list[Path | None],
     track_list = work / "track.txt"
     track_list.write_text("".join(f"file '{p.resolve()}'\n" for p in pieces))
     track = work / "mat_track.mp4"
-    subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0",
+    subprocess.run([ffmpeg_bin(), "-y", "-f", "concat", "-safe", "0",
                     "-i", str(track_list), "-c", "copy", str(track)],
                    capture_output=True, check=True)
 
@@ -323,7 +324,7 @@ def render_video(video: Path, images: list[Path | None],
     seg_main = work / "seg_main.mp4"
     log(f"  合成：开头 {intro:.1f}s 全屏人像 → {n} 段素材在框内 + 圆形人像压顶…")
     proc = subprocess.run(
-        ["ffmpeg", "-y", "-progress", str(work / "progress.txt"), "-nostats",
+        [ffmpeg_bin(), "-y", "-progress", str(work / "progress.txt"), "-nostats",
          "-i", str(track), "-ss", f"{intro:.2f}", "-i", str(video),
          "-loop", "1", "-i", str(pmask), "-loop", "1", "-i", str(ring),
          "-filter_complex",
@@ -346,7 +347,7 @@ def render_video(video: Path, images: list[Path | None],
     lst = work / "concat.txt"
     lst.write_text(f"file '{seg_intro.resolve()}'\nfile '{seg_main.resolve()}'\n")
     proc = subprocess.run(
-        ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(lst),
+        [ffmpeg_bin(), "-y", "-f", "concat", "-safe", "0", "-i", str(lst),
          "-c", "copy", "-movflags", "+faststart", str(out_path)],
         capture_output=True, text=True)
     if proc.returncode != 0:

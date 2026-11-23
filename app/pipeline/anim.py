@@ -6,6 +6,7 @@ import subprocess
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter
+from ..bin import ffmpeg as ffmpeg_bin
 
 FPS = 15
 SECONDS = 3.2          # 一圈游走的周期（首尾闭合，无缝循环）
@@ -115,7 +116,7 @@ def render_guided_pointer(fig_path: Path, segments: list[tuple[float, list | Non
         frame.save(work / f"f_{k:04d}.png")
 
     proc = subprocess.run(
-        ["ffmpeg", "-y", "-framerate", str(FPS), "-i", str(work / "f_%04d.png"),
+        [ffmpeg_bin(), "-y", "-framerate", str(FPS), "-i", str(work / "f_%04d.png"),
          "-c:v", "h264_videotoolbox", "-b:v", "8M", "-pix_fmt", "yuv420p", str(out_mp4)],
         capture_output=True, text=True)
     if proc.returncode != 0:
@@ -155,7 +156,7 @@ def render_pointer_cycle(fig_path: Path, bbox: list[float], out_mp4: Path,
         frame.save(work / f"f_{k:03d}.png")
 
     proc = subprocess.run(
-        ["ffmpeg", "-y", "-framerate", str(FPS), "-i", str(work / "f_%03d.png"),
+        [ffmpeg_bin(), "-y", "-framerate", str(FPS), "-i", str(work / "f_%03d.png"),
          "-c:v", "h264_videotoolbox", "-b:v", "8M", "-pix_fmt", "yuv420p", str(out_mp4)],
         capture_output=True, text=True)
     if proc.returncode != 0:

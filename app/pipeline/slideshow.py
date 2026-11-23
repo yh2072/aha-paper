@@ -6,6 +6,7 @@ from PIL import Image, ImageDraw, ImageOps
 
 from . import anim, figures, tts
 from .cover import _body_font as _font  # 霞鹜文楷：字幕/角标温暖手写风
+from ..bin import ffmpeg as ffmpeg_bin, ffprobe as ffprobe_bin
 
 W, H = 1080, 1440  # 3:4 竖版
 BG = (250, 244, 230)
@@ -219,7 +220,7 @@ def compose_frame(image_path: Path | None, text: str, idx: int, total: int,
 def _video_size(path: Path) -> tuple[int, int]:
     import json  # noqa: PLC0415
     out = subprocess.run(
-        ["ffprobe", "-v", "quiet", "-print_format", "json", "-show_streams",
+        [ffprobe_bin(), "-v", "quiet", "-print_format", "json", "-show_streams",
          "-select_streams", "v:0", str(path)], capture_output=True, text=True, check=True)
     st = json.loads(out.stdout)["streams"][0]
     return int(st["width"]), int(st["height"])
@@ -286,7 +287,7 @@ def render_slideshow(scenes: list[dict], images: list[Path | None],
             img, scene["text"], i, len(scenes), work_dir / f"frame_{i:02d}.png",
             draw_image=not overlay_vid, fill=(not fig_path) and not overlay_vid)
 
-        cmd = ["ffmpeg", "-y", "-loop", "1", "-i", str(frame)]
+        cmd = [ffmpeg_bin(), "-y", "-loop", "1", "-i", str(frame)]
         f = ["[0:v]fps=30[b0];"]
         base, nxt = "b0", 1
         if overlay_vid:  # 白卡底帧 + 光标动画 + 角标图层
@@ -355,7 +356,7 @@ def render_slideshow(scenes: list[dict], images: list[Path | None],
     concat_list = work_dir / "concat.txt"
     concat_list.write_text("".join(f"file '{s.name}'\n" for s in seg_files))
     proc = subprocess.run(
-        ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(concat_list),
+        [ffmpeg_bin(), "-y", "-f", "concat", "-safe", "0", "-i", str(concat_list),
          "-c", "copy", "-movflags", "+faststart", str(out_path)],
         capture_output=True, text=True, cwd=work_dir)
     if proc.returncode != 0:

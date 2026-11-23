@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import access, config, jobs, pi_models, studio_settings
+from . import access, bin as binaries, config, jobs, pi_models, studio_settings
 from .pipeline import deep_script, outline
 from fastapi import Request
 from fastapi.responses import JSONResponse
@@ -66,8 +66,11 @@ def ping():
 def health():
     """code_stale=True 表示磁盘上的代码比服务启动时新，需要重启才能生效。"""
     now = _code_mtime()
+    # missing_tools 让界面能在开工前就说「ffmpeg 没装」，而不是花完模型的钱、
+    # 跑到一半从 tts.py 里抛一个 FileNotFoundError 出来。
     return {"code_stale": now > _BOOT_CODE_MTIME + 1,
             "busy": jobs.busy_count(),
+            "missing_tools": binaries.missing(),
             }
 
 

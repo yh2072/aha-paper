@@ -6,6 +6,7 @@ from pathlib import Path
 from urllib.parse import quote
 from .. import config
 from . import figures,tts,cue_alignment,page_highlight
+from ..bin import ffmpeg as ffmpeg_bin
 
 
 def build(project_dir:Path,meta:dict,log=print,progress=None):
@@ -83,7 +84,7 @@ def build(project_dir:Path,meta:dict,log=print,progress=None):
     concat=work/'audio-concat.txt'
     concat.write_text(''.join(f"file '{path.name}'\n"for path in audio))
     out=project_dir/'narration.mp3';partial=project_dir/'narration.partial.mp3'
-    result=subprocess.run(['ffmpeg','-y','-v','error','-f','concat','-safe','0','-i',str(concat.resolve()),
+    result=subprocess.run([ffmpeg_bin(),'-y','-v','error','-f','concat','-safe','0','-i',str(concat.resolve()),
         '-c:a','libmp3lame','-b:a','128k',str(partial.resolve())],capture_output=True,text=True,cwd=work)
     if result.returncode:raise RuntimeError('旁白拼接失败: '+result.stderr[-500:])
     partial.replace(out)

@@ -12,7 +12,7 @@ store (``.runtime/credentials.json``, mode 600) is the only place they live.
 import json
 import subprocess
 
-from . import config
+from . import bin as binaries, config
 
 CLI = config.ROOT / 'scripts' / 'pi-models.mjs'
 TIMEOUT = 30
@@ -24,9 +24,12 @@ class ProviderError(RuntimeError):
 
 def _run(*args: str, stdin: str | None = None):
     try:
-        done = subprocess.run(['node', str(CLI), *args], input=stdin, capture_output=True,
+        # Not a bare 'node': a desktop build runs this with the Node that Electron
+        # already carries, so there is nothing for the user to install separately.
+        done = subprocess.run([binaries.node(), str(CLI), *args], input=stdin,
+                              capture_output=True,
                               text=True, timeout=TIMEOUT, cwd=config.ROOT)
-    except FileNotFoundError as error:
+    except (FileNotFoundError, RuntimeError) as error:
         raise ProviderError('找不到 node，模型配置需要 Node.js 运行时') from error
     except subprocess.TimeoutExpired as error:
         raise ProviderError('读取模型配置超时') from error

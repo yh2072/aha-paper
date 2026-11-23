@@ -43,6 +43,22 @@ generated from them), `.runtime/` (the provider credential store) and `.env`.
 Saving a model or a voice in the interface writes back to `.env`, which is why it
 is mounted rather than passed as environment variables.
 
+#### As a desktop window
+
+```bash
+npm install && npm run desktop
+```
+
+Starts the server on a free port and opens it in a window — no terminal, no
+URL to remember. It uses Electron's own Node for the provider CLI, so Node is
+not a separate prerequisite.
+
+This is the shell only: it runs against the Python environment on your machine.
+Shipping it as a double-clickable app means bundling Python, the dependencies
+and ffmpeg (~430 MB per platform) and signing the result. `app/bin.py` is the
+part that makes that possible — every external program is resolved through it,
+so a build can point `AHA_BIN_DIR` at the copies inside its own bundle.
+
 #### Hosting it
 
 A run takes about 18 minutes, writes roughly 86 MB per paper, and keeps working
@@ -170,6 +186,20 @@ docker compose up --build
 
 三个路径留在宿主机而不进镜像：`data/`（论文与全部产出）、`.runtime/`（供应商凭据）
 和 `.env`。在界面里改模型或音色会写回 `.env`，所以用挂载而不是环境变量传入。
+
+#### 当成桌面应用跑
+
+```bash
+npm install && npm run desktop
+```
+
+自动挑一个空闲端口起服务，并开一个窗口指过去——不用开终端，也不用记网址。
+供应商 CLI 用的是 Electron 自带的 Node，所以不需要另外装 Node。
+
+目前只有外壳：它跑的是你机器上的 Python 环境。要做成双击就能用的安装包，
+得把 Python、依赖和 ffmpeg 一起打进去（每个平台约 430 MB）并签名。
+`app/bin.py` 就是为此准备的——所有外部程序都从那里解析，
+打包后把 `AHA_BIN_DIR` 指向自带的那份即可。
 
 #### 部署到哪里
 
