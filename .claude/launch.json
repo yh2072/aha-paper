@@ -2,9 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "paper2video",
-      "runtimeExecutable": "caffeinate",
-      "runtimeArgs": ["-is", ".venv/bin/uvicorn", "app.main:app", "--port", "8321"],
+      "name": "aha-paper",
+      "runtimeExecutable": ".venv/bin/python",
+      "runtimeArgs": ["-m", "uvicorn", "app.main:app", "--port", "8321"],
       "port": 8321
     }
   ]

@@ -49,7 +49,6 @@ function python() {
     process.env.AHA_PYTHON,
     path.join(process.resourcesPath || '', 'python', 'bin', 'python3'),
     path.join(ROOT, '.venv', 'bin', 'python3'),
-    path.join(ROOT, '..', 'ahafrog-xhs-yuqihang', '.venv', 'bin', 'python3'),
   ].filter(Boolean);
   return candidates.find((p) => fs.existsSync(p)) || 'python3';
 }
