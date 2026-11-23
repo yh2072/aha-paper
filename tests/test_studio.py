@@ -43,7 +43,7 @@ class OrchestrationTests(unittest.TestCase):
 class SettingsTests(unittest.TestCase):
     def test_settings_hold_choices_only_never_a_credential(self):
         """Keys go to Pi's store through the provider login, never through this form."""
-        with tempfile.TemporaryDirectory() as directory,patch.object(config,'ROOT',Path(directory)):
+        with tempfile.TemporaryDirectory() as directory,patch.object(config,'ENV_FILE',Path(directory)/'.env'):
             public=studio_settings.save_settings({'voice':'zh-CN-YunxiNeural'})
             self.assertNotIn('api_key',studio_settings.save_settings.__doc__ or '')
             written=(Path(directory)/'.env').read_text()

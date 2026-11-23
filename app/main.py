@@ -47,7 +47,7 @@ def _code_mtime() -> float:
     """.env 也要算进来：换 TTS 音色、换数字人源都只改 .env，
     但它同样是启动时读进进程的，不重启照样不生效（踩过：换了数字人源，
     进程里还是旧的，推理缓存直接命中旧结果）。"""
-    files = list(_CODE_DIR.rglob("*.py")) + [config.ROOT / ".env"]
+    files = list(_CODE_DIR.rglob("*.py")) + [config.ENV_FILE]
     return max((p.stat().st_mtime for p in files if p.exists()), default=0.0)
 
 

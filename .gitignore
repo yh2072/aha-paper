@@ -18,6 +18,11 @@ data/
 # --- environments and dependencies ---
 .venv/
 node_modules/
+# Fetched by scripts/bundle-runtime.mjs: a portable Python, its wheels, and
+# static ffmpeg/ffprobe. Downloaded artefacts, ~300 MB, never source.
+runtime/
+# electron-builder output
+dist/
 __pycache__/
 *.py[cod]
 .pytest_cache/

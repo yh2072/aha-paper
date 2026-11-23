@@ -3,8 +3,20 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+# Where the code and the read-only assets are: web/, models/, scripts/. Inside a
+# packaged app this is in the bundle, which is read-only — and on macOS writing
+# into a signed bundle invalidates the signature, so nothing writable may live
+# under it.
 ROOT = Path(__file__).resolve().parent.parent
-load_dotenv(ROOT / ".env")
+
+# Where the user's own things are: their papers, their .env, their credentials.
+# The desktop shell sets AHA_STATE_DIR to the platform's application-data
+# directory, because Electron already knows what that is on each OS and
+# re-deriving it here would be the same rules written twice. Unset — running
+# from a checkout — it is the checkout, exactly as before.
+STATE_DIR = Path(os.getenv("AHA_STATE_DIR") or ROOT).expanduser()
+ENV_FILE = STATE_DIR / ".env"
+load_dotenv(ENV_FILE)
 
 def _normalize_base_url(url: str) -> str:
     """Accept either the API root or a full /chat/completions endpoint."""
@@ -28,8 +40,8 @@ MODEL_AUDIO = os.getenv("OPENAI_MODEL_AUDIO", "openai/gpt-audio-mini")
 # 因为界面上每个按钮花的都是运营者自己的模型额度。详见 app/access.py。
 ACCESS_PASSWORD = os.getenv("AHA_ACCESS_PASSWORD", "").strip()
 
-DATA_DIR = ROOT / "data"
-DATA_DIR.mkdir(exist_ok=True)
+DATA_DIR = STATE_DIR / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)   # parents: the state dir may be new
 
 # 口播语速按 ~300字/分钟 估算；≈5分钟 => 正文 ~1500 字（讲图占大头，内容要讲透）
 MAX_SCRIPT_CHARS = 1500

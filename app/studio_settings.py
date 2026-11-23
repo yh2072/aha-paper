@@ -75,7 +75,7 @@ def save_settings(values):
     for _,attr,value in pending:
         if attr=='MODEL_TEXT':
             validate_chat_model(value,target_base)
-    path=config.ROOT/'.env' 
+    path=config.ENV_FILE 
     for env,attr,value in pending:
         set_key(str(path),env,value)
         os.environ[env]=value

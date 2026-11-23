@@ -15,10 +15,15 @@ const ROOT = path.resolve(import.meta.dirname, '..');
 // The Python app loads .env into its environment, so a subprocess inherits it;
 // loading it here too makes a directly-run CLI report the same state instead of
 // a second, emptier truth. Already-set variables win, as in python-dotenv.
-try { process.loadEnvFile(path.join(ROOT, '.env')); } catch { /* no .env: ambient only */ }
+// The user's own files live beside the code only when running from a checkout.
+// A packaged app's bundle is read-only, so the shell points AHA_STATE_DIR at the
+// platform's application-data directory and everything writable follows it.
+const STATE = process.env.AHA_STATE_DIR || ROOT;
+
+try { process.loadEnvFile(path.join(STATE, '.env')); } catch { /* no .env: ambient only */ }
 
 // Overridable so tests get their own store instead of the user's real one.
-export const CREDENTIAL_FILE = process.env.PI_CREDENTIAL_FILE || path.join(ROOT, '.runtime', 'credentials.json');
+export const CREDENTIAL_FILE = process.env.PI_CREDENTIAL_FILE || path.join(STATE, '.runtime', 'credentials.json');
 
 /**
  * The app's Models collection: every built-in provider, this app's credential

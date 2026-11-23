@@ -18,7 +18,7 @@
  *   - Saying why, when it fails. A window that never loads tells the user
  *     nothing; the server's own stderr tells them everything.
  */
-const { app, BrowserWindow, dialog, shell } = require('electron');
+const { app, BrowserWindow, Menu, dialog, shell } = require('electron');
 const { spawn } = require('node:child_process');
 const net = require('node:net');
 const path = require('node:path');
@@ -54,11 +54,27 @@ function python() {
   return candidates.find((p) => fs.existsSync(p)) || 'python3';
 }
 
+/** Where the user's papers, .env and credentials go.
+ *
+ *  Packaged: the platform's application-data directory. It cannot be the app
+ *  bundle — that is read-only, and on macOS writing inside a signed bundle
+ *  invalidates the signature, so the first saved setting would break the app's
+ *  own code signature.
+ *
+ *  From a checkout: the checkout, so a developer's existing data/ and .env are
+ *  the ones they see. */
+function stateDir() {
+  return app.isPackaged ? app.getPath('userData') : ROOT;
+}
+
 function startServer(port) {
   const bundledBin = path.join(process.resourcesPath || '', 'bin');
+  const state = stateDir();
   const env = {
     ...process.env,
     PORT: String(port),
+    AHA_STATE_DIR: state,
+    PI_CREDENTIAL_FILE: path.join(state, '.runtime', 'credentials.json'),
     // Electron is a Node runtime. Handing the child our own binary is what
     // removes "install Node" from the user's list.
     AHA_NODE: process.execPath,
@@ -110,7 +126,32 @@ function createWindow() {
   return win;
 }
 
+/** A packaged app hides the user's files somewhere they would never guess, so
+ *  there has to be a way to open that folder. The Edit roles are not optional:
+ *  replacing the default menu without them takes away Cmd+C and Cmd+V. */
+function buildMenu() {
+  const openData = {
+    label: '打开数据文件夹 · Open data folder',
+    click: () => shell.openPath(path.join(stateDir(), 'data')),
+  };
+  const template = [
+    ...(process.platform === 'darwin'
+      ? [{ label: app.name, submenu: [{ role: 'about' }, { type: 'separator' }, openData,
+                                      { type: 'separator' }, { role: 'quit' }] }]
+      : [{ label: 'File', submenu: [openData, { type: 'separator' }, { role: 'quit' }] }]),
+    { label: 'Edit',
+      submenu: [{ role: 'undo' }, { role: 'redo' }, { type: 'separator' },
+                { role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { role: 'selectAll' }] },
+    { label: 'View',
+      submenu: [{ role: 'reload' }, { role: 'toggleDevTools' }, { type: 'separator' },
+                { role: 'resetZoom' }, { role: 'zoomIn' }, { role: 'zoomOut' },
+                { type: 'separator' }, { role: 'togglefullscreen' }] },
+  ];
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
 async function boot() {
+  buildMenu();
   const port = await freePort();
   server = startServer(port);
 

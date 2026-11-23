@@ -7,12 +7,19 @@
   },
   "main": "desktop/main.cjs",
   "scripts": {
-    "desktop": "electron ."
+    "desktop": "electron .",
+    "icon": "python3 scripts/make-icon.py",
+    "bundle:runtime": "node scripts/bundle-runtime.mjs",
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder --mac"
   },
   "devDependencies": {
-    "electron": "34.2.0"
+    "electron": "34.2.0",
+    "electron-builder": "25.1.8"
   },
   "allowScripts": {
     "electron@34.2.0": true
-  }
+  },
+  "version": "0.1.0",
+  "description": "A guided read of a paper, narrated over the paper itself."
 }

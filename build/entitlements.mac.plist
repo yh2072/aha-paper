@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  The hardened runtime is required for notarization, and these are the holes the
+  bundle genuinely needs.
+
+  disable-library-validation: the app loads code Apple did not sign — CPython,
+  ffmpeg, and the native .so inside nearly every wheel. Without it the loader
+  refuses them and the app dies on `import onnxruntime`.
+
+  allow-dyld-environment-variables / allow-unsigned-executable-memory: the
+  portable interpreter and its extensions. Narrower than they sound, and both
+  are standard for an app that embeds CPython.
+-->
+<plist version="1.0">
+<dict>
+    <key>com.apple.security.cs.disable-library-validation</key>
+    <true/>
+    <key>com.apple.security.cs.allow-dyld-environment-variables</key>
+    <true/>
+    <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+    <true/>
+    <key>com.apple.security.cs.allow-jit</key>
+    <true/>
+    <key>com.apple.security.network.client</key>
+    <true/>
+    <key>com.apple.security.network.server</key>
+    <true/>
+</dict>
+</plist>

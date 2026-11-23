@@ -1,0 +1,69 @@
+appId: com.ahapaper.studio
+productName: aha-paper
+copyright: aha-paper
+
+directories:
+  output: dist
+  buildResources: build
+
+# asar is off on purpose. An asar archive is a virtual filesystem that only
+# Node's patched fs can see, and the thing reading app/ here is CPython — it
+# would find nothing. web/, models/ and scripts/ are read the same way. Packing
+# them would produce a build that starts and then fails to find its own code.
+asar: false
+
+files:
+  - app/**/*
+  - web/**/*
+  - models/**/*
+  - fonts/**/*
+  - scripts/**/*
+  - desktop/**/*
+  - requirements.txt
+  - package.json
+  - node_modules/**/*
+  - '!**/__pycache__/**'
+  - '!**/*.py[cod]'
+  - '!tests/**'
+  - '!data/**'
+  - '!runtime/**'
+  - '!dist/**'
+  - '!.venv/**'
+
+# Fetched by scripts/bundle-runtime.mjs for the platform being built. These land
+# beside the app code, not inside it, which is what the shell's lookup expects:
+# Resources/python/bin/python3 and Resources/bin/{ffmpeg,ffprobe}.
+extraResources:
+  - from: runtime/python
+    to: python
+  - from: runtime/bin
+    to: bin
+
+mac:
+  category: public.app-category.productivity
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  # Required because the bundle carries binaries Apple did not sign: CPython,
+  # ffmpeg, and a native .so inside almost every wheel. Without
+  # disable-library-validation the hardened runtime refuses to load them and the
+  # app dies on `import onnxruntime` with no message the user can act on.
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+
+dmg:
+  title: aha-paper
+
+win:
+  target: nsis
+  artifactName: ${productName}-${version}-${arch}.${ext}
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+
+linux:
+  target: AppImage
+  category: Education

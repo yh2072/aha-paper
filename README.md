@@ -59,6 +59,39 @@ and ffmpeg (~430 MB per platform) and signing the result. `app/bin.py` is the
 part that makes that possible — every external program is resolved through it,
 so a build can point `AHA_BIN_DIR` at the copies inside its own bundle.
 
+#### Building an installer
+
+```bash
+npm run icon
+npm run bundle:runtime
+npm run dist:mac
+```
+
+`bundle:runtime` fetches a relocatable CPython, installs `requirements.txt` into
+it, and fetches static ffmpeg and ffprobe into `runtime/`. The machine's own
+copies cannot be used: a venv's interpreter is a symlink to a Python elsewhere
+on disk, and Homebrew's ffmpeg links against dylibs under `/opt/homebrew`, so
+either one produces a build that runs only where it was built.
+
+The result is roughly 470 MB per platform — Electron ~150 MB, the wheels
+~162 MB, ffmpeg and ffprobe ~92 MB, fonts and the figure model ~38 MB.
+
+**Signing is yours to do.** Unsigned, macOS tells whoever downloads it that the
+app "cannot be opened because the developer cannot be verified", and the only
+way past that is right-click → Open. To avoid it you need an Apple Developer
+account and a Developer ID Application certificate; then
+
+```bash
+CSC_LINK=... CSC_KEY_PASSWORD=... APPLE_ID=... APPLE_APP_SPECIFIC_PASSWORD=... APPLE_TEAM_ID=... npm run dist:mac
+```
+
+The hardened runtime is already configured, with the entitlements the bundled
+CPython and the wheels' native extensions need (`build/entitlements.mac.plist`).
+
+**ffmpeg's licence travels with it.** The static builds are redistributed
+inside the app, so their licence ships beside them in `Resources/bin`. Check
+which terms the build you fetch is under before handing the app to anyone.
+
 #### Hosting it
 
 A run takes about 18 minutes, writes roughly 86 MB per paper, and keeps working
@@ -200,6 +233,36 @@ npm install && npm run desktop
 得把 Python、依赖和 ffmpeg 一起打进去（每个平台约 430 MB）并签名。
 `app/bin.py` 就是为此准备的——所有外部程序都从那里解析，
 打包后把 `AHA_BIN_DIR` 指向自带的那份即可。
+
+#### 打包成安装包
+
+```bash
+npm run icon
+npm run bundle:runtime
+npm run dist:mac
+```
+
+`bundle:runtime` 会下载一份可重定位的 CPython，把 `requirements.txt` 装进去，
+再下载静态的 ffmpeg 和 ffprobe 到 `runtime/`。不能直接用本机那份：venv 里的
+解释器是指向磁盘别处的符号链接，而 Homebrew 的 ffmpeg 链接到 `/opt/homebrew`
+下面的 dylib——两者都会打出一个只在打包这台机器上能跑的包。
+
+成品每个平台约 470 MB：Electron ~150 MB，wheels ~162 MB，
+ffmpeg 与 ffprobe ~92 MB，字体和主图检测模型 ~38 MB。
+
+**签名要你自己来。**不签名的话，别人下载后 macOS 会说"无法打开，因为无法验证
+开发者"，只能右键→打开绕过。要免掉这一步需要 Apple 开发者账号和一张
+Developer ID Application 证书，然后：
+
+```bash
+CSC_LINK=... CSC_KEY_PASSWORD=... APPLE_ID=... APPLE_APP_SPECIFIC_PASSWORD=... APPLE_TEAM_ID=... npm run dist:mac
+```
+
+加固运行时（hardened runtime）已经配好，包含自带 CPython 和各 wheel 里原生扩展
+所需的 entitlements，见 `build/entitlements.mac.plist`。
+
+**ffmpeg 的许可证要跟着走。**静态构建是随应用一起分发的，所以它的许可证文件
+会放在 `Resources/bin` 旁边。把应用交给别人之前，先确认你下载的那份是什么条款。
 
 #### 部署到哪里
 
