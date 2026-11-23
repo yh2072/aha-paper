@@ -1,3 +1,4 @@
+const SURROUND='#faf8f3';   // --paper: the canvas around the page, never the page
 /* Narration is the single clock. Each clause owns one visual state. */
 class AhaLiveStage {
  constructor(experience,media,stage){this.data=experience;this.media=media;this.stage=stage;this.canvas=stage.querySelector('canvas');this.caption=stage.parentElement.querySelector('.live-caption');this.ctx=this.canvas.getContext('2d');this.images=new Map();this.index=-1;this.lastTime=-1;this.autoZoom=true;this.zoomButton=stage.querySelector('.zoom-toggle');if(this.zoomButton)this.zoomButton.onclick=()=>{this.autoZoom=!this.autoZoom;this.zoomButton.textContent=this.autoZoom?'查看全图':'跟随讲解';this.lastTime=-1};new ResizeObserver(()=>this.resize()).observe(stage);this.resize();this.tick=this.tick.bind(this);requestAnimationFrame(this.tick)}
@@ -24,7 +25,7 @@ class AhaLiveStage {
   const url=pages[String(spot?.page??'')]||Object.values(pages)[0];if(!url)return;
   const image=this.load(url);if(!image?.complete||!image.naturalWidth)return;
   const ctx=this.ctx,W=this.canvas.width,H=this.canvas.height,dpr=Math.min(devicePixelRatio||1,2);
-  ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
+  ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=SURROUND;ctx.fillRect(0,0,W,H);
   const box=spot?this.rectBounds(spot.rects):null;
   // Only ease from the previous shot when it was on the same page; across a page
   // change the old coordinates mean nothing and the camera would sweep nonsense.
@@ -55,13 +56,14 @@ class AhaLiveStage {
    for(const k of keys)for(const r of k.rects||[]){const [x,y,w,h]=place(r);
     ctx.fillStyle='rgba(166,88,24,.9)';
     ctx.fillRect(x,y+h+Math.max(1*dpr,h*.09),w*lift,Math.max(1.8*dpr,h*.1))}
-   if(box){const [x,y,w,h]=place(box),pad=Math.max(2*dpr,h*.2);
-    ctx.strokeStyle='rgba(176,134,47,.55)';ctx.lineWidth=1.6*dpr;ctx.setLineDash([5*dpr,4*dpr]);
-    ctx.lineDashOffset=-t*9*dpr;ctx.strokeRect(x-pad*.6,y-pad,w+pad*1.2,h+pad*2);ctx.setLineDash([])}}
+   // No outline around the marked block. The marker already says which sentence
+   // this is, and a second, animated, dashed rectangle saying the same thing is
+   // the busiest element on an otherwise quiet page.
+  }
   ctx.restore();
   this.cameraState={crop,target,mode:crop[2]<1?'focus':'overview',cue:cueIndex};
   if((crop[2]<1||crop[3]<1)&&box)this.drawLocator(ctx,image,box,W,H,dpr)}
- drawFigure(segment,t,cueIndex){const image=this.images.get(segment.visual.url);if(!image?.complete||!image.naturalWidth)return;const ctx=this.ctx,W=this.canvas.width,H=this.canvas.height,dpr=Math.min(devicePixelRatio||1,2);ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);const cues=segment.cues||[],cue=cues[cueIndex];if(!cue)return;const valid=this.region(cue.region),priorCue=cues[cueIndex-1];const target=this.crop(cue.region),before=this.crop(priorCue?.region),elapsed=Math.max(0,t-cue.start);let a=Math.min(1,elapsed/.9);a=a*a*(3-2*a);const crop=target.map((v,i)=>before[i]+(v-before[i])*a);const zoomed=target[2]<1||target[3]<1;this.cameraState={crop,target,mode:zoomed?'focus':'overview',cue:cueIndex};
+ drawFigure(segment,t,cueIndex){const image=this.images.get(segment.visual.url);if(!image?.complete||!image.naturalWidth)return;const ctx=this.ctx,W=this.canvas.width,H=this.canvas.height,dpr=Math.min(devicePixelRatio||1,2);ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=SURROUND;ctx.fillRect(0,0,W,H);const cues=segment.cues||[],cue=cues[cueIndex];if(!cue)return;const valid=this.region(cue.region),priorCue=cues[cueIndex-1];const target=this.crop(cue.region),before=this.crop(priorCue?.region),elapsed=Math.max(0,t-cue.start);let a=Math.min(1,elapsed/.9);a=a*a*(3-2*a);const crop=target.map((v,i)=>before[i]+(v-before[i])*a);const zoomed=target[2]<1||target[3]<1;this.cameraState={crop,target,mode:zoomed?'focus':'overview',cue:cueIndex};
  // The figure owns the whole stage; the locator is a small inset, not a column, and carries no label.
  const margin=6*dpr,area={x:margin,y:margin,w:W-margin*2,h:H-margin*2};const sw=crop[2]*image.naturalWidth,sh=crop[3]*image.naturalHeight,fit=Math.min(area.w/sw,area.h/sh),iw=sw*fit,ih=sh*fit,ix=area.x+(area.w-iw)/2,iy=area.y+(area.h-ih)/2;ctx.save();ctx.beginPath();ctx.rect(area.x,area.y,area.w,area.h);ctx.clip();ctx.drawImage(image,crop[0]*image.naturalWidth,crop[1]*image.naturalHeight,sw,sh,ix,iy,iw,ih);
  if(valid){const r=cue.region,targetPoint=[r[0]+r[2]/2,r[1]+r[3]/2];let prior=this.region(priorCue?.region)?[priorCue.region[0]+priorCue.region[2]/2,priorCue.region[1]+priorCue.region[3]/2]:targetPoint;const project=p=>[ix+(p[0]-crop[0])/crop[2]*iw,iy+(p[1]-crop[1])/crop[3]*ih];const point=when=>{let s=Math.min(1,Math.max(0,when/.65));s=s*s*(3-2*s);return project([prior[0]+(targetPoint[0]-prior[0])*s+Math.sin(when*1.9)*Math.min(r[2]*.045,.01)*s,prior[1]+(targetPoint[1]-prior[1])*s+Math.sin(when*2.7)*Math.min(r[3]*.04,.01)*s])};const p=point(elapsed);this.drawPointer(ctx,p,Array.from({length:7},(_,i)=>point(Math.max(0,elapsed-(7-i)*.04))),t,Math.max(24*dpr,Math.min(W/24,39*dpr)))}ctx.restore();

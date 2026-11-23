@@ -9,20 +9,46 @@
    Everything here is an override on purpose. Keeping it in one file means the old
    look is one <link> away, and nothing below is load-bearing for behaviour. */
 
+/* The palette is impressionist, the layout stays plain.
+
+   Three rules carried over from the painting, because they are what makes a
+   palette read as impressionist rather than merely soft:
+
+   1. No white ground and no black ink. A canvas is warm and a shadow is violet;
+      #ffffff on #18181b is the one combination the period never used. The ground
+      is unprimed linen, the ink a blue-black.
+   2. Light and shade are warm against cool, not dark against pale. So the
+      accents come in a pair -- an ochre for the lit side, a violet for the shade
+      -- and either can sit on the ground without a border to hold it.
+   3. Everything is greyed. A saturated colour next to these reads as a mistake,
+      which is why the green moved from forest to lily-pad.
+
+   The structure underneath is untouched: same hairlines, same density, same
+   spacing. Only the colour changed. */
+
 :root,
 .aha-home {
-  --paper: #ffffff;
-  --panel: #fafaf9;
-  --ink: #18181b;
-  --muted: #71717a;
-  --faint: #a1a1aa;
-  --line: #e4e4e7;
-  --line-soft: #f1f1ef;
-  --accent: #1f6f4f;
-  --accent-ink: #14532d;
-  --accent-soft: #eef5f1;
+  --paper: #faf8f3;        /* unprimed linen, not white */
+  --panel: #edefee;        /* the rail is the shade: cool against the warm page */
+  --card: #fffdf8;         /* surfaces lift off the ground by warming, not whitening */
+  --card-veil: #fffdf8ee;  /* the same surface where it floats over video */
+  --ink: #30323f;          /* blue-black; a shadow is never neutral */
+  --muted: #6d6a7c;        /* violet-grey */
+  --faint: #a4a1b0;
+  --line: #e6e0d4;         /* warm hairline */
+  --line-soft: #efebe1;
+  --line-cool: #e0e4e3;    /* the hairline on the cool side */
+  --accent: #4e8273;       /* lily pad, greyed */
+  --accent-ink: #35604f;
+  --accent-soft: #e9f0ea;
+  --warm: #c2824c;         /* ochre: the lit side */
+  --warm-soft: #f6ead8;
+  --violet: #6b679a;       /* the shaded side */
+  --on-accent: #fffdf8;
+  --shadow-soft: #4a44731f;  /* shadows are tinted, never grey */
+  --shadow-mid: #4a44734d;
   --green: var(--accent);
-  --gold: var(--muted);
+  --gold: var(--warm);
 }
 
 /* ---------- ground ---------- */
@@ -33,12 +59,12 @@ main, .aha-home .home-main { max-width: 1280px; }
 
 /* ---------- brand ---------- */
 .home-mark {
-  background: var(--accent); color: #fff; border-radius: 7px;
+  background: var(--accent); color: var(--on-accent); border-radius: 7px;
   width: 26px; height: 26px; font-size: 19px;
 }
 .home-brand { font-size: 17px; letter-spacing: -.2px; margin-bottom: 26px; }
 .home-brand strong { font-weight: 650; }
-.watch-brand span, .brand-mark > span, .home-mark { color: #fff; }
+.watch-brand span, .brand-mark > span, .home-mark { color: var(--on-accent); }
 
 /* ---------- navigation ---------- */
 .aha-home .nav, .nav { border-radius: 6px; font-size: 13px; color: var(--muted); padding: 9px 11px; }
@@ -62,20 +88,20 @@ main, .aha-home .home-main { max-width: 1280px; }
 /* ---------- composer ---------- */
 .paper-composer {
   border: 1px solid var(--line); border-radius: 10px; box-shadow: none;
-  background: #fff; padding: 16px 16px 12px;
+  background: var(--card); padding: 16px 16px 12px;
 }
-.paper-composer:focus-within { border-color: #c7cdc9; }
+.paper-composer:focus-within { border-color: var(--line); }
 .paper-composer.dragging { border-color: var(--accent); background: var(--accent-soft); }
 .paper-composer textarea { min-height: 96px; font-size: 13.5px; line-height: 1.8; color: var(--ink); }
 .paper-composer textarea::placeholder { color: var(--faint); }
 .attach-paper, .composer-time {
-  background: #fff; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 6px;
   font-size: 11px; color: var(--muted); padding: 6px 10px;
 }
 .attach-paper:hover, .composer-time:hover { background: var(--panel); }
 .composer-chip { display: none; }            /* restating the mode on every visit */
 .composer-submit {
-  background: var(--accent); color: #fff; border-radius: 6px; box-shadow: none;
+  background: var(--accent); color: var(--on-accent); border-radius: 6px; box-shadow: none;
   font-size: 12px; font-weight: 550; gap: 8px; padding: 9px 14px;
 }
 .composer-submit:hover { background: var(--accent-ink); }
@@ -99,9 +125,9 @@ main, .aha-home .home-main { max-width: 1280px; }
 .aha-home .projects, .projects { grid-template-columns: 1fr; gap: 8px; }
 .aha-home .project, .project {
   display: grid; grid-template-columns: 116px 1fr; gap: 0; align-items: stretch;
-  background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 0;
+  background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 0;
 }
-.aha-home .project:hover, .project:hover { border-color: #d4d4d8; }
+.aha-home .project:hover, .project:hover { border-color: var(--faint); }
 .aha-home .project-cover, .project-cover {
   aspect-ratio: auto; height: auto; min-height: 0;
   border-right: 1px solid var(--line-soft); background: var(--panel);
@@ -118,7 +144,7 @@ main, .aha-home .home-main { max-width: 1280px; }
    then shares the box with the image and shoves it aside. */
 .project-tag {
   position: absolute; left: 6px; top: 6px; right: 6px;
-  background: #ffffffe8 !important; border: 1px solid var(--line);
+  background: var(--card-veil) !important; border: 1px solid var(--line);
   color: var(--muted); border-radius: 4px; font-size: 8.5px; padding: 3px 6px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: none;
 }
@@ -139,41 +165,41 @@ main, .aha-home .home-main { max-width: 1280px; }
   border: 1px solid var(--line); border-radius: 5px; font-size: 10.5px; color: var(--muted); padding: 6px 9px;
 }
 .project-footer button:hover, .project-footer a:hover { background: var(--panel); color: var(--ink); }
-.project-footer .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-.project-footer .primary:hover { background: var(--accent-ink); color: #fff; }
+.project-footer .primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.project-footer .primary:hover { background: var(--accent-ink); color: var(--on-accent); }
 .project-progress { background: var(--line-soft); height: 2px; }
 .project-progress > span { background: var(--accent); }
-.project-error { color: #b91c1c; }
+.project-error { color: #a8503c; }
 .empty { border: 1px dashed var(--line); border-radius: 8px; }
 .empty > span, .mini-flower { color: var(--line); }
 .empty h3 { font-size: 16px; }
 .empty p { color: var(--muted); }
 
 /* ---------- dialogs ---------- */
-dialog { background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 16px 48px #18181b1f; }
-dialog::backdrop { background: #18181b4d; backdrop-filter: blur(2px); }
+dialog { background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 16px 48px var(--shadow-soft); }
+dialog::backdrop { background: var(--shadow-mid); backdrop-filter: blur(2px); }
 dialog h2 { font-size: 19px; font-weight: 650; font-family: inherit; letter-spacing: -.2px; }
 dialog p, .field small, .use-note { color: var(--muted); }
 .eyebrow { color: var(--faint); letter-spacing: 1.4px; }
 .field input, .field select, .script-editor, .use-row select {
-  background: #fff; border: 1px solid var(--line); border-radius: 6px; color: var(--ink);
+  background: var(--card); border: 1px solid var(--line); border-radius: 6px; color: var(--ink);
 }
 .dialog-actions .primary { background: var(--accent); border-radius: 6px; }
 .dialog-actions .primary:hover { background: var(--accent-ink); }
-.provider-card, .conn-row, .outline-pick { border-color: var(--line); border-radius: 8px; background: #fff; }
+.provider-card, .conn-row, .outline-pick { border-color: var(--line); border-radius: 8px; background: var(--card); }
 .provider-head { background: var(--panel); border-bottom: 1px solid var(--line); }
 .provider-head h3, .conn-row b, .use-row b { color: var(--ink); }
 .provider-head small, .conn-row small, .provider-body > small { color: var(--muted); }
 .provider-tag { background: var(--line-soft); color: var(--muted); border-radius: 4px; }
 .provider-state { border-radius: 4px; color: var(--faint); border-color: var(--line); }
-.provider-state.on { background: var(--accent-soft); color: var(--accent-ink); border-color: #cfe3d8; }
+.provider-state.on { background: var(--accent-soft); color: var(--accent-ink); border-color: var(--accent-soft); }
 .conn-empty { border-color: var(--line); border-radius: 8px; color: var(--muted); }
 .use-row { border-bottom: 1px solid var(--line-soft); }
 .log { background: var(--panel); border-radius: 6px; }
-.toast { background: var(--ink); color: #fff; border-radius: 6px; }
+.toast { background: var(--ink); color: var(--on-accent); border-radius: 6px; }
 .status-dot { background: var(--accent); }
 .connection, .aha-home .connection {
-  border: 1px solid var(--line); border-radius: 6px; color: var(--muted); background: #fff;
+  border: 1px solid var(--line); border-radius: 6px; color: var(--muted); background: var(--card);
 }
 
 /* ---------- the player ---------- */
@@ -185,15 +211,15 @@ dialog p, .field small, .use-note { color: var(--muted); }
 .outline-hint, .outline-bottom small { color: var(--faint); }
 .chapter { border-radius: 6px; }
 .chapter.active { background: var(--accent-soft); }
-.video-badge { background: #fff; border: 1px solid var(--line); color: var(--muted); border-radius: 5px; }
+.video-badge { background: var(--card); border: 1px solid var(--line); color: var(--muted); border-radius: 5px; }
 .visual-stage { background: var(--panel); border-radius: 6px; }
-.live-caption { background: #ffffffee; color: var(--ink); border-radius: 6px; }
-.zoom-toggle { border-radius: 5px; border: 1px solid var(--line); background: #fff; color: var(--muted); }
+.live-caption { background: var(--card-veil); color: var(--ink); border-radius: 6px; }
+.zoom-toggle { border-radius: 5px; border: 1px solid var(--line); background: var(--card); color: var(--muted); }
 .segment-sources a, .segment-sources span {
-  border: 1px solid var(--line); border-radius: 5px; color: var(--muted); background: #fff;
+  border: 1px solid var(--line); border-radius: 5px; color: var(--muted); background: var(--card);
 }
 .segment-navigation button, #downloadVideo, #downloadBundle {
-  border: 1px solid var(--line); border-radius: 5px; color: var(--muted); background: #fff;
+  border: 1px solid var(--line); border-radius: 5px; color: var(--muted); background: var(--card);
 }
 .segment-navigation button:hover, #downloadVideo:hover, #downloadBundle:hover { background: var(--panel); color: var(--ink); }
 footer { color: var(--faint); }
@@ -222,15 +248,15 @@ footer { color: var(--faint); }
 /* The page was floating in an olive mat: a tinted shell, a tinted stage inside it
    and a tinted canvas inside that. One hairline is enough; the paper is the thing
    being looked at. */
-.video-shell { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 0; }
-.visual-stage { background: #fff; border-radius: 0; inset: 0 0 58px; }
+.video-shell { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 0; }
+.visual-stage { background: var(--card); border-radius: 0; inset: 0 0 58px; }
 .explainer-shell video { min-height: 0; }
 .video-badge {
-  background: #ffffffe6; border: 1px solid var(--line); color: var(--muted);
+  background: var(--card-veil); border: 1px solid var(--line); color: var(--muted);
   border-radius: 4px; font-size: 10px; padding: 4px 8px;
 }
 .live-caption {
-  background: #fff; border-top: 1px solid var(--line); border-radius: 0;
+  background: var(--card); border-top: 1px solid var(--line); border-radius: 0;
   left: 0; right: 0; bottom: 0; padding: 11px 16px; max-height: 32%;
   color: var(--ink); font-size: clamp(12px, 1.15vw, 15px); line-height: 1.7;
   box-shadow: none;
@@ -239,7 +265,7 @@ footer { color: var(--faint); }
 
 /* ---------- chapter list ---------- */
 .outline {
-  background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 14px 12px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 12px;
 }
 .outline .eyebrow { display: none; }
 .outline h2 { font-family: inherit; font-size: 14px; font-weight: 650; letter-spacing: -.2px; }
@@ -277,7 +303,7 @@ footer { color: var(--faint); }
 /* watch.css reaches the caption through `.explainer-shell > .live-caption`, so a
    bare `.live-caption` loses to it however late this file loads. */
 .explainer-shell > .live-caption {
-  background: #fff; border-top: 1px solid var(--line); color: var(--ink);
+  background: var(--card); border-top: 1px solid var(--line); color: var(--ink);
   padding: 12px 16px; font-size: clamp(12.5px, 1.1vw, 15px); line-height: 1.7;
   min-height: 0; max-height: 160px;
 }
@@ -290,3 +316,59 @@ footer { color: var(--faint); }
 }
 .theatre, .outline { min-width: 0; }
 .video-shell { max-width: 100%; }
+
+
+/* ---------- broken colour ----------
+
+   A palette is impressionist because warm and cool sit beside each other, not
+   because everything is soft. The tokens above are only half of it; these are
+   the places the pair actually gets used.
+
+   The structural one is the rail against the page. Value alone would have made
+   a grey sidebar; making it the cool side instead gives the whole window a lit
+   half and a shaded half, which is the entire trick.
+
+   The rest is small on purpose. Quantities take the ochre, focus and the empty
+   frame take the violet, and nothing else is allowed a saturated edge — one
+   loud colour against these would read as a mistake rather than an accent. */
+
+.aha-home .sidebar, .sidebar { border-right-color: var(--line-cool); }
+.nav-divider { background: var(--line-cool); }
+.local-account { border-top-color: var(--line-cool); }
+
+/* quantities are the lit side */
+.aha-home .nav i, .nav i { color: var(--warm); opacity: 1; font-weight: 600; }
+.busy-dot { background: var(--warm); }
+
+/* focus is the shaded side. studio.css puts an olive ring here; on this ground
+   olive reads as a leftover from the sheet before it. */
+button:focus-visible, a:focus-visible, input:focus, textarea:focus, select:focus {
+  outline-color: var(--violet);
+}
+.paper-composer:focus-within { border-color: var(--violet); }
+
+/* an empty frame is a space waiting to be filled, so it stays on the cool side */
+.empty { border-color: var(--line-cool); }
+.empty > span { color: var(--faint); }
+.conn-empty { border-color: var(--line-cool); color: var(--muted); }
+
+/* the one badge that is pure warmth, because it marks what is yours and local */
+.local-avatar { background: var(--warm-soft); color: #8a5f33; }
+
+/* ---------- the light in the room ----------
+
+   Two washes at the edge of visibility: ochre where the light falls, violet
+   where it does not. Together they are about 7% opacity, which is enough that a
+   large empty area has air in it and not enough to read as a gradient.
+
+   Fixed attachment on purpose — this is the light on the room, so it must stay
+   put while the content scrolls through it. Attached to the content instead, it
+   turns into a texture sliding past, which is the cheap version of this. */
+
+body, .aha-home {
+  background-image:
+    radial-gradient(1200px 760px at 88% -10%, #c2824c14, transparent 62%),
+    radial-gradient(1000px 820px at -8% 110%, #6b679a12, transparent 60%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
