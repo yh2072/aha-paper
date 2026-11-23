@@ -469,3 +469,16 @@ dialog { box-shadow: 0 24px 64px #4a447326; }
 .aha-home dialog { background: var(--card); }
 .aha-home .dialog-actions .primary { background: var(--accent); color: var(--on-accent); }
 .aha-home .toast { background: var(--ink); color: var(--on-accent); }
+
+
+/* ---------- the duration chip ----------
+
+   home.css pins the empty input at width:30px. Measured at the 11px this sheet
+   sets, the content box is 26px while the placeholder needs 23.7px for 'Auto'
+   and 22px for 自动 -- two to four pixels of slack, which any font fallback or
+   sub-pixel rounding eats, and then the label renders as 'Au' or 自.
+
+   em, not px: the thing that varies here is the font, so the width should come
+   from it rather than from a number tuned against one rendering. */
+
+.composer-time input:placeholder-shown { width: 4em; }
