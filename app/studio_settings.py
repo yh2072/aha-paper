@@ -5,7 +5,7 @@ from urllib.parse import urlsplit
 from pathlib import Path
 import httpx
 from dotenv import set_key
-from . import config, pi_models
+from . import config, pi_models, tenant
 from .llm import validate_chat_model
 
 VOICES = {'zh-CN-XiaoxiaoNeural','zh-CN-YunxiNeural','zh-CN-XiaoyiNeural','zh-CN-YunjianNeural','en-US-AriaNeural'}
@@ -38,13 +38,13 @@ def _use_status():
 
 
 def public_settings():
-    return {'configured':bool(config.API_KEY),'model_text':config.MODEL_TEXT,
-        'script_audit':config.SCRIPT_AUDIT,
-        'model_cover':config.MODEL_COVER,
-        'voice':config.EDGE_TTS_VOICE,'rate':config.EDGE_TTS_RATE,
+    return {'configured':bool(config.API_KEY),'model_text':config.setting('MODEL_TEXT'),
+        'script_audit':config.setting('SCRIPT_AUDIT'),
+        'model_cover':config.setting('MODEL_COVER'),
+        'voice':config.setting('EDGE_TTS_VOICE'),'rate':config.setting('EDGE_TTS_RATE'),
         'uses':_use_status(),
-        'language_provider':config.LANGUAGE_PROVIDER,'image_provider':config.IMAGE_PROVIDER,
-        'engine':'pi-canvas','tts':'edge-tts','base_url':config.BASE_URL,'image_protocol':config.IMAGE_PROTOCOL,'delivery':'explainer'}
+        'language_provider':config.setting('LANGUAGE_PROVIDER'),'image_provider':config.setting('IMAGE_PROVIDER'),
+        'engine':'pi-canvas','tts':'edge-tts','base_url':config.BASE_URL,'image_protocol':config.setting('IMAGE_PROTOCOL'),'delivery':'explainer'}
 
 
 def save_settings(values):
@@ -57,10 +57,15 @@ def save_settings(values):
     # validate against, so it is written before the loop below rather than
     # threaded through validations that mean nothing for a boolean.
     if values.get('script_audit') is not None:
-        flag='1' if values['script_audit'] in (True,'1','true','on','yes') else '0'
-        set_key(str(config.ENV_FILE),'AHA_SCRIPT_AUDIT',flag)
-        os.environ['AHA_SCRIPT_AUDIT']=flag
-        config.SCRIPT_AUDIT=(flag=='1')
+        on='1' if values['script_audit'] in (True,'1','true','on','yes') else '0'
+        if tenant.enabled():
+            # One workspace's choice is not every workspace's: it goes in that
+            # workspace's own file, and never into the process environment.
+            tenant.save_settings({'SCRIPT_AUDIT': on=='1'})
+        else:
+            set_key(str(config.ENV_FILE),'AHA_SCRIPT_AUDIT',on)
+            os.environ['AHA_SCRIPT_AUDIT']=on
+            config.SCRIPT_AUDIT=(on=='1')
     pending=[]
     for field,(env,attr) in mapping.items():
         value=values.get(field)
@@ -84,6 +89,11 @@ def save_settings(values):
     for _,attr,value in pending:
         if attr=='MODEL_TEXT':
             validate_chat_model(value,target_base)
+    if tenant.enabled():
+        # A workspace cannot be handed the operator's .env to write to: that
+        # file is the machine's, and one visitor's model choice is not another's.
+        tenant.save_settings({attr: value for _, attr, value in pending})
+        return public_settings()
     path=config.ENV_FILE 
     for env,attr,value in pending:
         set_key(str(path),env,value)
@@ -96,7 +106,7 @@ def save_settings(values):
 def check_connection():
     """Report each use's own connection, since they can point at different services."""
     if not config.API_KEY:raise ValueError('请先填写并保存语言 API Key')
-    validate_chat_model(config.MODEL_TEXT)
+    validate_chat_model(config.setting('MODEL_TEXT'))
     language=_probe_language()
     if language.get('ok') is None:return language
     return {'ok':True,'message':language['message']}

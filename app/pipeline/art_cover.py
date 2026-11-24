@@ -29,12 +29,12 @@ def generate(meta: dict, out_dir: Path, log=print):
         "One focal form in the middle and lower two thirds; the upper 30 percent is plain "
         "empty background for typesetting. Portrait 3:4. "
         "No text, no lettering, no numbers, no captions, no logos, no watermark.")
-    log(f'  AI Image 封面 · {config.MODEL_COVER}')
+    log(f'  AI Image 封面 · {config.setting("MODEL_COVER")}')
     base,headers=llm.connection('image')
-    payload={'model':config.MODEL_COVER,'prompt':prompt,'quality':'high','output_format':'png'}
-    if config.IMAGE_PROTOCOL=='openrouter-images':
+    payload={'model':config.setting('MODEL_COVER'),'prompt':prompt,'quality':'high','output_format':'png'}
+    if config.setting('IMAGE_PROTOCOL')=='openrouter-images':
         endpoint='/images';payload['aspect_ratio']='3:4'
-    elif config.IMAGE_PROTOCOL=='openai-images':
+    elif config.setting('IMAGE_PROTOCOL')=='openai-images':
         endpoint='/images/generations';payload['size']='1024x1536'
     else:raise ValueError('未配置支持的图片 API 协议')
     response=httpx.post(base+endpoint,headers=headers,json=payload,timeout=300)
@@ -48,7 +48,7 @@ def generate(meta: dict, out_dir: Path, log=print):
     else:raise RuntimeError('图片 API 未返回 base64 或下载 URL')
     image=Image.open(io.BytesIO(raw)).convert('RGB')
     image.save(out_dir/'cover_art.png')
-    (out_dir/'cover_prompt.json').write_text(json.dumps({'model':config.MODEL_COVER,'prompt':prompt},ensure_ascii=False,indent=2))
+    (out_dir/'cover_prompt.json').write_text(json.dumps({'model':config.setting('MODEL_COVER'),'prompt':prompt},ensure_ascii=False,indent=2))
     compose(out_dir/'cover_art.png',meta,out_dir/'cover.png')
     return 'cover.png'
 

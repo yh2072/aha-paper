@@ -75,7 +75,7 @@ def _post(payload: dict, timeout: float = 300.0, retries: int = 3, use: str = "l
 
 def chat(messages: list[dict], model: str | None = None, temperature: float = 0.9) -> str:
     data = _post({
-        "model": model or config.MODEL_TEXT,
+        "model": model or config.setting("MODEL_TEXT"),
         "messages": messages,
         "temperature": temperature,
     })

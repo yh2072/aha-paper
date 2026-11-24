@@ -38,7 +38,7 @@ from urllib.parse import quote
 from fastapi import Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
-from . import config
+from . import config, tenant
 
 COOKIE = "aha_access"
 TTL = 30 * 24 * 3600                      # a month: one operator, their own tool
@@ -60,28 +60,58 @@ _fails: dict[str, list[float]] = {}
 
 
 def enabled() -> bool:
-    return bool(config.ACCESS_PASSWORD)
+    """A gate stands when the operator set a password, and always in
+    multi-tenant: there, the passphrase is not a door, it is the address of a
+    workspace, so there is nothing to let somebody in without one."""
+    return bool(config.ACCESS_PASSWORD) or tenant.enabled()
 
 
 def _key() -> bytes:
+    """What the cookie is signed with.
+
+    Single-tenant derives it from the password, so changing the password revokes
+    every outstanding cookie. Multi-tenant cannot: there is no one password, and
+    a key derived from a visitor's own passphrase would let that visitor mint a
+    cookie for any workspace. It signs with the server secret instead, and the
+    workspace travels inside the signed payload."""
+    if tenant.enabled():
+        return tenant.secret()
     return hashlib.blake2b(config.ACCESS_PASSWORD.encode(),
                            person=b"aha-paper", digest_size=32).digest()
 
 
-def _sign(expiry: str) -> str:
-    return hmac.new(_key(), expiry.encode(), hashlib.sha256).hexdigest()
+def _sign(payload: str) -> str:
+    return hmac.new(_key(), payload.encode(), hashlib.sha256).hexdigest()
 
 
-def mint() -> str:
+def mint(workspace: str | None = None) -> str:
+    """payload.signature, where payload is the expiry alone in single-tenant and
+    'workspace:expiry' when there is a workspace to carry. A workspace id is
+    hex, so the separators never collide."""
     expiry = str(int(time.time()) + TTL)
-    return f"{expiry}.{_sign(expiry)}"
+    payload = f"{workspace}:{expiry}" if workspace else expiry
+    return f"{payload}.{_sign(payload)}"
+
+
+def _opened(token: str) -> tuple[bool, str | None]:
+    payload, _, mac = (token or "").rpartition(".")
+    if not mac or not payload:
+        return False, None
+    workspace, _, expiry = payload.rpartition(":")
+    if not expiry.isdigit():
+        return False, None
+    ok = hmac.compare_digest(mac, _sign(payload)) and int(expiry) > time.time()
+    return ok, (workspace or None)
 
 
 def valid(token: str) -> bool:
-    expiry, _, mac = (token or "").partition(".")
-    if not mac or not expiry.isdigit():
-        return False
-    return hmac.compare_digest(mac, _sign(expiry)) and int(expiry) > time.time()
+    return _opened(token)[0]
+
+
+def workspace_of(token: str) -> str | None:
+    """The workspace a token opens, or None when it opens none or is forged."""
+    ok, workspace = _opened(token)
+    return workspace if ok else None
 
 
 # ---------- brute-force throttle ----------
@@ -151,8 +181,8 @@ def _https(request: Request) -> bool:
     return (forwarded or request.url.scheme) == "https"
 
 
-def grant(response, request: Request) -> None:
-    response.set_cookie(COOKIE, mint(), max_age=TTL, httponly=True,
+def grant(response, request: Request, workspace: str | None = None) -> None:
+    response.set_cookie(COOKIE, mint(workspace), max_age=TTL, httponly=True,
                         samesite="lax", secure=_https(request), path="/")
 
 

@@ -63,8 +63,31 @@ EDGE_TTS_RATE = os.getenv("EDGE_TTS_RATE", "+0%")
 
 IMAGE_PROTOCOL = os.getenv("IMAGE_PROTOCOL", "openrouter-images")
 
+# The choices a workspace may make for itself. The module globals below are the
+# operator's own, read from .env at import; a workspace overlays its own on top.
+# Read them through setting(), never as attributes, or a workspace gets the
+# operator's model and the operator's voice.
+OVERRIDABLE = ("MODEL_TEXT", "MODEL_COVER", "EDGE_TTS_VOICE", "EDGE_TTS_RATE",
+               "LANGUAGE_PROVIDER", "IMAGE_PROVIDER", "IMAGE_PROTOCOL",
+               "SCRIPT_AUDIT")
+
+
+def setting(name: str):
+    """This workspace's value for a setting, falling back to the operator's.
+
+    Single-tenant has no overlay and this is the module global, which is what
+    makes the local install behave exactly as it did.
+    """
+    from . import tenant
+    if tenant.enabled():
+        overlay = tenant.settings()
+        if name in overlay and overlay[name] not in (None, ""):
+            return overlay[name]
+    return globals().get(name)
+
+
 def use_provider(use: str) -> str:
     """Which provider serves a use. A blank media provider shares the language one."""
     if use == "image":
-        return IMAGE_PROVIDER or LANGUAGE_PROVIDER
-    return LANGUAGE_PROVIDER
+        return setting("IMAGE_PROVIDER") or setting("LANGUAGE_PROVIDER")
+    return setting("LANGUAGE_PROVIDER")

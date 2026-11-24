@@ -399,7 +399,7 @@ def identity() -> str:
     The filter belongs here because it decides the catalogue the model chose
     from. When MAX_RECTS changed and this did not, every cached plan stayed
     valid-looking and empty, and the rebuild produced a paper with no highlights."""
-    return json.dumps([VERSION, config.MODEL_TEXT,
+    return json.dumps([VERSION, config.setting('MODEL_TEXT'),
                        MIN_CHARS, MAX_RECTS, MAX_HEIGHT, MAX_SENTENCES, MAX_PAGES],
                       ensure_ascii=False)
 

@@ -13,6 +13,7 @@ from pathlib import Path
 
 from . import config
 from . import lang
+from . import tenant
 from . import llm
 from . import pi_models
 from .pipeline import art_cover, interactive, deep_script, explainer, page_highlight
@@ -31,7 +32,14 @@ _LOCK = threading.Lock()
 # 有了这张表，"在跑"才有进程内的事实依据。
 # 计数而不是集合：同一篇可能同时有"排队中"和"在跑"两笔，先完成的那笔
 # 不能把另一笔的号也销掉。
-_ACTIVE: dict[str, int] = {}
+# Keyed by (workspace, pid). A pid is a slug of the filename, so two workspaces
+# that upload the same paper collide -- and one would see the other's job as its
+# own, or cancel its registration.
+_ACTIVE: dict[tuple[str | None, str], int] = {}
+
+
+def _slot(pid: str) -> tuple[str | None, str]:
+    return (tenant.current(), pid)
 _BUSY_STATES = ("queued", "running", "editing")
 
 
@@ -43,7 +51,24 @@ def busy_count() -> int:
 
 def _pending(pid: str) -> bool:
     with _LOCK:
-        return _ACTIVE.get(pid, 0) > 0
+        return _ACTIVE.get(_slot(pid), 0) > 0
+
+
+def _bind(fn, owner):
+    """Carry the workspace into the worker thread.
+
+    A contextvar is per-thread, and the pool's threads were never in the request
+    that queued the job. Without this the worker would resolve credentials and
+    write papers as if it were single-tenant -- which is to say, as somebody
+    else."""
+    @functools.wraps(fn)
+    def run(*args, **kwargs):
+        token = tenant.use(owner)
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            tenant.reset(token)
+    return run
 
 
 def _submit(executor, fn, pid: str, *args):
@@ -54,12 +79,12 @@ def _submit(executor, fn, pid: str, *args):
     如果此时登记表里没有它，列表接口就会把正常排队误判成"已中断"。
     """
     with _LOCK:
-        _ACTIVE[pid] = _ACTIVE.get(pid, 0) + 1
+        _ACTIVE[_slot(pid)] = _ACTIVE.get(_slot(pid), 0) + 1
     try:
-        return executor.submit(fn, pid, *args)
+        return executor.submit(_bind(fn, tenant.current()), pid, *args)
     except Exception:
         with _LOCK:                       # 派发失败要销号，否则永远显示在跑
-            _ACTIVE[pid] = max(_ACTIVE.get(pid, 1) - 1, 0)
+            _ACTIVE[_slot(pid)] = max(_ACTIVE.get(_slot(pid), 1) - 1, 0)
         raise
 
 
@@ -71,11 +96,11 @@ def _tracked(fn):
             return fn(pid, *a, **kw)
         finally:
             with _LOCK:
-                n = _ACTIVE.get(pid, 0) - 1
+                n = _ACTIVE.get(_slot(pid), 0) - 1
                 if n > 0:
-                    _ACTIVE[pid] = n
+                    _ACTIVE[_slot(pid)] = n
                 else:
-                    _ACTIVE.pop(pid, None)
+                    _ACTIVE.pop(_slot(pid), None)
     return wrap
 
 
@@ -90,7 +115,7 @@ class Project:
         if not re.fullmatch(r"[\w-]{1,100}", pid):
             raise ValueError("项目 ID 无效")
         self.pid = pid
-        self.dir = config.DATA_DIR / pid
+        self.dir = tenant.data_dir() / pid
 
     @property
     def meta_path(self) -> Path:
@@ -119,7 +144,7 @@ class Project:
 
 def create_project(pdf_name: str, pdf_bytes: bytes) -> dict:
     pid = _slugify(pdf_name)
-    if (config.DATA_DIR / pid).exists():
+    if (tenant.data_dir() / pid).exists():
         pid = f"{pid}_{uuid.uuid4().hex[:4]}"
     proj = Project(pid)
     proj.dir.mkdir(parents=True)
@@ -135,12 +160,13 @@ def list_projects() -> list[dict]:
     这样不管中断多少次，显示的永远是当下真实情况。
     """
     with _LOCK:
-        active = set(_ACTIVE)
-    running = sum(1 for d in config.DATA_DIR.iterdir()
+        active = {k[1] for k in _ACTIVE if k[0] == tenant.current()}
+    root = tenant.data_dir()
+    running = sum(1 for d in root.iterdir()
                   if d.name in active and (d / "meta.json").exists()
                   and Project(d.name).load().get("state") == "running")
     out = []
-    for d in sorted(config.DATA_DIR.iterdir()):
+    for d in sorted(root.iterdir()):
         if not (d / "meta.json").exists():
             continue
         m = Project(d.name).load()

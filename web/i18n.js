@@ -617,6 +617,7 @@
       'The explainer will run longer than asked: {} characters ≈ {} minutes (target {} minutes)'],
     ['章节{}：原文高亮{}条对不上{}句讲解，这一章只显示页面',
       'Chapter {}: {} source highlights do not line up with {} narration cues, so this chapter just shows the page'],
+    ['口令至少 {} 位', 'The passphrase needs at least {} characters'],
   ];
 
   const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

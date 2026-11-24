@@ -153,7 +153,7 @@ def generate(pdf_path:Path,figs:list,fig_dir:Path,log=print,guidance="",minutes=
     messages=[{'role':'system','content':profile.persona},{'role':'user','content':content}]
     log(f'  深度科普：规划约{plan["target"]}字、{plan["chapters_low"]}–{plan["chapters_high"]}章（口播约{plan["minutes"]}分钟）')
     draft=llm.chat_json(messages,temperature=.45)
-    if config.SCRIPT_AUDIT:
+    if config.setting('SCRIPT_AUDIT'):
         log('  深度科普：独立核对方法、数据、主图与来源页码')
         reviewed=llm.chat_json(messages+[{'role':'assistant','content':json.dumps(draft,ensure_ascii=False)},
             {'role':'user','content':profile.audit(plan)}],temperature=.2)

@@ -10,9 +10,10 @@ Credentials never pass through a settings response: they go in on stdin and the
 store (``.runtime/credentials.json``, mode 600) is the only place they live.
 """
 import json
+import os
 import subprocess
 
-from . import bin as binaries, config
+from . import bin as binaries, config, tenant
 
 CLI = config.ROOT / 'scripts' / 'pi-models.mjs'
 TIMEOUT = 30
@@ -26,8 +27,13 @@ def _run(*args: str, stdin: str | None = None):
     try:
         # Not a bare 'node': a desktop build runs this with the Node that Electron
         # already carries, so there is nothing for the user to install separately.
+        # The whole of the per-workspace credential story is this one variable:
+        # Pi reads PI_CREDENTIAL_FILE from its environment, so pointing each
+        # workspace at its own store keeps the JavaScript side unaware that
+        # tenants exist at all. Single-tenant passes the path it always used.
+        env = {**os.environ, 'PI_CREDENTIAL_FILE': str(tenant.credential_file())}
         done = subprocess.run([binaries.node(), str(CLI), *args], input=stdin,
-                              capture_output=True,
+                              capture_output=True, env=env,
                               text=True, timeout=TIMEOUT, cwd=config.ROOT)
     except (FileNotFoundError, RuntimeError) as error:
         raise ProviderError('找不到 node，模型配置需要 Node.js 运行时') from error
@@ -68,22 +74,32 @@ def logout(provider: str) -> dict:
     return _run('logout', provider)
 
 
-_resolved: dict[str, dict] = {}
+# Keyed by (workspace, provider). Keying it by provider alone was right while
+# there was one credential store; with one per workspace it would hand the first
+# caller's key to the second, which is the one bug this whole change exists to
+# make impossible.
+_resolved: dict[tuple[str | None, str], dict] = {}
 
 
 def resolve(provider: str) -> dict:
     """Endpoint and credential for a provider, for the app's own HTTP calls.
 
-    Server-side only and cached per process: this is what lets every use share one
-    connection. Never put the result in an API response."""
-    if provider not in _resolved:
-        _resolved[provider] = _run('resolve', provider)
-    return _resolved[provider]
+    Server-side only and cached per process and workspace: this is what lets
+    every use share one connection. Never put the result in an API response."""
+    key = (tenant.current(), provider)
+    if key not in _resolved:
+        _resolved[key] = _run('resolve', provider)
+    return _resolved[key]
 
 
 def forget_resolved(provider: str | None = None):
-    """Drop cached endpoints after a login, logout or provider change."""
-    _resolved.pop(provider, None) if provider else _resolved.clear()
+    """Drop cached endpoints after a login, logout or provider change.
+
+    Scoped to the workspace that asked: one workspace reconnecting a provider is
+    no reason to make every other workspace pay for a fresh resolve."""
+    me = tenant.current()
+    for key in [k for k in _resolved if k[0] == me and (provider is None or k[1] == provider)]:
+        _resolved.pop(key, None)
 
 
 def model_options(provider: str, kind: str = 'chat') -> list[dict]:

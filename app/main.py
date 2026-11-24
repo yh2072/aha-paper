@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import access, bin as binaries, config, jobs, lang, pi_models, prompts, studio_settings
+from . import access, bin as binaries, config, jobs, lang, pi_models, prompts, studio_settings, tenant
 from .pipeline import deep_script, outline
 from fastapi import Request
 from fastapi.responses import JSONResponse
@@ -34,6 +34,36 @@ async def local_origin_guard(request: Request, call_next):
 async def access_gate(request: Request, call_next):
     denied = access.check(request)
     return denied if denied is not None else await call_next(request)
+
+
+# /files is a StaticFiles mount rather than a route because it serves the
+# narration and the rendered pages: StaticFiles answers Range requests, and
+# without those the player cannot seek. Which is also why the workspace is
+# applied by rewriting the path in front of the mount instead of replacing it --
+# a plain FileResponse would isolate the tenants and break the scrubber.
+#
+# After the rewrite, /files/x reaches DATA_DIR/w/<me>/x. A request that spells
+# out somebody else's workspace, /files/w/<them>/x, becomes
+# DATA_DIR/w/<me>/w/<them>/x and simply is not there; StaticFiles refuses the
+# `..` route out of its own directory on its own.
+@app.middleware("http")
+async def workspace(request: Request, call_next):
+    """Bind the workspace for this request, and point /files at its own files.
+
+    Registered last, so it is the outermost middleware and everything below --
+    the gate, the routes, the static mount -- runs with the workspace already
+    bound. The id comes out of the signed cookie, so a forged or expired one
+    binds nothing and the gate below sends the visitor to the login page.
+    """
+    token = tenant.use(access.workspace_of(request.cookies.get(access.COOKIE, ""))
+                       if tenant.enabled() else None)
+    try:
+        me = tenant.current()
+        if me and request.url.path.startswith("/files/"):
+            request.scope["path"] = f"/files/w/{me}/{request.url.path[len('/files/'):]}"
+        return await call_next(request)
+    finally:
+        tenant.reset(token)
 
 
 app.mount("/files", StaticFiles(directory=config.DATA_DIR), name="files")
@@ -92,12 +122,24 @@ async def login(request: Request):
         return RedirectResponse(nxt, status_code=303)
     if access.locked(request):
         return access.page(request, nxt, "尝试过多，请稍后再试 · too many attempts", 429)
-    if not hmac.compare_digest(str(form.get("password") or ""), config.ACCESS_PASSWORD):
+    secret = str(form.get("password") or "")
+    opening = None
+    if tenant.enabled():
+        # No password to be wrong against: any phrase opens the workspace it
+        # addresses, and a phrase nobody has used opens an empty one. The length
+        # floor is the only check, because a short phrase is a workspace someone
+        # else can walk into.
+        try:
+            opening = tenant.identify(secret)
+        except ValueError as problem:
+            access.note_failure(request)
+            return access.page(request, nxt, str(problem), 401)
+    elif not hmac.compare_digest(secret, config.ACCESS_PASSWORD):
         access.note_failure(request)
         return access.page(request, nxt, "口令不对 · wrong password", 401)
     access.forget(request)
     response = RedirectResponse(nxt, status_code=303)
-    access.grant(response, request)
+    access.grant(response, request, opening)
     return response
 
 
@@ -122,7 +164,7 @@ def projects():
 
 @app.get("/api/projects/{pid}/log")
 def project_log(pid: str):
-    log = config.DATA_DIR / pid / "log.txt"
+    log = tenant.data_dir() / pid / "log.txt"
     return {"log": log.read_text() if log.exists() else ""}
 
 

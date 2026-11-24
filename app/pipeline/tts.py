@@ -15,7 +15,7 @@ _SENT_SPLIT = lang.ZH_SPLIT     # compatibility; the split now comes from the pr
 def voice_of(profile=None) -> str:
     """The voice this narration is spoken in: the configured one while it speaks
     the right language, the profile's own otherwise. See lang.voice_for."""
-    return lang.voice_for(profile or lang.get(None), config.EDGE_TTS_VOICE)
+    return lang.voice_for(profile or lang.get(None), config.setting('EDGE_TTS_VOICE'))
 
 
 def split_sentences(text: str, min_len: int | None = None, profile=None) -> list[str]:
@@ -40,7 +40,7 @@ def cache_identity(profile=None):
     with correct-looking audio. Two languages sharing a voice is enough to
     cause that, so the key does not rely on the voice to encode the language."""
     profile = profile or lang.get(None)
-    return f'edge-tts-v1|{profile.code}|{voice_of(profile)}|{config.EDGE_TTS_RATE}'
+    return f'edge-tts-v1|{profile.code}|{voice_of(profile)}|{config.setting("EDGE_TTS_RATE")}'
 
 
 def duration_of(audio: Path) -> float:
@@ -53,7 +53,7 @@ async def _stream(text: str, mp3: Path, voice: str) -> list[dict]:
     import edge_tts
     events = []
     communicate = edge_tts.Communicate(text, voice,
-        rate=config.EDGE_TTS_RATE, boundary='WordBoundary')
+        rate=config.setting('EDGE_TTS_RATE'), boundary='WordBoundary')
     with mp3.open('wb') as stream:
         async for event in communicate.stream():
             if event['type'] == 'audio':
@@ -99,7 +99,7 @@ def synthesize_sentences(sentences: list[str], out_path: Path, log=print, profil
     out_path.parent.mkdir(parents=True, exist_ok=True)
     mp3 = out_path.with_suffix('.edge.mp3')
     voice = voice_of(profile)
-    log(f'    Edge TTS · {voice} · {config.EDGE_TTS_RATE}')
+    log(f'    Edge TTS · {voice} · {config.setting("EDGE_TTS_RATE")}')
     events = asyncio.run(_stream(''.join(sentences), mp3, voice))
     result = subprocess.run([ffmpeg_bin(),'-y','-v','error','-i',str(mp3),'-ar','24000',
         '-ac','1','-c:a','pcm_s16le',str(out_path)], capture_output=True,text=True)

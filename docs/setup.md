@@ -84,6 +84,13 @@ Three constraints to carry over:
   generated from it disappears on each deploy.
 - **One replica.** In-flight jobs live in a thread pool and a dict inside the
   process; a second instance would not see them.
+- **Decide whose credit is being spent.** Unset, `AHA_MULTI_TENANT=0` means one
+  provider credential and one library, both the operator's: every visitor past
+  the password spends your API credit and reads everyone else's papers. Set
+  `AHA_MULTI_TENANT=1` and the login passphrase becomes the address of a
+  workspace — each one holds its own credential, its own papers and its own
+  model choices, and the server keeps no list of who exists. Then the operator
+  supplies the machine and nothing else.
 - **Set `AHA_ACCESS_PASSWORD`.** Unset, there is no gate: anyone with the URL
   can upload papers, open the settings and spend your API credit.
 
