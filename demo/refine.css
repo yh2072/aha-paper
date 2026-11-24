@@ -1,0 +1,536 @@
+/* A reading tool, not a landing page.
+
+   The sheets this loads after were tuned for a warm riso-print look: cream paper,
+   sage and lime, wide radii, a hero the height of the screen. That reads as a
+   consumer product. The people using this are reading papers, so the surface gets
+   out of the way: near-white ground, one accent, hairlines instead of fills, and
+   the library dense enough to scan rather than browse.
+
+   Everything here is an override on purpose. Keeping it in one file means the old
+   look is one <link> away, and nothing below is load-bearing for behaviour. */
+
+/* The palette is impressionist, the layout stays plain.
+
+   Three rules carried over from the painting, because they are what makes a
+   palette read as impressionist rather than merely soft:
+
+   1. No white ground and no black ink. A canvas is warm and a shadow is violet;
+      #ffffff on #18181b is the one combination the period never used. The ground
+      is unprimed linen, the ink a blue-black.
+   2. Light and shade are warm against cool, not dark against pale. So the
+      accents come in a pair -- an ochre for the lit side, a violet for the shade
+      -- and either can sit on the ground without a border to hold it.
+   3. Everything is greyed. A saturated colour next to these reads as a mistake,
+      which is why the green moved from forest to lily-pad.
+
+   The structure underneath is untouched: same hairlines, same density, same
+   spacing. Only the colour changed. */
+
+:root,
+.aha-home {
+  --paper: #faf8f3;        /* unprimed linen, not white */
+  --panel: #eaedf1;        /* the rail is the shade: cool against the warm page */
+  --card: #fffdf8;         /* surfaces lift off the ground by warming, not whitening */
+  --card-veil: #fffdf8ee;  /* the same surface where it floats over video */
+  --ink: #30323f;          /* blue-black; a shadow is never neutral */
+  --muted: #6d6a7c;        /* violet-grey */
+  --faint: #a4a1b0;
+  --line: #e6e0d4;         /* warm hairline */
+  --line-soft: #efebe1;
+  --line-cool: #dfe3e9;    /* the hairline on the cool side */
+  --accent: #4e8273;       /* lily pad, greyed */
+  --accent-ink: #35604f;
+  --accent-soft: #e9f0ea;
+  --warm: #c2824c;         /* ochre: the lit side */
+  --warm-soft: #f6ead8;
+  --violet: #6b679a;       /* the shaded side */
+  --on-accent: #fffdf8;
+  --shadow-soft: #4a44731f;  /* shadows are tinted, never grey */
+  --shadow-mid: #4a44734d;
+  --green: var(--accent);
+  --gold: var(--warm);
+}
+
+/* ---------- ground ---------- */
+body, .aha-home { background: var(--paper); color: var(--ink); }
+.aha-home .sidebar, .sidebar { background: var(--panel); border-right: 1px solid var(--line); }
+main, .aha-home .home-main { max-width: 1280px; }
+.aha-home .topbar, .topbar { border-bottom: 1px solid var(--line-soft); color: var(--muted); }
+
+/* ---------- brand ---------- */
+.home-mark {
+  background: var(--accent); color: var(--on-accent); border-radius: 7px;
+  width: 26px; height: 26px; font-size: 19px;
+}
+.home-brand { font-size: 17px; letter-spacing: -.2px; margin-bottom: 26px; }
+.home-brand strong { font-weight: 650; }
+.watch-brand span, .brand-mark > span, .home-mark { color: var(--on-accent); }
+
+/* ---------- navigation ---------- */
+.aha-home .nav, .nav { border-radius: 6px; font-size: 13px; color: var(--muted); padding: 9px 11px; }
+.aha-home .nav.active, .nav.active { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
+.aha-home .nav:hover, .nav:hover { background: var(--line-soft); }
+.nav-divider { background: var(--line); }
+.home-side-note { display: none; }           /* a slogan is not navigation */
+.local-account { border-top: 1px solid var(--line); }
+.local-avatar { background: var(--line-soft); color: var(--muted); border-radius: 6px; }
+
+/* ---------- the opening ---------- */
+.home-start { max-width: 760px; margin: 48px auto 56px; }
+.home-eyebrow { display: none; }
+.home-start h1 {
+  font-size: clamp(22px, 2.1vw, 28px); font-weight: 650;
+  letter-spacing: -.5px; line-height: 1.35; margin-bottom: 10px;
+}
+.home-start h1 span { color: var(--accent); }
+.home-subtitle { font-size: 12.5px; color: var(--muted); margin-bottom: 22px; }
+
+/* ---------- composer ---------- */
+.paper-composer {
+  border: 1px solid var(--line); border-radius: 10px; box-shadow: none;
+  background: var(--card); padding: 16px 16px 12px;
+}
+.paper-composer:focus-within { border-color: var(--line); }
+.paper-composer.dragging { border-color: var(--accent); background: var(--accent-soft); }
+.paper-composer textarea { min-height: 96px; font-size: 13.5px; line-height: 1.8; color: var(--ink); }
+.paper-composer textarea::placeholder { color: var(--faint); }
+.attach-paper, .composer-time {
+  background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+  font-size: 11px; color: var(--muted); padding: 6px 10px;
+}
+.attach-paper:hover, .composer-time:hover { background: var(--panel); }
+.composer-chip { display: none; }            /* restating the mode on every visit */
+.composer-submit {
+  background: var(--accent); color: var(--on-accent); border-radius: 6px; box-shadow: none;
+  font-size: 12px; font-weight: 550; gap: 8px; padding: 9px 14px;
+}
+.composer-submit:hover { background: var(--accent-ink); }
+.composer-submit:disabled { background: var(--line-soft); color: var(--faint); }
+.composer-footnote { color: var(--faint); font-size: 10px; }
+.composer-footnote button { color: var(--muted); }
+.starter-prompts button {
+  border: 1px solid var(--line); border-radius: 6px; color: var(--muted);
+  font-size: 11px; padding: 7px 11px;
+}
+.starter-prompts button:hover { background: var(--panel); color: var(--ink); }
+.paper-attachment { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; color: var(--muted); }
+
+/* ---------- library: a list you scan, not covers you browse ---------- */
+.library-heading h2, .collection-title { font-size: 15px; font-weight: 650; letter-spacing: -.2px; }
+.library-tools input, .library-tools .small-button, .small-button {
+  border: 1px solid var(--line); border-radius: 6px; font-size: 11px; color: var(--ink);
+}
+/* home.css reaches these through .aha-home, so these must too or the card keeps
+   its magazine cover and its three-up grid. */
+.aha-home .projects, .projects { grid-template-columns: 1fr; gap: 8px; }
+.aha-home .project, .project {
+  display: grid; grid-template-columns: 116px 1fr; gap: 0; align-items: stretch;
+  background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 0;
+}
+.aha-home .project:hover, .project:hover { border-color: var(--faint); }
+.aha-home .project-cover, .project-cover {
+  aspect-ratio: auto; height: auto; min-height: 0;
+  border-right: 1px solid var(--line-soft); background: var(--panel);
+}
+.aha-home .project-cover img, .project-cover img { object-position: center 30%; }
+.project-placeholder { background: var(--panel); padding: 10px; }
+.project-placeholder:after { display: none; }
+.aha-home .project h3, .project h3 {
+  font-family: Georgia, "Songti SC", serif; font-size: 14.5px; font-weight: 600;
+  line-height: 1.45; margin: 0 0 4px; -webkit-line-clamp: 2;
+}
+.aha-home .project-body, .project-body { padding: 13px 15px 11px; }
+/* The tag sits inside the thumbnail. Taking it out of the flow was wrong -- it
+   then shares the box with the image and shoves it aside. */
+.project-tag {
+  position: absolute; left: 6px; top: 6px; right: 6px;
+  background: var(--card-veil) !important; border: 1px solid var(--line);
+  color: var(--muted); border-radius: 4px; font-size: 8.5px; padding: 3px 6px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: none;
+}
+.project-placeholder { display: grid; place-items: center; }
+.aha-home .project-placeholder span, .project-placeholder span {
+  font-size: 11px; line-height: 1.5; color: var(--faint); text-align: center;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden; word-break: break-word;
+}
+.project-body { padding: 14px 16px 12px; display: flex; flex-direction: column; }
+.project h3 {
+  font-family: Georgia, "Songti SC", serif; font-size: 15px; font-weight: 600;
+  line-height: 1.45; margin: 0 0 4px;
+}
+.project-source, .project-figures { font-size: 10.5px; color: var(--faint); margin-bottom: 8px; }
+.project-footer { border-top: 1px solid var(--line-soft); padding-top: 10px; margin-top: auto; gap: 6px; }
+.project-footer button, .project-footer a {
+  border: 1px solid var(--line); border-radius: 5px; font-size: 10.5px; color: var(--muted); padding: 6px 9px;
+}
+.project-footer button:hover, .project-footer a:hover { background: var(--panel); color: var(--ink); }
+.project-footer .primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.project-footer .primary:hover { background: var(--accent-ink); color: var(--on-accent); }
+.project-progress { background: var(--line-soft); height: 2px; }
+.project-progress > span { background: var(--accent); }
+.project-error { color: #a8503c; }
+.empty { border: 1px dashed var(--line); border-radius: 8px; }
+.empty > span, .mini-flower { color: var(--line); }
+.empty h3 { font-size: 16px; }
+.empty p { color: var(--muted); }
+
+/* ---------- dialogs ---------- */
+dialog { background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 16px 48px var(--shadow-soft); }
+dialog::backdrop { background: var(--shadow-mid); backdrop-filter: blur(2px); }
+dialog h2 { font-size: 19px; font-weight: 650; font-family: inherit; letter-spacing: -.2px; }
+dialog p, .field small, .use-note { color: var(--muted); }
+.eyebrow { color: var(--faint); letter-spacing: 1.4px; }
+.field input, .field select, .script-editor, .use-row select {
+  background: var(--card); border: 1px solid var(--line); border-radius: 6px; color: var(--ink);
+}
+.dialog-actions .primary { background: var(--accent); border-radius: 6px; }
+.dialog-actions .primary:hover { background: var(--accent-ink); }
+.provider-card, .conn-row, .outline-pick { border-color: var(--line); border-radius: 8px; background: var(--card); }
+.provider-head { background: var(--panel); border-bottom: 1px solid var(--line); }
+.provider-head h3, .conn-row b, .use-row b { color: var(--ink); }
+.provider-head small, .conn-row small, .provider-body > small { color: var(--muted); }
+.provider-tag { background: var(--line-soft); color: var(--muted); border-radius: 4px; }
+.provider-state { border-radius: 4px; color: var(--faint); border-color: var(--line); }
+.provider-state.on { background: var(--accent-soft); color: var(--accent-ink); border-color: var(--accent-soft); }
+.conn-empty { border-color: var(--line); border-radius: 8px; color: var(--muted); }
+.use-row { border-bottom: 1px solid var(--line-soft); }
+.log { background: var(--panel); border-radius: 6px; }
+.toast { background: var(--ink); color: var(--on-accent); border-radius: 6px; }
+.status-dot { background: var(--accent); }
+.connection, .aha-home .connection {
+  border: 1px solid var(--line); border-radius: 6px; color: var(--muted); background: var(--card);
+}
+
+/* ---------- the player ---------- */
+.watch-header { border-bottom: 1px solid var(--line); }
+.watch-tagline { display: none; }
+.watch-brand { font-weight: 650; letter-spacing: -.2px; }
+.outline, .theatre { color: var(--ink); }
+.outline-top h2 { font-size: 15px; font-weight: 650; }
+.outline-hint, .outline-bottom small { color: var(--faint); }
+.chapter { border-radius: 6px; }
+.chapter.active { background: var(--accent-soft); }
+.video-badge { background: var(--card); border: 1px solid var(--line); color: var(--muted); border-radius: 5px; }
+.visual-stage { background: var(--panel); border-radius: 6px; }
+.live-caption { background: var(--card-veil); color: var(--ink); border-radius: 6px; }
+.zoom-toggle { border-radius: 5px; border: 1px solid var(--line); background: var(--card); color: var(--muted); }
+.segment-sources a, .segment-sources span {
+  border: 1px solid var(--line); border-radius: 5px; color: var(--muted); background: var(--card);
+}
+.segment-navigation button, #downloadVideo, #downloadBundle {
+  border: 1px solid var(--line); border-radius: 5px; color: var(--muted); background: var(--card);
+}
+.segment-navigation button:hover, #downloadVideo:hover, #downloadBundle:hover { background: var(--panel); color: var(--ink); }
+footer { color: var(--faint); }
+
+/* ---------- motion ---------- */
+.project, .nav, .starter-prompts button, .small-button, .composer-submit,
+.project-footer button, .project-footer a { transition: background .12s, border-color .12s, color .12s; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ---------- narrow ---------- */
+/* The sidebar becomes a top bar here and the labels collapse to icons. Setting a
+   font-size on .nav above undid that collapse and pushed the bar off-screen. */
+@media (max-width: 780px) {
+  .aha-home .nav, .nav { font-size: 0; padding: 8px; gap: 0; }
+  .aha-home .nav span, .nav span { font-size: 18px; width: auto; }
+  .aha-home .nav i, .nav i { display: none; }
+  .home-brand { margin: 0 8px 0 0; font-size: 14px; }
+  .home-start { margin: 28px auto 32px; }
+  .home-start h1 { font-size: 20px; }
+  .aha-home .project, .project { grid-template-columns: 84px 1fr; }
+  .aha-home .project-body, .project-body { padding: 11px 12px 10px; }
+  .aha-home .project h3, .project h3 { font-size: 13.5px; }
+}
+
+/* ---------- the reading stage ---------- */
+/* The page was floating in an olive mat: a tinted shell, a tinted stage inside it
+   and a tinted canvas inside that. One hairline is enough; the paper is the thing
+   being looked at. */
+.video-shell { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 0; }
+.visual-stage { background: var(--card); border-radius: 0; inset: 0 0 58px; }
+.explainer-shell video { min-height: 0; }
+.video-badge {
+  background: var(--card-veil); border: 1px solid var(--line); color: var(--muted);
+  border-radius: 4px; font-size: 10px; padding: 4px 8px;
+}
+.live-caption {
+  background: var(--card); border-top: 1px solid var(--line); border-radius: 0;
+  left: 0; right: 0; bottom: 0; padding: 11px 16px; max-height: 32%;
+  color: var(--ink); font-size: clamp(12px, 1.15vw, 15px); line-height: 1.7;
+  box-shadow: none;
+}
+.zoom-toggle { font-size: 10px; padding: 5px 9px; }
+
+/* ---------- chapter list ---------- */
+.outline {
+  background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 12px;
+}
+.outline .eyebrow { display: none; }
+.outline h2 { font-family: inherit; font-size: 14px; font-weight: 650; letter-spacing: -.2px; }
+.outline-top > span { font-family: inherit; font-style: normal; font-size: 12px; color: var(--faint); }
+.outline-hint { display: none; }
+.outline-bottom { border-top: 1px solid var(--line-soft); padding-top: 14px; }
+
+.chapter { padding: 8px 9px; margin: 1px 0; gap: 10px; align-items: center; }
+.chapter:hover { background: var(--line-soft); }
+.chapter.active { background: var(--accent-soft); }
+/* The six-colour rotation said nothing: the colour did not mean anything, it just
+   cycled. A number is enough, and the one you are on is the one that is marked. */
+.chapter .chapter-number,
+.chapter:nth-child(6n+2) .chapter-number,
+.chapter:nth-child(6n+3) .chapter-number,
+.chapter:nth-child(6n+4) .chapter-number,
+.chapter:nth-child(6n+5) .chapter-number,
+.chapter:nth-child(6n) .chapter-number {
+  background: transparent; color: var(--faint); border: 0; border-radius: 0;
+  font-family: inherit; font-size: 11px; font-variant-numeric: tabular-nums;
+  width: 20px; flex: 0 0 20px; height: auto; justify-content: flex-start;
+}
+.chapter.active .chapter-number { color: var(--accent); font-weight: 650; }
+.chapter-title { font-size: 12.5px; line-height: 1.5; }
+.chapter.active .chapter-title { font-weight: 600; }
+.chapter-meta { font-size: 10px; color: var(--faint); font-variant-numeric: tabular-nums; }
+
+/* ---------- heading under the stage ---------- */
+.theatre > .watch-heading h1 { font-size: 18px; font-weight: 650; letter-spacing: -.2px; }
+.theatre > .watch-heading > div > p:last-child { color: var(--faint); }
+.segment-caption #segmentNumber { color: var(--faint); font-style: normal; font-family: inherit; }
+.segment-caption h2 { font-size: 15px; font-weight: 650; }
+.segment-summary { background: var(--panel); border: 1px solid var(--line-soft); border-radius: 8px; color: var(--ink); }
+
+/* watch.css reaches the caption through `.explainer-shell > .live-caption`, so a
+   bare `.live-caption` loses to it however late this file loads. */
+.explainer-shell > .live-caption {
+  background: var(--card); border-top: 1px solid var(--line); color: var(--ink);
+  padding: 12px 16px; font-size: clamp(12.5px, 1.1vw, 15px); line-height: 1.7;
+  min-height: 0; max-height: 160px;
+}
+
+/* watch.css sets the two-column grid once more *after* its own narrow-screen
+   rules, with no media query, so below 851px the first column collapsed to 0 and
+   the 400px chapter rail hung off the side. One column until there is room. */
+@media (max-width: 1180px) {
+  .experience-layout { grid-template-columns: minmax(0, 1fr); }
+}
+.theatre, .outline { min-width: 0; }
+.video-shell { max-width: 100%; }
+
+
+/* ---------- broken colour ----------
+
+   A palette is impressionist because warm and cool sit beside each other, not
+   because everything is soft. The tokens above are only half of it; these are
+   the places the pair actually gets used.
+
+   The structural one is the rail against the page. Value alone would have made
+   a grey sidebar; making it the cool side instead gives the whole window a lit
+   half and a shaded half, which is the entire trick.
+
+   The rest is small on purpose. Quantities take the ochre, focus and the empty
+   frame take the violet, and nothing else is allowed a saturated edge — one
+   loud colour against these would read as a mistake rather than an accent. */
+
+.aha-home .sidebar, .sidebar { border-right-color: var(--line-cool); }
+.nav-divider { background: var(--line-cool); }
+.local-account { border-top-color: var(--line-cool); }
+
+/* quantities are the lit side */
+.aha-home .nav i, .nav i { color: var(--warm); opacity: 1; font-weight: 600; }
+.busy-dot { background: var(--warm); }
+
+/* focus is the shaded side. studio.css puts an olive ring here; on this ground
+   olive reads as a leftover from the sheet before it. */
+button:focus-visible, a:focus-visible, input:focus, textarea:focus, select:focus {
+  outline-color: var(--violet);
+}
+.paper-composer:focus-within { border-color: var(--violet); }
+
+/* an empty frame is a space waiting to be filled, so it stays on the cool side */
+.empty { border-color: var(--line-cool); }
+.empty > span { color: var(--faint); }
+.conn-empty { border-color: var(--line-cool); color: var(--muted); }
+
+/* the one badge that is pure warmth, because it marks what is yours and local */
+.local-avatar { background: var(--warm-soft); color: #8a5f33; }
+
+/* ---------- the light in the room ----------
+
+   Two washes at the edge of visibility: ochre where the light falls, violet
+   where it does not. Together they are about 7% opacity, which is enough that a
+   large empty area has air in it and not enough to read as a gradient.
+
+   Fixed attachment on purpose — this is the light on the room, so it must stay
+   put while the content scrolls through it. Attached to the content instead, it
+   turns into a texture sliding past, which is the cheap version of this. */
+
+body, .aha-home {
+  background-image:
+    radial-gradient(1200px 760px at 88% -10%, #c2824c14, transparent 62%),
+    radial-gradient(1000px 820px at -8% 110%, #6b679a12, transparent 60%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+
+/* ---------- the icons ----------
+
+   Twemoji are full-colour cartoons. The house alone carries seven fills, among
+   them a postbox red and a sky blue, and against a palette this greyed they
+   were the loudest thing in the window -- more saturated than anything the page
+   is actually about.
+
+   grayscale, not brightness(0). Collapsing each one to a silhouette looked
+   right until it was rendered: ▶ ⬆ 🔄 are a blue square with a WHITE glyph cut
+   into them, so flattening them to one colour fills the glyph in as well and
+   leaves three identical grey squares. (Reading the fills was what misled me --
+   the white shapes are written #FFF, three digits, and a search for six-digit
+   colours does not see them.) Desaturating keeps every internal edge.
+
+   The opacity lets the warm ground through, so they are tinted by what sits
+   under them instead of being a flat grey -- the same reason the shadows here
+   are violet rather than black. */
+
+.emoji { filter: grayscale(1) brightness(1.04) opacity(.7); }
+.nav .emoji { filter: grayscale(1) opacity(.62); }
+.nav:hover .emoji { filter: grayscale(1) opacity(.8); }
+.nav.active .emoji { filter: grayscale(1) opacity(.95); }
+
+/* The primary action keeps its words and loses its badge. No filter makes a
+   blue-square emoji sit well on a green button, and "开始创作" already says
+   what the arrow was repeating. */
+.composer-submit .emoji { display: none; }
+.composer-submit span:empty { display: none; }
+
+/* ---------- lift ----------
+
+   The surfaces were a 2% step off the ground, which is not a surface, it is a
+   slightly different patch of the same thing. They keep their fill; what they
+   gain is a shadow -- violet, because that is what a shadow is here, and at an
+   opacity where you would have to be told it is there. */
+
+.paper-composer, .project, .video-shell, .provider-card, .outline-pick {
+  box-shadow: 0 1px 2px #4a44730f, 0 10px 28px #4a44730a;
+}
+dialog { box-shadow: 0 24px 64px #4a447326; }
+
+
+/* ---------- the direction cards ----------
+
+   These three were the last thing still wearing the old sheet's colours --
+   home.css gives them a lime, a lavender and a cream, and nothing here
+   overrode them. On the repainted ground the lavender one was the loudest
+   object in the window by a wide margin.
+
+   They are kept as three different colours rather than flattened to one,
+   because that is the pair the palette is built on: a green, a violet and an
+   ochre, each a wash of the token it comes from. Same hues as before, a third
+   of the saturation. */
+
+.explore-card {
+  background: var(--accent-soft); border-color: var(--line); color: var(--accent-ink);
+  border-radius: 10px;
+}
+.explore-figure { background: #eceaf2; border-color: #e3e0ea; color: #53507a; }
+.explore-play { background: var(--warm-soft); border-color: #ecdcc5; color: #8a5f33; }
+
+/* The big glyph is a watermark, not a picture. It was carrying more colour
+   than the heading it sits behind. */
+.explore-art { color: #4e827322; }
+.explore-figure .explore-art { color: #6b679a22; }
+.explore-play .explore-art { color: #c2824c26; }
+
+
+/* ---------- out-specifying home.css ----------
+
+   home.css writes its colours as `.aha-home .thing`, two classes. Most of this
+   sheet writes `.thing`, one class -- which loses, whatever the load order.
+   Twelve rules were still wearing the old riso palette because of it, and they
+   are invisible until you reach the state that shows them: the primary button
+   on a project card, the primary button in every dialog, every toast.
+
+   So these repeat the prefix. They are not more opinionated than the rules
+   above, only more specific, and the comment is here because the next person to
+   add a colour will write the one-class form and wonder why nothing happened. */
+
+.aha-home .nav { color: var(--muted); }
+.aha-home .library-heading h2 span { color: var(--faint); }
+.aha-home .library-tools input { background: var(--card); }
+.aha-home .project-source { color: var(--faint); }
+.aha-home .project-footer { border-color: var(--line-soft); }
+.aha-home .project-footer button,
+.aha-home .project-footer a { border-color: var(--line); color: var(--muted); }
+.aha-home .project-footer .primary {
+  background: var(--accent); border-color: var(--accent); color: var(--on-accent);
+}
+.aha-home .project-footer .primary:hover { background: var(--accent-ink); }
+.aha-home footer { color: var(--faint); }
+.aha-home dialog { background: var(--card); }
+.aha-home .dialog-actions .primary { background: var(--accent); color: var(--on-accent); }
+.aha-home .toast { background: var(--ink); color: var(--on-accent); }
+
+
+/* ---------- the duration chip ----------
+
+   home.css pins the empty input at width:30px. Measured at the 11px this sheet
+   sets, the content box is 26px while the placeholder needs 23.7px for 'Auto'
+   and 22px for 自动 -- two to four pixels of slack, which any font fallback or
+   sub-pixel rounding eats, and then the label renders as 'Au' or 自.
+
+   em, not px: the thing that varies here is the font, so the width should come
+   from it rather than from a number tuned against one rendering. */
+
+.composer-time input:placeholder-shown { width: 4em; }
+
+/* 讲解重点预设：芯片行里多出一颗「我的预设」，以及它的管理弹窗。
+   #starterPrompts 只是数据的容器，display:contents 让它的芯片直接参与
+   .starter-prompts 这一行的 flex 布局，而不是自成一个盒子。 */
+#starterPrompts { display: contents; }
+.starter-prompts button.prompt-manage {
+  border-style: dashed; border-color: var(--line); color: var(--muted);
+}
+.starter-prompts button.prompt-manage:hover { border-style: solid; }
+.prompt-list { margin: 14px 0 6px; display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; }
+.prompt-row {
+  display: flex; align-items: center; gap: 12px; justify-content: space-between;
+  border: 1px solid var(--line); border-radius: 11px; padding: 10px 12px;
+}
+.prompt-row b { font-size: 12px; font-weight: 600; display: block; }
+.prompt-row small {
+  display: block; font-size: 10px; color: var(--muted); margin-top: 4px; line-height: 1.7;
+  max-width: 440px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.prompt-row button { flex: none; }
+.prompt-empty { font-size: 11px; color: var(--faint); margin: 14px 0; }
+.prompt-field { display: block; margin-top: 12px; }
+.prompt-field span { display: block; font-size: 10px; color: var(--muted); margin-bottom: 6px; }
+.prompt-field input, .prompt-field textarea {
+  width: 100%; font: inherit; font-size: 12px; line-height: 1.8; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 11px; background: var(--panel); color: var(--ink);
+  resize: vertical; box-sizing: border-box;
+}
+
+/* 运行日志：标题行、进度条、实时标记。
+   日志正文仍是 <pre>（i18n.js 的 SKIP 名单里），由 studio.js 逐行翻译后写入，
+   所以这里只管它外面那一圈。 */
+.log-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin: 16px 0 10px; }
+.log-head b { font-size: 13px; font-weight: 600; display: block; }
+.log-head small { display: block; font-size: 10px; color: var(--muted); margin-top: 5px; }
+.log-live { display: none; flex: none; font-size: 9px; color: var(--muted); letter-spacing: .4px; }
+.log-dialog.is-running .log-live { display: flex; align-items: center; gap: 6px; }
+.log-dialog.is-running .log-live::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: #7fae2b; animation: log-pulse 1.6s ease-in-out infinite;
+}
+@keyframes log-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .log-dialog.is-running .log-live::before { animation: none; } }
+.log-progress { height: 3px; border-radius: 3px; background: var(--line); overflow: hidden; margin-bottom: 12px; }
+.log-progress i { display: block; height: 100%; background: #a8d93a; border-radius: 3px; transition: width .4s ease; }
+.log-empty { font-size: 11px; color: var(--faint); margin: 10px 0 4px; }
+
+/* 设置里的开关行：复选框 + 标题 + 一段说明。 */
+.switch-row { display: flex; gap: 11px; align-items: flex-start; cursor: pointer; }
+.switch-row input { margin-top: 3px; flex: none; width: 15px; height: 15px; accent-color: #a8d93a; }
+.switch-row b { font-size: 12px; font-weight: 600; display: block; }
+.switch-row small { display: block; font-size: 10px; line-height: 1.8; color: var(--muted); margin-top: 5px; }

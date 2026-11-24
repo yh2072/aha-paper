@@ -1,0 +1,4468 @@
+{
+  "version": 2,
+  "product": "aha-paper",
+  "mode": "explainer",
+  "id": "sciadv_aej5555_2745",
+  "title": "句子和算式，在大脑里共用多少表征？用大语言模型特征做的跨领域预测",
+  "paper_title": "Cross-domain encoding models reveal shared and domain-specific neural representations across language and mathematics",
+  "audio": "media/narration.mp3",
+  "video": null,
+  "cover": "media/cover.png",
+  "duration": 804.144,
+  "segments": [
+    {
+      "id": "segment-1",
+      "index": 0,
+      "title": "同一片皮层，读句子和算算式，用的是同一套回路吗",
+      "summary": "读到“追过松鼠的猫从墙上掉了下来”，和心算“7×6+3”，大脑用的是同一套回路，还是两套？这个问题争论已久。东京大学和日本情报通信研究机构的 Nakai、Kubo、Nishimoto 在《Science Advances》发表的研究，把它改写成一个可检验的具体问题：先把句子和算式变成同一个数字空间里的特征，用其中一类刺激训练的模型，去预测另一类刺激下的脑活动，能预测到什么程度？如果能预测，说明某些脑区对两者共享了部分表征；如果只能在本领域内预测，则说明表征更偏专属。32名被试在磁共振扫描仪里完成了句子理解和计算任务。结论先说在前面：数据支持“部分共享、部分专属”，最一致的共享区域是左侧55b区。但这是模型预测层面的证据，不等于语言和数学同源。",
+      "start": 0.0,
+      "end": 57.072,
+      "duration": 57.072,
+      "figure": false,
+      "visual": {
+        "kind": "page",
+        "aspect": "page",
+        "engine": "page-highlight-v4",
+        "pages": {
+          "1": "pages/page_01.png"
+        }
+      },
+      "cues": [
+        {
+          "text": "读到“追过松鼠的猫从墙上掉了下来”，和心算“7×6+3”，大脑用的是同一套回路，还是两套？",
+          "start": 0.0,
+          "end": 8.1023,
+          "region": null,
+          "highlight": null
+        },
+        {
+          "text": "这个问题争论已久。",
+          "start": 8.1023,
+          "end": 10.125,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.0814,
+                0.6315,
+                0.4082,
+                0.0122
+              ],
+              [
+                0.061,
+                0.646,
+                0.3428,
+                0.0122
+              ]
+            ],
+            "quote": "In contrast, other studies have suggested that shared neural mechanisms exist between language and mathematics.",
+            "keys": [
+              {
+                "text": "shared neural mechanisms",
+                "rects": [
+                  [
+                    0.3977,
+                    0.6315,
+                    0.0919,
+                    0.0091
+                  ],
+                  [
+                    0.061,
+                    0.646,
+                    0.0787,
+                    0.0091
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "东京大学和日本情报通信研究机构的 Nakai、Kubo、Nishimoto 在《Science Advances》发表的研究，把它改写成一个可检验的具体问题：先把句子和算式变成同一个数字空间里的特征，用其中一类刺激训练的模型，去预测另一类刺激下的脑活动，能预测到什么程度？",
+          "start": 10.125,
+          "end": 30.6136,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.531,
+                0.4715,
+                0.4087,
+                0.0122
+              ],
+              [
+                0.5107,
+                0.486,
+                0.4285,
+                0.0122
+              ],
+              [
+                0.5104,
+                0.5006,
+                0.1944,
+                0.0122
+              ]
+            ],
+            "quote": "Cross-domain encoding models could help bridge this gap by quantitatively evaluating feature-based brain representations and their generalizability (34, 35).",
+            "keys": [
+              {
+                "text": "Cross-domain encoding models",
+                "rects": [
+                  [
+                    0.531,
+                    0.4715,
+                    0.2104,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "generalizability",
+                "rects": [
+                  [
+                    0.5463,
+                    0.5006,
+                    0.1007,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "如果能预测，说明某些脑区对两者共享了部分表征；",
+          "start": 30.6136,
+          "end": 35.0114,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.7062,
+                0.5879,
+                0.2331,
+                0.0122
+              ],
+              [
+                0.5105,
+                0.6024,
+                0.4292,
+                0.0122
+              ],
+              [
+                0.5104,
+                0.617,
+                0.4288,
+                0.0122
+              ],
+              [
+                0.5106,
+                0.6315,
+                0.1452,
+                0.012
+              ]
+            ],
+            "quote": "Furthermore, by evaluating whether model predictions generalize across domains, encoding models may provide a quantitative framework for characterizing partially shared neural representations.",
+            "keys": [
+              {
+                "text": "generalize across domains",
+                "rects": [
+                  [
+                    0.6293,
+                    0.6024,
+                    0.164,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "partially shared neural representations",
+                "rects": [
+                  [
+                    0.841,
+                    0.617,
+                    0.0982,
+                    0.0122
+                  ],
+                  [
+                    0.5106,
+                    0.6315,
+                    0.1421,
+                    0.012
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "如果只能在本领域内预测，则说明表征更偏专属。",
+          "start": 35.0114,
+          "end": 39.4659,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.5433,
+                0.2906,
+                0.2504,
+                0.0112
+              ],
+              [
+                0.0612,
+                0.3045,
+                0.7325,
+                0.0112
+              ],
+              [
+                0.0615,
+                0.3184,
+                0.4616,
+                0.0109
+              ]
+            ],
+            "quote": "Domain-specificity contrasts revealed stronger language-related prediction in the left superior temporal sulcus and angular gyrus and math-related prediction in the left precentral sulcus and bilateral intraparietal sulci.",
+            "keys": [
+              {
+                "text": "Domain-specificity",
+                "rects": [
+                  [
+                    0.5433,
+                    0.2906,
+                    0.1239,
+                    0.0112
+                  ]
+                ]
+              },
+              {
+                "text": "language-related prediction",
+                "rects": [
+                  [
+                    0.1224,
+                    0.3046,
+                    0.1869,
+                    0.0109
+                  ]
+                ]
+              },
+              {
+                "text": "math-related prediction",
+                "rects": [
+                  [
+                    0.7082,
+                    0.3046,
+                    0.0855,
+                    0.0086
+                  ],
+                  [
+                    0.0615,
+                    0.3185,
+                    0.0675,
+                    0.0108
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "32名被试在磁共振扫描仪里完成了句子理解和计算任务。",
+          "start": 39.4659,
+          "end": 44.8409,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.5816,
+                0.8789,
+                0.3575,
+                0.0122
+              ],
+              [
+                0.5105,
+                0.8934,
+                0.2357,
+                0.0122
+              ]
+            ],
+            "quote": "To investigate this hypothesis, we conducted functional magnetic resonance imaging (fMRI) experiments with 32 partici\u0002pants who performed both sentence comprehension and calculation tasks.",
+            "keys": []
+          }
+        },
+        {
+          "text": "结论先说在前面：数据支持“部分共享、部分专属”，最一致的共享区域是左侧55b区。",
+          "start": 44.8409,
+          "end": 52.3864,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.3227,
+                0.2628,
+                0.4718,
+                0.0112
+              ],
+              [
+                0.0612,
+                0.2767,
+                0.7329,
+                0.0112
+              ],
+              [
+                0.0611,
+                0.2906,
+                0.4763,
+                0.0112
+              ]
+            ],
+            "quote": "Cross-domain prediction identified cortical regions showing partially shared representations, most consistently in the left area 55b, while control analyses suggested that these effects could not be fully explained by low-level visual or task-general factors.",
+            "keys": [
+              {
+                "text": "partially shared representations",
+                "rects": [
+                  [
+                    0.7386,
+                    0.2629,
+                    0.056,
+                    0.0111
+                  ],
+                  [
+                    0.0612,
+                    0.2768,
+                    0.1499,
+                    0.0108
+                  ]
+                ]
+              },
+              {
+                "text": "left area 55b",
+                "rects": [
+                  [
+                    0.3771,
+                    0.2767,
+                    0.0801,
+                    0.0087
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "但这是模型预测层面的证据，不等于语言和数学同源。",
+          "start": 52.3864,
+          "end": 57.072,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.9258,
+                0.7487,
+                0.0132,
+                0.0082
+              ],
+              [
+                0.5104,
+                0.7625,
+                0.4289,
+                0.0104
+              ],
+              [
+                0.5107,
+                0.777,
+                0.4286,
+                0.0122
+              ],
+              [
+                0.5108,
+                0.7916,
+                0.4286,
+                0.0122
+              ],
+              [
+                0.5104,
+                0.8061,
+                0.0947,
+                0.0091
+              ]
+            ],
+            "quote": "In this framework, the LLM served as a common feature extractor for embedding linguistic and mathematical stimuli into a shared latent space, rather than as a model of the neural computations underlying these domains.",
+            "keys": [
+              {
+                "text": "rather than as a model",
+                "rects": [
+                  [
+                    0.5521,
+                    0.7916,
+                    0.14,
+                    0.0091
+                  ]
+                ]
+              },
+              {
+                "text": "shared latent space",
+                "rects": [
+                  [
+                    0.8582,
+                    0.777,
+                    0.0811,
+                    0.0091
+                  ],
+                  [
+                    0.5108,
+                    0.7948,
+                    0.0338,
+                    0.0088
+                  ]
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "alignment": {
+        "version": "word-clause-v3",
+        "coverage": 1.0,
+        "words": 163
+      },
+      "figure_source": "原文高亮 · PDF 第1页",
+      "sources": [
+        {
+          "label": "原论文 · PDF 第1页",
+          "url": "source/paper.pdf#page=1",
+          "page": 1
+        }
+      ]
+    },
+    {
+      "id": "segment-2",
+      "index": 1,
+      "title": "两派证据：分离的回路，还是重叠的回路",
+      "summary": "过去的证据分成两派。一派认为二者分离：语言研究多指向左侧额下回和颞上皮层，数学计算更常与背外侧前额叶和顶叶相关；直接对比语言与数学任务的研究多显示脑激活分离；一些失语症患者语言严重受损，数学能力却相对保留。另一派看到共享：部分研究在左额叶发现两者激活重叠，该区域附近的脑损伤会同时影响语言与数学；算式里数字与运算符之间有层级结构，与句子成分之间的关系有相似之处，结构启动实验也支持跨领域的结构共用。两派各有证据，却缺少一把共同的尺子。只看“哪里亮了”，无法回答亮的地方是否在编码相似的信息。重叠的激活，可能只是两个任务都在同一处消耗资源，而不是用同样的方式表示内容。这正是作者想补上的缺口。",
+      "start": 57.072,
+      "end": 114.912,
+      "duration": 57.84,
+      "figure": false,
+      "visual": {
+        "kind": "page",
+        "aspect": "page",
+        "engine": "page-highlight-v4",
+        "pages": {
+          "1": "pages/page_01.png"
+        }
+      },
+      "cues": [
+        {
+          "text": "过去的证据分成两派。",
+          "start": 0.0,
+          "end": 2.4545,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.0814,
+                0.6315,
+                0.4082,
+                0.0122
+              ],
+              [
+                0.061,
+                0.646,
+                0.3428,
+                0.0122
+              ]
+            ],
+            "quote": "In contrast, other studies have suggested that shared neural mechanisms exist between language and mathematics.",
+            "keys": [
+              {
+                "text": "other studies",
+                "rects": [
+                  [
+                    0.1655,
+                    0.6315,
+                    0.087,
+                    0.0091
+                  ]
+                ]
+              },
+              {
+                "text": "shared neural mechanisms",
+                "rects": [
+                  [
+                    0.3977,
+                    0.6315,
+                    0.0919,
+                    0.0091
+                  ],
+                  [
+                    0.061,
+                    0.646,
+                    0.0787,
+                    0.0091
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "一派认为二者分离：语言研究多指向左侧额下回和颞上皮层，数学计算更常与背外侧前额叶和顶叶相关；",
+          "start": 2.4545,
+          "end": 11.5227,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.0616,
+                0.4286,
+                0.1049,
+                0.0083
+              ],
+              [
+                0.0609,
+                0.4423,
+                0.4288,
+                0.0122
+              ],
+              [
+                0.061,
+                0.4569,
+                0.3782,
+                0.0122
+              ]
+            ],
+            "quote": "INTRODUCTION A prevailing view in cognitive neuroscience posits that language and mathematics are supported by distinct neural circuits (1–3).",
+            "keys": [
+              {
+                "text": "distinct neural circuits",
+                "rects": [
+                  [
+                    0.2561,
+                    0.4569,
+                    0.1419,
+                    0.0091
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "直接对比语言与数学任务的研究多显示脑激活分离；",
+          "start": 11.5227,
+          "end": 15.8409,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.3603,
+                0.515,
+                0.1292,
+                0.0091
+              ],
+              [
+                0.0607,
+                0.5296,
+                0.1906,
+                0.0122
+              ]
+            ],
+            "quote": "This distinction has been further supported by studies that directly contrasted brain ac\u0002tivity between language and mathematical tasks, consistently dem\u0002onstrating their dissociation (9–11).",
+            "keys": []
+          }
+        },
+        {
+          "text": "一些失语症患者语言严重受损，数学能力却相对保留。",
+          "start": 15.8409,
+          "end": 20.9091,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.2897,
+                0.5587,
+                0.2,
+                0.0122
+              ],
+              [
+                0.0612,
+                0.5733,
+                0.429,
+                0.0122
+              ],
+              [
+                0.0609,
+                0.5878,
+                0.4285,
+                0.0122
+              ],
+              [
+                0.0617,
+                0.6024,
+                0.0515,
+                0.011
+              ]
+            ],
+            "quote": "In addition, neuropsychological evidence has shown that some patients with aphasia retain relatively preserved mathematical abilities despite severe language impairments (12–14).",
+            "keys": [
+              {
+                "text": "aphasia",
+                "rects": [
+                  [
+                    0.3413,
+                    0.5733,
+                    0.0469,
+                    0.012
+                  ]
+                ]
+              },
+              {
+                "text": "preserved mathematical abilities",
+                "rects": [
+                  [
+                    0.0609,
+                    0.5878,
+                    0.1981,
+                    0.012
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "另一派看到共享：部分研究在左额叶发现两者激活重叠，该区域附近的脑损伤会同时影响语言与数学；",
+          "start": 20.9091,
+          "end": 29.5909,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.4553,
+                0.6759,
+                0.0342,
+                0.0083
+              ],
+              [
+                0.0608,
+                0.6897,
+                0.4286,
+                0.0122
+              ],
+              [
+                0.0612,
+                0.7042,
+                0.2333,
+                0.0111
+              ]
+            ],
+            "quote": "Brain lesions around this region have been shown to affect both language and mathematical abilities (19–21).",
+            "keys": [
+              {
+                "text": "Brain lesions",
+                "rects": [
+                  [
+                    0.4553,
+                    0.6759,
+                    0.0342,
+                    0.0083
+                  ],
+                  [
+                    0.0608,
+                    0.6897,
+                    0.0426,
+                    0.0091
+                  ]
+                ]
+              },
+              {
+                "text": "both language and mathematical",
+                "rects": [
+                  [
+                    0.3995,
+                    0.6897,
+                    0.0899,
+                    0.0122
+                  ],
+                  [
+                    0.0612,
+                    0.7042,
+                    0.1183,
+                    0.0091
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "算式里数字与运算符之间有层级结构，与句子成分之间的关系有相似之处，结构启动实验也支持跨领域的结构共用。",
+          "start": 29.5909,
+          "end": 39.75,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.2999,
+                0.7042,
+                0.1895,
+                0.0091
+              ],
+              [
+                0.061,
+                0.7188,
+                0.4281,
+                0.0122
+              ],
+              [
+                0.0607,
+                0.7333,
+                0.4288,
+                0.012
+              ]
+            ],
+            "quote": "The shared neural substrates may reflect structural properties common to both domains (16, 22– 24), as mathematical expressions contain structured relationships among numbers and operators analogous to those among linguis\u0002tic elements in natural language (25–29).",
+            "keys": [
+              {
+                "text": "structural properties",
+                "rects": [
+                  [
+                    0.135,
+                    0.7188,
+                    0.13,
+                    0.012
+                  ]
+                ]
+              },
+              {
+                "text": "mathematical expressions",
+                "rects": [
+                  [
+                    0.1083,
+                    0.7333,
+                    0.1672,
+                    0.012
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "两派各有证据，却缺少一把共同的尺子。",
+          "start": 39.75,
+          "end": 43.2955,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.531,
+                0.4715,
+                0.4087,
+                0.0122
+              ],
+              [
+                0.5107,
+                0.486,
+                0.4285,
+                0.0122
+              ],
+              [
+                0.5104,
+                0.5006,
+                0.1944,
+                0.0122
+              ]
+            ],
+            "quote": "Cross-domain encoding models could help bridge this gap by quantitatively evaluating feature-based brain representations and their generalizability (34, 35).",
+            "keys": [
+              {
+                "text": "Cross-domain encoding models",
+                "rects": [
+                  [
+                    0.531,
+                    0.4715,
+                    0.2104,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "bridge this gap",
+                "rects": [
+                  [
+                    0.8208,
+                    0.4715,
+                    0.0979,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "只看“哪里亮了”，无法回答亮的地方是否在编码相似的信息。",
+          "start": 43.2955,
+          "end": 48.3068,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.531,
+                0.4715,
+                0.4087,
+                0.0122
+              ],
+              [
+                0.5107,
+                0.486,
+                0.4285,
+                0.0122
+              ],
+              [
+                0.5104,
+                0.5006,
+                0.1944,
+                0.0122
+              ]
+            ],
+            "quote": "Cross-domain encoding models could help bridge this gap by quantitatively evaluating feature-based brain representations and their generalizability (34, 35).",
+            "keys": [
+              {
+                "text": "quantitatively evaluating",
+                "rects": [
+                  [
+                    0.5107,
+                    0.486,
+                    0.1619,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "feature-based brain representations",
+                "rects": [
+                  [
+                    0.6774,
+                    0.486,
+                    0.2326,
+                    0.012
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "重叠的激活，可能只是两个任务都在同一处消耗资源，而不是用同样的方式表示内容。",
+          "start": 48.3068,
+          "end": 55.3864,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.7062,
+                0.5879,
+                0.2331,
+                0.0122
+              ],
+              [
+                0.5105,
+                0.6024,
+                0.4292,
+                0.0122
+              ],
+              [
+                0.5104,
+                0.617,
+                0.4288,
+                0.0122
+              ],
+              [
+                0.5106,
+                0.6315,
+                0.1452,
+                0.012
+              ]
+            ],
+            "quote": "Furthermore, by evaluating whether model predictions generalize across domains, encoding models may provide a quantitative framework for characterizing partially shared neural representations.",
+            "keys": [
+              {
+                "text": "partially shared neural representations",
+                "rects": [
+                  [
+                    0.841,
+                    0.617,
+                    0.0982,
+                    0.0122
+                  ],
+                  [
+                    0.5106,
+                    0.6315,
+                    0.1421,
+                    0.012
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "这正是作者想补上的缺口。",
+          "start": 55.3864,
+          "end": 57.84,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.5309,
+                0.7188,
+                0.4083,
+                0.0104
+              ],
+              [
+                0.5107,
+                0.7334,
+                0.2096,
+                0.012
+              ]
+            ],
+            "quote": "Here, we extend this framework to characterize shared and domain-specific neural representations across language and mathe\u0002matics using latent LLM features and cross-domain modeling.",
+            "keys": [
+              {
+                "text": "shared and domain-specific",
+                "rects": [
+                  [
+                    0.8649,
+                    0.7188,
+                    0.0743,
+                    0.0091
+                  ],
+                  [
+                    0.5107,
+                    0.7334,
+                    0.1017,
+                    0.012
+                  ]
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "alignment": {
+        "version": "word-clause-v3",
+        "coverage": 1.0,
+        "words": 168
+      },
+      "figure_source": "原文高亮 · PDF 第1页",
+      "sources": [
+        {
+          "label": "原论文 · PDF 第1页",
+          "url": "source/paper.pdf#page=1",
+          "page": 1
+        }
+      ]
+    },
+    {
+      "id": "segment-3",
+      "index": 2,
+      "title": "为什么选大语言模型的特征做“共同量尺”",
+      "summary": "这把尺子来自编码模型：用刺激的特征去预测每个脑位置的活动，预测得准，说明这些特征里含有该脑区关心的信息。作者用大语言模型的内部特征来描述刺激，因为它能把语言和数学的符号序列放进同一个潜在特征空间。先前研究已显示，这类预测可以跨模态泛化，比如听故事与读文字、故事与电影，以及数学算式与文字题。作者的设想是：在语言上训练、在数学上测试，反过来也一样，跨领域预测成功的脑区，就是共享表征的候选。他们预先假设，左额叶会出现跨领域预测，颞叶和顶叶更偏领域特异。需要强调，论文明确说，大语言模型只是共同的特征提取器，并非大脑计算的模型。可以把它想成一把通用量尺，但类比的边界在于：读数相近，不代表被量的两样东西本质相同。",
+      "start": 114.912,
+      "end": 173.88,
+      "duration": 58.968,
+      "figure": false,
+      "visual": {
+        "kind": "page",
+        "aspect": "page",
+        "engine": "page-highlight-v4",
+        "pages": {
+          "1": "pages/page_01.png"
+        }
+      },
+      "cues": [
+        {
+          "text": "这把尺子来自编码模型：用刺激的特征去预测每个脑位置的活动，预测得准，说明这些特征里含有该脑区关心的信息。",
+          "start": 0.0,
+          "end": 9.8636,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.531,
+                0.4715,
+                0.4087,
+                0.0122
+              ],
+              [
+                0.5107,
+                0.486,
+                0.4285,
+                0.0122
+              ],
+              [
+                0.5104,
+                0.5006,
+                0.1944,
+                0.0122
+              ]
+            ],
+            "quote": "Cross-domain encoding models could help bridge this gap by quantitatively evaluating feature-based brain representations and their generalizability (34, 35).",
+            "keys": [
+              {
+                "text": "Cross-domain encoding models",
+                "rects": [
+                  [
+                    0.531,
+                    0.4715,
+                    0.2104,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "feature-based brain representations",
+                "rects": [
+                  [
+                    0.6774,
+                    0.486,
+                    0.2326,
+                    0.012
+                  ]
+                ]
+              },
+              {
+                "text": "generalizability",
+                "rects": [
+                  [
+                    0.5463,
+                    0.5006,
+                    0.1007,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "作者用大语言模型的内部特征来描述刺激，因为它能把语言和数学的符号序列放进同一个潜在特征空间。",
+          "start": 9.8636,
+          "end": 18.5795,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.8512,
+                0.5442,
+                0.0897,
+                0.0091
+              ],
+              [
+                0.5104,
+                0.5588,
+                0.4288,
+                0.0122
+              ],
+              [
+                0.5102,
+                0.5733,
+                0.429,
+                0.0122
+              ],
+              [
+                0.5104,
+                0.5879,
+                0.1569,
+                0.0122
+              ]
+            ],
+            "quote": "The success of these models may partly stem from the ability of LLMs to embed both linguistic and mathematical symbol sequences within a shared latent feature space (Fig.",
+            "keys": [
+              {
+                "text": "LLMs",
+                "rects": [
+                  [
+                    0.836,
+                    0.5595,
+                    0.0363,
+                    0.0083
+                  ]
+                ]
+              },
+              {
+                "text": "shared latent feature space",
+                "rects": [
+                  [
+                    0.8979,
+                    0.5733,
+                    0.0414,
+                    0.0091
+                  ],
+                  [
+                    0.5104,
+                    0.5879,
+                    0.1233,
+                    0.012
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "先前研究已显示，这类预测可以跨模态泛化，比如听故事与读文字、故事与电影，以及数学算式与文字题。",
+          "start": 18.5795,
+          "end": 27.7955,
+          "region": null,
+          "highlight": null
+        },
+        {
+          "text": "作者的设想是：在语言上训练、在数学上测试，反过来也一样，跨领域预测成功的脑区，就是共享表征的候选。",
+          "start": 27.7955,
+          "end": 37.2273,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.7062,
+                0.5879,
+                0.2331,
+                0.0122
+              ],
+              [
+                0.5105,
+                0.6024,
+                0.4292,
+                0.0122
+              ],
+              [
+                0.5104,
+                0.617,
+                0.4288,
+                0.0122
+              ],
+              [
+                0.5106,
+                0.6315,
+                0.1452,
+                0.012
+              ]
+            ],
+            "quote": "Furthermore, by evaluating whether model predictions generalize across domains, encoding models may provide a quantitative framework for characterizing partially shared neural representations.",
+            "keys": [
+              {
+                "text": "generalize across domains",
+                "rects": [
+                  [
+                    0.6293,
+                    0.6024,
+                    0.164,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "partially shared neural representations",
+                "rects": [
+                  [
+                    0.841,
+                    0.617,
+                    0.0982,
+                    0.0122
+                  ],
+                  [
+                    0.5106,
+                    0.6315,
+                    0.1421,
+                    0.012
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "他们预先假设，左额叶会出现跨领域预测，颞叶和顶叶更偏领域特异。",
+          "start": 37.2273,
+          "end": 43.4432,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.6109,
+                0.8061,
+                0.3281,
+                0.012
+              ],
+              [
+                0.5104,
+                0.8207,
+                0.4288,
+                0.0122
+              ],
+              [
+                0.5106,
+                0.8352,
+                0.2784,
+                0.0122
+              ]
+            ],
+            "quote": "On the basis of previous literature (2–8, 15–17), we hypothesized that cross-domain prediction would identify cortical regions showing shared representational components across lan\u0002guage and mathematics, particularly within the left frontal cortex, while temporal and parietal regions would exhibit s",
+            "keys": [
+              {
+                "text": "cross-domain prediction",
+                "rects": [
+                  [
+                    0.6298,
+                    0.8207,
+                    0.1575,
+                    0.012
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "需要强调，论文明确说，大语言模型只是共同的特征提取器，并非大脑计算的模型。",
+          "start": 43.4432,
+          "end": 50.9432,
+          "region": null,
+          "highlight": {
+            "page": 1,
+            "rects": [
+              [
+                0.9258,
+                0.7487,
+                0.0132,
+                0.0082
+              ],
+              [
+                0.5104,
+                0.7625,
+                0.4289,
+                0.0104
+              ],
+              [
+                0.5107,
+                0.777,
+                0.4286,
+                0.0122
+              ],
+              [
+                0.5108,
+                0.7916,
+                0.4286,
+                0.0122
+              ],
+              [
+                0.5104,
+                0.8061,
+                0.0947,
+                0.0091
+              ]
+            ],
+            "quote": "In this framework, the LLM served as a common feature extractor for embedding linguistic and mathematical stimuli into a shared latent space, rather than as a model of the neural computations underlying these domains.",
+            "keys": [
+              {
+                "text": "common feature extractor",
+                "rects": [
+                  [
+                    0.7501,
+                    0.7625,
+                    0.1667,
+                    0.0091
+                  ]
+                ]
+              },
+              {
+                "text": "rather than as a model",
+                "rects": [
+                  [
+                    0.5521,
+                    0.7916,
+                    0.14,
+                    0.0091
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "可以把它想成一把通用量尺，但类比的边界在于：读数相近，不代表被量的两样东西本质相同。",
+          "start": 50.9432,
+          "end": 58.968,
+          "region": null,
+          "highlight": null
+        }
+      ],
+      "alignment": {
+        "version": "word-clause-v3",
+        "coverage": 1.0,
+        "words": 166
+      },
+      "figure_source": "原文高亮 · PDF 第1页",
+      "sources": [
+        {
+          "label": "原论文 · PDF 第1页",
+          "url": "source/paper.pdf#page=1",
+          "page": 1
+        },
+        {
+          "label": "原论文 · PDF 第2页",
+          "url": "source/paper.pdf#page=2",
+          "page": 2
+        },
+        {
+          "label": "原论文 · PDF 第9页",
+          "url": "source/paper.pdf#page=9",
+          "page": 9
+        }
+      ]
+    },
+    {
+      "id": "segment-4",
+      "index": 3,
+      "title": "实验设计：32名被试、四类刺激、两种任务",
+      "summary": "实验共32名被试，19到30岁，13名女性，均为日语母语者、右利手。刺激分四类。语言目标条件有200个日语句子，每句五个词，含关系从句；160句用于训练，40句用于测试。数学目标条件有200个算式，每式五个符号：三个个位数和两个运算符，运算含加、减、乘、除；同样160训练、40测试。两个对照条件各40个：无关的名词串或动词串，以及无法计算的数字串，只用于测试。每个词或符号呈现700毫秒，共3.5秒。约20%的试次后跟一个探测：语言条件判断探测是否符合句意，数学条件判断数字是否等于计算结果，对照条件则判断是否出现过。每名被试做12次扫描：语言5次、数学5次，各含4次训练、1次测试，另有2次对照。有按键的试次及其后6秒数据被剔除，以减少运动成分。",
+      "start": 173.88,
+      "end": 240.12,
+      "duration": 66.24,
+      "figure": false,
+      "visual": {
+        "kind": "page",
+        "aspect": "page",
+        "engine": "page-highlight-v4",
+        "pages": {
+          "11": "pages/page_11.png",
+          "12": "pages/page_12.png"
+        }
+      },
+      "cues": [
+        {
+          "text": "实验共32名被试，19到30岁，13名女性，均为日语母语者、右利手。",
+          "start": 0.0,
+          "end": 7.0568,
+          "region": null,
+          "highlight": {
+            "page": 11,
+            "rects": [
+              [
+                0.0614,
+                0.284,
+                0.1821,
+                0.0083
+              ],
+              [
+                0.0612,
+                0.2978,
+                0.0598,
+                0.0115
+              ],
+              [
+                0.0611,
+                0.3123,
+                0.4286,
+                0.0123
+              ],
+              [
+                0.0606,
+                0.3269,
+                0.4015,
+                0.0122
+              ]
+            ],
+            "quote": "MATERIALS AND METHODS Subjects Thirty-two subjects, aged 19 to 30 years (13 females, all with normal vision), denoted as ID01 to ID32, participated in this study.",
+            "keys": [
+              {
+                "text": "Thirty-two subjects",
+                "rects": [
+                  [
+                    0.0611,
+                    0.3123,
+                    0.1225,
+                    0.0123
+                  ]
+                ]
+              },
+              {
+                "text": "19 to 30 years",
+                "rects": [
+                  [
+                    0.2256,
+                    0.3133,
+                    0.0839,
+                    0.0112
+                  ]
+                ]
+              },
+              {
+                "text": "13 females",
+                "rects": [
+                  [
+                    0.3206,
+                    0.3124,
+                    0.0646,
+                    0.0091
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "刺激分四类。",
+          "start": 7.0568,
+          "end": 8.6136,
+          "region": null,
+          "highlight": {
+            "page": 11,
+            "rects": [
+              [
+                0.0612,
+                0.5016,
+                0.1638,
+                0.0114
+              ],
+              [
+                0.0611,
+                0.5161,
+                0.1913,
+                0.012
+              ]
+            ],
+            "quote": "Stimuli and procedures The current experiment comprised four conditions: a language tar\u0002get condition, a language control condition, a math target condition, and a math control condition.",
+            "keys": []
+          }
+        },
+        {
+          "text": "语言目标条件有200个日语句子，每句五个词，含关系从句；",
+          "start": 8.6136,
+          "end": 13.6932,
+          "region": null,
+          "highlight": {
+            "page": 11,
+            "rects": [
+              [
+                0.2667,
+                0.5452,
+                0.2231,
+                0.0122
+              ],
+              [
+                0.0612,
+                0.5597,
+                0.4286,
+                0.0104
+              ],
+              [
+                0.061,
+                0.5743,
+                0.4287,
+                0.0122
+              ],
+              [
+                0.061,
+                0.5888,
+                0.3316,
+                0.0122
+              ]
+            ],
+            "quote": "Stimuli under the language target condition consisted of 200 sentences, 160 of which were used for model training (referred to as language training stimuli) and 40 for model testing (referred to as language test stimuli).",
+            "keys": [
+              {
+                "text": "200 sentences",
+                "rects": [
+                  [
+                    0.2115,
+                    0.5607,
+                    0.0884,
+                    0.0081
+                  ]
+                ]
+              },
+              {
+                "text": "language target condition",
+                "rects": [
+                  [
+                    0.3889,
+                    0.5452,
+                    0.1009,
+                    0.0122
+                  ],
+                  [
+                    0.0612,
+                    0.5597,
+                    0.061,
+                    0.0091
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "160句用于训练，40句用于测试。",
+          "start": 13.6932,
+          "end": 17.2727,
+          "region": null,
+          "highlight": {
+            "page": 11,
+            "rects": [
+              [
+                0.2667,
+                0.5452,
+                0.2231,
+                0.0122
+              ],
+              [
+                0.0612,
+                0.5597,
+                0.4286,
+                0.0104
+              ],
+              [
+                0.061,
+                0.5743,
+                0.4287,
+                0.0122
+              ],
+              [
+                0.061,
+                0.5888,
+                0.3316,
+                0.0122
+              ]
+            ],
+            "quote": "Stimuli under the language target condition consisted of 200 sentences, 160 of which were used for model training (referred to as language training stimuli) and 40 for model testing (referred to as language test stimuli).",
+            "keys": [
+              {
+                "text": "160",
+                "rects": [
+                  [
+                    0.3112,
+                    0.5606,
+                    0.0207,
+                    0.0082
+                  ]
+                ]
+              },
+              {
+                "text": "40 for model testing",
+                "rects": [
+                  [
+                    0.4524,
+                    0.5743,
+                    0.0373,
+                    0.0091
+                  ],
+                  [
+                    0.061,
+                    0.5888,
+                    0.0877,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "数学目标条件有200个算式，每式五个符号：三个个位数和两个运算符，运算含加、减、乘、除；",
+          "start": 17.2727,
+          "end": 26.0,
+          "region": null,
+          "highlight": {
+            "page": 11,
+            "rects": [
+              [
+                0.2774,
+                0.8944,
+                0.2121,
+                0.012
+              ],
+              [
+                0.0612,
+                0.909,
+                0.3969,
+                0.0122
+              ]
+            ],
+            "quote": "Each expression contained five symbols (three single-digit numbers and two operators) and rep\u0002resented a two-operator arithmetic problem (e.g., “7 × 6 + 3”).",
+            "keys": [
+              {
+                "text": "five symbols",
+                "rects": [
+                  [
+                    0.4657,
+                    0.8944,
+                    0.0237,
+                    0.0091
+                  ],
+                  [
+                    0.0612,
+                    0.909,
+                    0.0527,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "three single-digit numbers",
+                "rects": [
+                  [
+                    0.1247,
+                    0.909,
+                    0.1745,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "two operators",
+                "rects": [
+                  [
+                    0.333,
+                    0.9107,
+                    0.0902,
+                    0.0102
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "同样160训练、40测试。",
+          "start": 26.0,
+          "end": 28.9318,
+          "region": null,
+          "highlight": {
+            "page": 11,
+            "rects": [
+              [
+                0.0814,
+                0.8508,
+                0.3208,
+                0.0122
+              ]
+            ],
+            "quote": "Stimuli under the math target condition consisted of 200 math\u0002ematical expressions, 160 of which were used for model training (referred to as math training stimuli) and 40 for model testing (re\u0002ferred to as math test stimuli).",
+            "keys": []
+          }
+        },
+        {
+          "text": "两个对照条件各40个：无关的名词串或动词串，以及无法计算的数字串，只用于测试。",
+          "start": 28.9318,
+          "end": 36.6591,
+          "region": null,
+          "highlight": {
+            "page": 11,
+            "rects": [
+              [
+                0.5309,
+                0.1087,
+                0.3312,
+                0.0091
+              ]
+            ],
+            "quote": "Stimuli under the math control condition consisted of 40 num\u0002ber lists, all of which were used only for model testing (referred to as math control stimuli).",
+            "keys": []
+          }
+        },
+        {
+          "text": "每个词或符号呈现700毫秒，共3.5秒。",
+          "start": 36.6591,
+          "end": 40.8295,
+          "region": null,
+          "highlight": {
+            "page": 11,
+            "rects": [
+              [
+                0.573,
+                0.2397,
+                0.366,
+                0.0122
+              ],
+              [
+                0.5107,
+                0.2542,
+                0.4283,
+                0.0122
+              ],
+              [
+                0.5107,
+                0.2688,
+                0.0716,
+                0.0091
+              ]
+            ],
+            "quote": "Each word or symbol was presented sequentially at the center of the screen for 700 ms, resulting in a total presentation time of 3500 ms.",
+            "keys": [
+              {
+                "text": "700 ms",
+                "rects": [
+                  [
+                    0.6587,
+                    0.2552,
+                    0.0438,
+                    0.0081
+                  ]
+                ]
+              },
+              {
+                "text": "3500 ms",
+                "rects": [
+                  [
+                    0.5271,
+                    0.2697,
+                    0.052,
+                    0.0081
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "约20%的试次后跟一个探测：语言条件判断探测是否符合句意，数学条件判断数字是否等于计算结果，对照条件则判断是否出现过。",
+          "start": 40.8295,
+          "end": 53.0455,
+          "region": null,
+          "highlight": {
+            "page": 11,
+            "rects": [
+              [
+                0.5309,
+                0.2833,
+                0.4079,
+                0.012
+              ],
+              [
+                0.5105,
+                0.2979,
+                0.4286,
+                0.0122
+              ],
+              [
+                0.5107,
+                0.3124,
+                0.207,
+                0.012
+              ]
+            ],
+            "quote": "In 20% of the trials, the sentence or mathematical expression was followed by a blank screen for 1000 to 2000 ms and then by a probe stimulus presented for 2000 ms.",
+            "keys": [
+              {
+                "text": "20% of the trials",
+                "rects": [
+                  [
+                    0.5479,
+                    0.2833,
+                    0.1009,
+                    0.0092
+                  ]
+                ]
+              },
+              {
+                "text": "probe stimulus",
+                "rects": [
+                  [
+                    0.9027,
+                    0.2979,
+                    0.0364,
+                    0.012
+                  ],
+                  [
+                    0.5107,
+                    0.3124,
+                    0.0551,
+                    0.0091
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "每名被试做12次扫描：语言5次、数学5次，各含4次训练、1次测试，另有2次对照。",
+          "start": 53.0455,
+          "end": 61.1136,
+          "region": null,
+          "highlight": {
+            "page": 11,
+            "rects": [
+              [
+                0.8283,
+                0.8072,
+                0.1109,
+                0.012
+              ],
+              [
+                0.5106,
+                0.8217,
+                0.2044,
+                0.012
+              ]
+            ],
+            "quote": "Each participant completed 12 fMRI runs in total.",
+            "keys": [
+              {
+                "text": "12 fMRI runs",
+                "rects": [
+                  [
+                    0.5815,
+                    0.8217,
+                    0.0826,
+                    0.0091
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "有按键的试次及其后6秒数据被剔除，以减少运动成分。",
+          "start": 61.1136,
+          "end": 66.24,
+          "region": null,
+          "highlight": {
+            "page": 12,
+            "rects": [
+              [
+                0.8266,
+                0.0801,
+                0.1126,
+                0.0086
+              ],
+              [
+                0.5107,
+                0.0942,
+                0.2274,
+                0.012
+              ]
+            ],
+            "quote": "To remove motor components related to button responses, we excluded volumes cor\u0002responding to trials with button presses and all volumes within the subsequent 6 s, corresponding to the maximum temporal delay used in the encoding model.",
+            "keys": []
+          }
+        }
+      ],
+      "alignment": {
+        "version": "word-clause-v3",
+        "coverage": 1.0,
+        "words": 164
+      },
+      "figure_source": "原文高亮 · PDF 第11、12页",
+      "sources": [
+        {
+          "label": "原论文 · PDF 第2页",
+          "url": "source/paper.pdf#page=2",
+          "page": 2
+        },
+        {
+          "label": "原论文 · PDF 第11页",
+          "url": "source/paper.pdf#page=11",
+          "page": 11
+        },
+        {
+          "label": "原论文 · PDF 第12页",
+          "url": "source/paper.pdf#page=12",
+          "page": 12
+        }
+      ]
+    },
+    {
+      "id": "segment-5",
+      "index": 4,
+      "title": "方法如何运作：从特征、回归到跨领域检验与对照",
+      "summary": "每个刺激先送进日语版Llama3，取第16层（共32层）的隐藏状态；再把语言和数学的训练特征合在一起做主成分分析，压缩到100维，称为联合投影。它只用训练刺激拟合，再套用到测试和对照刺激，避免信息泄漏。随后对每名被试、每个皮层顶点（共18,715个）拟合编码模型：用延迟3到6秒的四份特征预测血氧信号，用L2正则化线性回归求权重，正则强度由五折交叉验证选定。每人得到一个语言模型和一个数学模型。输出是预测与真实测试信号的皮尔逊相关系数r。组合有四种：语言到语言、数学到数学属于域内；语言到数学、数学到语言属于跨域。共享脑区用最小统计量联合分析：每个顶点取四个r中最小的一个再检验。对照包括无结构刺激、AlexNet视觉特征、语言与数学分开做PCA，以及把特征时间序列循环移位100次。",
+      "start": 240.12,
+      "end": 307.104,
+      "duration": 66.984,
+      "figure": false,
+      "visual": {
+        "kind": "page",
+        "aspect": "page",
+        "engine": "page-highlight-v4",
+        "pages": {
+          "12": "pages/page_12.png",
+          "13": "pages/page_13.png"
+        }
+      },
+      "cues": [
+        {
+          "text": "每个刺激先送进日语版Llama3，取第16层（共32层）的隐藏状态；",
+          "start": 0.0,
+          "end": 5.9545,
+          "region": null,
+          "highlight": {
+            "page": 12,
+            "rects": [
+              [
+                0.7615,
+                0.2688,
+                0.1775,
+                0.012
+              ],
+              [
+                0.5104,
+                0.2834,
+                0.4286,
+                0.012
+              ],
+              [
+                0.5103,
+                0.2979,
+                0.4286,
+                0.0122
+              ],
+              [
+                0.5107,
+                0.3125,
+                0.172,
+                0.0091
+              ]
+            ],
+            "quote": "For each input stimulus, the hidden states (i.e., block outputs after residual connections) from the 1st, 8th, 16th, 24th, and 32nd layers (of a total of 32 layers) were extracted as latent features.",
+            "keys": [
+              {
+                "text": "16th",
+                "rects": [
+                  [
+                    0.5896,
+                    0.2979,
+                    0.0268,
+                    0.0091
+                  ]
+                ]
+              },
+              {
+                "text": "32 layers",
+                "rects": [
+                  [
+                    0.8453,
+                    0.2979,
+                    0.0542,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "hidden states",
+                "rects": [
+                  [
+                    0.5104,
+                    0.2834,
+                    0.0849,
+                    0.0091
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "再把语言和数学的训练特征合在一起做主成分分析，压缩到100维，称为联合投影。",
+          "start": 5.9545,
+          "end": 13.4318,
+          "region": null,
+          "highlight": {
+            "page": 12,
+            "rects": [
+              [
+                0.6884,
+                0.3125,
+                0.2506,
+                0.0122
+              ],
+              [
+                0.5105,
+                0.327,
+                0.4287,
+                0.0122
+              ],
+              [
+                0.5103,
+                0.3416,
+                0.4288,
+                0.0122
+              ],
+              [
+                0.5107,
+                0.3567,
+                0.133,
+                0.0116
+              ]
+            ],
+            "quote": "For each target layer, the latent features from the language and math training stimuli were concatenated and then reduced to 100 dimensions using PCA (here referred to as joint PCA projection; Fig.",
+            "keys": [
+              {
+                "text": "joint PCA projection",
+                "rects": [
+                  [
+                    0.9091,
+                    0.3423,
+                    0.03,
+                    0.0114
+                  ],
+                  [
+                    0.5107,
+                    0.3567,
+                    0.1007,
+                    0.0116
+                  ]
+                ]
+              },
+              {
+                "text": "100 dimensions",
+                "rects": [
+                  [
+                    0.6144,
+                    0.3416,
+                    0.0976,
+                    0.0091
+                  ]
+                ]
+              },
+              {
+                "text": "PCA",
+                "rects": [
+                  [
+                    0.754,
+                    0.3421,
+                    0.0298,
+                    0.0085
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "它只用训练刺激拟合，再套用到测试和对照刺激，避免信息泄漏。",
+          "start": 13.4318,
+          "end": 19.125,
+          "region": null,
+          "highlight": {
+            "page": 12,
+            "rects": [
+              [
+                0.6836,
+                0.3561,
+                0.2554,
+                0.0122
+              ],
+              [
+                0.5103,
+                0.3707,
+                0.4287,
+                0.0122
+              ],
+              [
+                0.5106,
+                0.3852,
+                0.4286,
+                0.0122
+              ],
+              [
+                0.5107,
+                0.3998,
+                0.2609,
+                0.0091
+              ]
+            ],
+            "quote": "To avoid any information leakage from the test stimuli, PCA was fitted only on the training stimuli, and the resulting PCA projection was then applied to the independent test stimuli and unstructured control stimuli.",
+            "keys": [
+              {
+                "text": "information leakage",
+                "rects": [
+                  [
+                    0.7733,
+                    0.3561,
+                    0.1287,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "fitted only on the training",
+                "rects": [
+                  [
+                    0.6733,
+                    0.3707,
+                    0.163,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "unstructured control stimuli",
+                "rects": [
+                  [
+                    0.5873,
+                    0.3998,
+                    0.1815,
+                    0.0091
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "随后对每名被试、每个皮层顶点（共18,715个）拟合编码模型：用延迟3到6秒的四份特征预测血氧信号，用L2正则化线性回归求权重，正则强度由五折交叉验证选定。",
+          "start": 19.125,
+          "end": 34.9091,
+          "region": null,
+          "highlight": {
+            "page": 13,
+            "rects": [
+              [
+                0.1173,
+                0.1817,
+                0.3725,
+                0.0122
+              ],
+              [
+                0.061,
+                0.1963,
+                0.1944,
+                0.0104
+              ]
+            ],
+            "quote": "The optimal regularization parameter was determined using fivefold cross-validation, where the regularization parameter was se\u0002lected from seven values ranging from 1 to 106 .",
+            "keys": [
+              {
+                "text": "fivefold cross-validation",
+                "rects": [
+                  [
+                    0.061,
+                    0.1963,
+                    0.1485,
+                    0.0091
+                  ]
+                ]
+              },
+              {
+                "text": "regularization parameter",
+                "rects": [
+                  [
+                    0.1967,
+                    0.1817,
+                    0.1528,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "每人得到一个语言模型和一个数学模型。",
+          "start": 34.9091,
+          "end": 38.4545,
+          "region": null,
+          "highlight": {
+            "page": 13,
+            "rects": [
+              [
+                0.3215,
+                0.2253,
+                0.1682,
+                0.0091
+              ],
+              [
+                0.0612,
+                0.2399,
+                0.4285,
+                0.0122
+              ],
+              [
+                0.0612,
+                0.2544,
+                0.4273,
+                0.0122
+              ]
+            ],
+            "quote": "These models were denoted as the language encoding model and the math encoding model based on their training domains (language and mathematics), respectively.",
+            "keys": [
+              {
+                "text": "language encoding model",
+                "rects": [
+                  [
+                    0.1004,
+                    0.2399,
+                    0.159,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "math encoding model",
+                "rects": [
+                  [
+                    0.3142,
+                    0.2399,
+                    0.1364,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "输出是预测与真实测试信号的皮尔逊相关系数r。",
+          "start": 38.4545,
+          "end": 42.9773,
+          "region": null,
+          "highlight": {
+            "page": 13,
+            "rects": [
+              [
+                0.0813,
+                0.269,
+                0.4083,
+                0.0122
+              ],
+              [
+                0.0612,
+                0.2835,
+                0.3637,
+                0.012
+              ]
+            ],
+            "quote": "The prediction accuracy was evaluated using Pearson’s correlation coefficient between the predicted and actual test samples.",
+            "keys": [
+              {
+                "text": "Pearson’s correlation coefficient",
+                "rects": [
+                  [
+                    0.3635,
+                    0.269,
+                    0.126,
+                    0.0091
+                  ],
+                  [
+                    0.0612,
+                    0.2835,
+                    0.0631,
+                    0.0091
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "组合有四种：语言到语言、数学到数学属于域内；",
+          "start": 42.9773,
+          "end": 47.3636,
+          "region": null,
+          "highlight": {
+            "page": 13,
+            "rects": [
+              [
+                0.2263,
+                0.3709,
+                0.2633,
+                0.0122
+              ],
+              [
+                0.0612,
+                0.3854,
+                0.4283,
+                0.0122
+              ],
+              [
+                0.0612,
+                0.4,
+                0.345,
+                0.0122
+              ]
+            ],
+            "quote": "In the intradomain prediction, the language encoding model was tested with the language test samples, or the math encoding model was tested with the math test samples.",
+            "keys": [
+              {
+                "text": "intradomain prediction",
+                "rects": [
+                  [
+                    0.2648,
+                    0.3709,
+                    0.142,
+                    0.012
+                  ]
+                ]
+              },
+              {
+                "text": "language test samples",
+                "rects": [
+                  [
+                    0.2809,
+                    0.3854,
+                    0.1299,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "math test samples",
+                "rects": [
+                  [
+                    0.2914,
+                    0.4,
+                    0.1116,
+                    0.012
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "语言到数学、数学到语言属于跨域。",
+          "start": 47.3636,
+          "end": 50.8523,
+          "region": null,
+          "highlight": {
+            "page": 13,
+            "rects": [
+              [
+                0.1535,
+                0.3563,
+                0.3361,
+                0.0122
+              ],
+              [
+                0.0612,
+                0.3709,
+                0.1608,
+                0.0122
+              ]
+            ],
+            "quote": "Prediction accuracy was computed in both intradomain and cross-domain settings.",
+            "keys": [
+              {
+                "text": "cross-domain",
+                "rects": [
+                  [
+                    0.0873,
+                    0.3709,
+                    0.0828,
+                    0.0091
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "共享脑区用最小统计量联合分析：每个顶点取四个r中最小的一个再检验。",
+          "start": 50.8523,
+          "end": 57.2955,
+          "region": null,
+          "highlight": null
+        },
+        {
+          "text": "对照包括无结构刺激、AlexNet视觉特征、语言与数学分开做PCA，以及把特征时间序列循环移位100次。",
+          "start": 57.2955,
+          "end": 66.984,
+          "region": null,
+          "highlight": {
+            "page": 13,
+            "rects": [
+              [
+                0.1659,
+                0.56,
+                0.3228,
+                0.0122
+              ],
+              [
+                0.0609,
+                0.5746,
+                0.2257,
+                0.0122
+              ]
+            ],
+            "quote": "In addition, we performed three control analyses: (i) prediction accuracy for the language and math control conditions us\u0002ing LLM features with joint PCA projection, (ii) prediction accuracy for the language and math target conditions using visual (AlexNet) features with joint PCA projection, and (i",
+            "keys": [
+              {
+                "text": "control analyses",
+                "rects": [
+                  [
+                    0.369,
+                    0.56,
+                    0.0986,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "alignment": {
+        "version": "word-clause-v3",
+        "coverage": 1.0,
+        "words": 175
+      },
+      "figure_source": "原文高亮 · PDF 第12、13页",
+      "sources": [
+        {
+          "label": "原论文 · PDF 第2页",
+          "url": "source/paper.pdf#page=2",
+          "page": 2
+        },
+        {
+          "label": "原论文 · PDF 第12页",
+          "url": "source/paper.pdf#page=12",
+          "page": 12
+        },
+        {
+          "label": "原论文 · PDF 第13页",
+          "url": "source/paper.pdf#page=13",
+          "page": 13
+        }
+      ]
+    },
+    {
+      "id": "segment-6",
+      "index": 5,
+      "title": "主结果图：共享脑区、相似性与对照分析",
+      "summary": "先看左上角的A，它是域内预测的皮层图：蓝色表示语言模型预测语言，红色表示数学模型预测数学，两者都显著处为白色，色标上限约0.2。语言一侧覆盖颞叶、枕叶和额叶，数学一侧覆盖顶叶、枕叶和额叶，左侧中央前回背侧的55b区两者重叠。B在A右边，是跨域预测：蓝色为数学模型预测语言，红色为语言模型预测数学，范围明显更少。C在最右上，是联合分析，只剩零星亮点，包括左55b、左SCEF、左右LO2，以及右PF。D在左下，是六张散点图，灰点为全部顶点，红点为联合显著顶点，对角线表示两种预测一样好；以左上一张为例，全部顶点的ρ是0.283，显著顶点升到0.584。E在下方中部，上排是无结构刺激，下排是视觉模型，仅见枕叶一带零星亮点。F在最右下，是六个脑区的箱线图，用的是去除任务诱发成分后的信号，横轴依次是原始LLM、无结构刺激、视觉模型和分开投影，每个点是一名被试；在左55b，LLM一栏整体更高。",
+      "start": 307.104,
+      "end": 386.664,
+      "duration": 79.56,
+      "figure": true,
+      "visual": {
+        "kind": "figure",
+        "url": "figures/fig_03.png",
+        "pointer_style": "sage-paper-v2"
+      },
+      "cues": [
+        {
+          "text": "先看左上角的A，它是域内预测的皮层图：蓝色表示语言模型预测语言，红色表示数学模型预测数学，两者都显著处为白色，色标上限约0.2。",
+          "start": 0.0,
+          "end": 12.8295,
+          "region": [
+            0.03,
+            0.1,
+            0.28,
+            0.37
+          ]
+        },
+        {
+          "text": "语言一侧覆盖颞叶、枕叶和额叶，数学一侧覆盖顶叶、枕叶和额叶，",
+          "start": 12.8295,
+          "end": 18.6364,
+          "region": [
+            0.03,
+            0.12,
+            0.28,
+            0.35
+          ]
+        },
+        {
+          "text": "左侧中央前回背侧的55b区两者重叠。",
+          "start": 18.6364,
+          "end": 22.5682,
+          "region": [
+            0.04,
+            0.15,
+            0.1,
+            0.15
+          ]
+        },
+        {
+          "text": "B在A右边，是跨域预测：蓝色为数学模型预测语言，红色为语言模型预测数学，范围明显更少。",
+          "start": 22.5682,
+          "end": 31.4659,
+          "region": [
+            0.3,
+            0.1,
+            0.3,
+            0.38
+          ]
+        },
+        {
+          "text": "C在最右上，是联合分析，只剩零星亮点，包括左55b、左SCEF、左右LO2，以及右PF。",
+          "start": 31.4659,
+          "end": 40.8182,
+          "region": [
+            0.61,
+            0.1,
+            0.38,
+            0.4
+          ]
+        },
+        {
+          "text": "D在左下，是六张散点图，灰点为全部顶点，红点为联合显著顶点，对角线表示两种预测一样好；",
+          "start": 40.8182,
+          "end": 49.3182,
+          "region": [
+            0.03,
+            0.5,
+            0.3,
+            0.48
+          ]
+        },
+        {
+          "text": "以左上一张为例，全部顶点的ρ是0.283，显著顶点升到0.584。",
+          "start": 49.3182,
+          "end": 55.7955,
+          "region": [
+            0.04,
+            0.55,
+            0.14,
+            0.14
+          ]
+        },
+        {
+          "text": "E在下方中部，上排是无结构刺激，下排是视觉模型，仅见枕叶一带零星亮点。",
+          "start": 55.7955,
+          "end": 63.0,
+          "region": [
+            0.32,
+            0.5,
+            0.31,
+            0.48
+          ]
+        },
+        {
+          "text": "F在最右下，是六个脑区的箱线图，用的是去除任务诱发成分后的信号，横轴依次是原始LLM、无结构刺激、视觉模型和分开投影，每个点是一名被试；",
+          "start": 63.0,
+          "end": 76.1364,
+          "region": [
+            0.64,
+            0.5,
+            0.35,
+            0.48
+          ]
+        },
+        {
+          "text": "在左55b，LLM一栏整体更高。",
+          "start": 76.1364,
+          "end": 79.56,
+          "region": [
+            0.66,
+            0.57,
+            0.15,
+            0.17
+          ]
+        }
+      ],
+      "alignment": {
+        "version": "word-clause-v3",
+        "coverage": 1.0,
+        "words": 226
+      },
+      "figure_source": "原论文插图 · PDF 第3页",
+      "sources": [
+        {
+          "label": "原论文 · PDF 第3页",
+          "url": "source/paper.pdf#page=3",
+          "page": 3
+        },
+        {
+          "label": "原论文 · PDF 第4页",
+          "url": "source/paper.pdf#page=4",
+          "page": 4
+        }
+      ]
+    },
+    {
+      "id": "segment-7",
+      "index": 6,
+      "title": "定量结果：效应有多大，哪些对照撑得住",
+      "summary": "先看绝对大小：色标上限只有约0.2，说明预测显著，但幅度不大。再看对照，以去除任务诱发成分后的结果为例，并报告rank-biserial相关作为效应量。在左55b，真实测试刺激比无结构刺激预测更好（P<0.001，0.684），比视觉模型更好（P=0.012，0.213），比分开投影更好（P<0.001，0.381）。分开投影时，联合分析没有任何显著脑区，说明共享特征空间是关键。循环移位特征后同样没有显著区域。换用Gemma2、Qwen2.5等其他模型和不同层，模式相似，准确度没有显著差异。但并非每个区域都同样稳：右PF在多数对照中证据较弱，LO2在未去残差时与无结构刺激差异不显著，所以更稳的主角是左55b。补充图还显示，自注意力子层特征倾向于更广的跨域预测，MLP子层更偏领域特异，这一点机制尚不清楚。",
+      "start": 386.664,
+      "end": 454.512,
+      "duration": 67.848,
+      "figure": false,
+      "visual": {
+        "kind": "page",
+        "aspect": "page",
+        "engine": "page-highlight-v4",
+        "pages": {
+          "4": "pages/page_04.png",
+          "5": "pages/page_05.png"
+        }
+      },
+      "cues": [
+        {
+          "text": "先看绝对大小：色标上限只有约0.2，说明预测显著，但幅度不大。",
+          "start": 0.0,
+          "end": 6.4659,
+          "region": null,
+          "highlight": null
+        },
+        {
+          "text": "再看对照，以去除任务诱发成分后的结果为例，并报告rank-biserial相关作为效应量。",
+          "start": 6.4659,
+          "end": 13.8409,
+          "region": null,
+          "highlight": {
+            "page": 4,
+            "rects": [
+              [
+                0.5306,
+                0.0796,
+                0.4085,
+                0.0122
+              ],
+              [
+                0.5106,
+                0.0941,
+                0.4284,
+                0.0122
+              ],
+              [
+                0.5108,
+                0.1087,
+                0.1371,
+                0.0122
+              ]
+            ],
+            "quote": "We further repeated this ROI analysis using residualized brain responses after removing task-evoked boxcar components (see Supplementary Text).",
+            "keys": [
+              {
+                "text": "residualized brain responses",
+                "rects": [
+                  [
+                    0.824,
+                    0.0796,
+                    0.115,
+                    0.0091
+                  ],
+                  [
+                    0.5106,
+                    0.0973,
+                    0.0649,
+                    0.0088
+                  ]
+                ]
+              },
+              {
+                "text": "task-evoked boxcar components",
+                "rects": [
+                  [
+                    0.6874,
+                    0.0941,
+                    0.2197,
+                    0.012
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "在左55b，真实测试刺激比无结构刺激预测更好（P<0.001，0.684），比视觉模型更好（P=0.012，0.213），比分开投影更好（P<0.001，0.381）。",
+          "start": 13.8409,
+          "end": 29.7614,
+          "region": null,
+          "highlight": {
+            "page": 4,
+            "rects": [
+              [
+                0.5308,
+                0.5597,
+                0.4082,
+                0.012
+              ],
+              [
+                0.5102,
+                0.5742,
+                0.4294,
+                0.0123
+              ],
+              [
+                0.5104,
+                0.5888,
+                0.4284,
+                0.0111
+              ],
+              [
+                0.5112,
+                0.6034,
+                0.4281,
+                0.0111
+              ],
+              [
+                0.5106,
+                0.6179,
+                0.4281,
+                0.0122
+              ],
+              [
+                0.5108,
+                0.6325,
+                0.324,
+                0.0121
+              ]
+            ],
+            "quote": "This pattern was also observed when residualized brain responses were used: The LLM-based model showed higher prediction accuracy than the visual model in the left 55b (P = 0.012, rrb = 0.213), left SCEF (P = 0.003, rrb = 0.326), and left LO2 (P = 0.045, rrb = 0.139) but not in the right PF (P = 0.3",
+            "keys": [
+              {
+                "text": "left 55b",
+                "rects": [
+                  [
+                    0.6848,
+                    0.5888,
+                    0.0449,
+                    0.0091
+                  ]
+                ]
+              },
+              {
+                "text": "residualized brain responses",
+                "rects": [
+                  [
+                    0.7639,
+                    0.5597,
+                    0.1751,
+                    0.012
+                  ]
+                ]
+              },
+              {
+                "text": "LLM-based model",
+                "rects": [
+                  [
+                    0.6052,
+                    0.5743,
+                    0.1142,
+                    0.0091
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "分开投影时，联合分析没有任何显著脑区，说明共享特征空间是关键。",
+          "start": 29.7614,
+          "end": 36.1932,
+          "region": null,
+          "highlight": {
+            "page": 4,
+            "rects": [
+              [
+                0.7882,
+                0.778,
+                0.151,
+                0.0122
+              ],
+              [
+                0.5108,
+                0.7925,
+                0.3128,
+                0.0122
+              ]
+            ],
+            "quote": "No brain region showed significant prediction in the conjunction analysis.",
+            "keys": [
+              {
+                "text": "No brain region",
+                "rects": [
+                  [
+                    0.7882,
+                    0.778,
+                    0.0996,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "conjunction analysis",
+                "rects": [
+                  [
+                    0.6909,
+                    0.7925,
+                    0.1295,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "循环移位特征后同样没有显著区域。",
+          "start": 36.1932,
+          "end": 39.4205,
+          "region": null,
+          "highlight": {
+            "page": 5,
+            "rects": [
+              [
+                0.315,
+                0.2545,
+                0.1743,
+                0.012
+              ],
+              [
+                0.0612,
+                0.269,
+                0.4282,
+                0.0122
+              ],
+              [
+                0.0611,
+                0.2836,
+                0.1766,
+                0.0122
+              ]
+            ],
+            "quote": "The mean prediction map across the 100 shifted-feature models showed no significant regions in the conjunction analysis.",
+            "keys": [
+              {
+                "text": "no significant regions",
+                "rects": [
+                  [
+                    0.3531,
+                    0.269,
+                    0.1363,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "conjunction analysis",
+                "rects": [
+                  [
+                    0.1039,
+                    0.2836,
+                    0.1306,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "换用Gemma2、Qwen2.5等其他模型和不同层，模式相似，准确度没有显著差异。",
+          "start": 39.4205,
+          "end": 46.5341,
+          "region": null,
+          "highlight": {
+            "page": 5,
+            "rects": [
+              [
+                0.334,
+                0.6765,
+                0.1554,
+                0.0122
+              ],
+              [
+                0.0612,
+                0.691,
+                0.1713,
+                0.012
+              ]
+            ],
+            "quote": "Prediction accuracy was also comparable across different LLMs and layers (Llama3, Kruskal\u0002Wallis test, P = 0.973; GPT-NeoX, P = 0.359; Gemma2, P = 0.968; Qwen2.5, P = 0.826; RakutenAI2, P = 0.907; LLM-jp, P = 0.938; fig.",
+            "keys": []
+          }
+        },
+        {
+          "text": "但并非每个区域都同样稳：右PF在多数对照中证据较弱，LO2在未去残差时与无结构刺激差异不显著，所以更稳的主角是左55b。",
+          "start": 46.5341,
+          "end": 58.3977,
+          "region": null,
+          "highlight": {
+            "page": 4,
+            "rects": [
+              [
+                0.2074,
+                0.8798,
+                0.2824,
+                0.0122
+              ],
+              [
+                0.0612,
+                0.8944,
+                0.4285,
+                0.0111
+              ],
+              [
+                0.0611,
+                0.9089,
+                0.4282,
+                0.0122
+              ],
+              [
+                0.0614,
+                0.9235,
+                0.0758,
+                0.011
+              ]
+            ],
+            "quote": "S4), left SCEF (P = 0.021, rrb = 0.271), right PF (P = 0.007, rrb = 0.328), and left V1 (P < 0.001, rrb = 0.471) but not in the left LO2 (P = 0.053, rrb = 0.232) or right LO2 (P = 0.185, rrb = 0.182).",
+            "keys": [
+              {
+                "text": "right PF",
+                "rects": [
+                  [
+                    0.4594,
+                    0.8798,
+                    0.0304,
+                    0.0122
+                  ],
+                  [
+                    0.0612,
+                    0.8951,
+                    0.0162,
+                    0.0082
+                  ]
+                ]
+              },
+              {
+                "text": "left LO2",
+                "rects": [
+                  [
+                    0.1269,
+                    0.9089,
+                    0.0511,
+                    0.0091
+                  ]
+                ]
+              },
+              {
+                "text": "P = 0.053",
+                "rects": [
+                  [
+                    0.188,
+                    0.9097,
+                    0.0606,
+                    0.0083
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "补充图还显示，自注意力子层特征倾向于更广的跨域预测，MLP子层更偏领域特异，这一点机制尚不清楚。",
+          "start": 58.3977,
+          "end": 67.848,
+          "region": null,
+          "highlight": {
+            "page": 5,
+            "rects": [
+              [
+                0.4133,
+                0.4873,
+                0.0763,
+                0.012
+              ],
+              [
+                0.0613,
+                0.5018,
+                0.2142,
+                0.0122
+              ]
+            ],
+            "quote": "This pattern suggests a difference in the extent to which the two sublayers contrib\u0002ute to cross-domain versus domain-specific representations.",
+            "keys": []
+          }
+        }
+      ],
+      "alignment": {
+        "version": "word-clause-v3",
+        "coverage": 1.0,
+        "words": 171
+      },
+      "figure_source": "原文高亮 · PDF 第4、5页",
+      "sources": [
+        {
+          "label": "原论文 · PDF 第3页",
+          "url": "source/paper.pdf#page=3",
+          "page": 3
+        },
+        {
+          "label": "原论文 · PDF 第4页",
+          "url": "source/paper.pdf#page=4",
+          "page": 4
+        },
+        {
+          "label": "原论文 · PDF 第5页",
+          "url": "source/paper.pdf#page=5",
+          "page": 5
+        }
+      ]
+    },
+    {
+      "id": "segment-8",
+      "index": 7,
+      "title": "领域专属图：语言偏颞叶与角回，数学偏顶内沟",
+      "summary": "如何找各领域独有的脑区？论文用差值：语言特异性是语言到语言，减去两种跨域预测的平均；数学特异性同理。图的上半部分，左边A是语言特异图，蓝色，标出左颞梭回TF、角回PGi、额下回47l和颞上沟前部STSda；右边B是数学特异图，橙红色，标出左6r、左p9-46v以及左右顶内沟AIP。下半部分，左边C是语言脑区的箱线图，横轴四种预测，蓝色语言到语言一栏在这些区域里偏高，每个点是一名被试，跨域两栏多接近零；47l中语言到语言与数学到数学差异不显著（P=0.064）。右边D是数学脑区箱线图，红色数学到数学一栏在左右AIP和左6r都最高；p9-46v只是部分一致，与语言到语言相比P=0.180。这与“语言偏额颞、数学偏额顶”的经典印象吻合。但这是预测准确度的差异，不能直接说成这些区域“只”处理一种任务。",
+      "start": 454.512,
+      "end": 523.848,
+      "duration": 69.336,
+      "figure": true,
+      "visual": {
+        "kind": "figure",
+        "url": "figures/fig_04.png",
+        "pointer_style": "sage-paper-v2"
+      },
+      "cues": [
+        {
+          "text": "如何找各领域独有的脑区？",
+          "start": 0.0,
+          "end": 2.5455,
+          "region": null
+        },
+        {
+          "text": "论文用差值：语言特异性是语言到语言，减去两种跨域预测的平均；",
+          "start": 2.5455,
+          "end": 8.4318,
+          "region": [
+            0.03,
+            0.08,
+            0.45,
+            0.62
+          ]
+        },
+        {
+          "text": "数学特异性同理。",
+          "start": 8.4318,
+          "end": 10.25,
+          "region": [
+            0.5,
+            0.08,
+            0.47,
+            0.62
+          ]
+        },
+        {
+          "text": "图的上半部分，左边A是语言特异图，蓝色，标出左颞梭回TF、角回PGi、额下回47l和颞上沟前部STSda；",
+          "start": 10.25,
+          "end": 21.4091,
+          "region": [
+            0.03,
+            0.08,
+            0.45,
+            0.62
+          ]
+        },
+        {
+          "text": "右边B是数学特异图，橙红色，标出左6r、左p9-46v以及左右顶内沟AIP。",
+          "start": 21.4091,
+          "end": 28.9318,
+          "region": [
+            0.5,
+            0.08,
+            0.47,
+            0.62
+          ]
+        },
+        {
+          "text": "下半部分，左边C是语言脑区的箱线图，横轴四种预测，蓝色语言到语言一栏在这些区域里偏高，每个点是一名被试，跨域两栏多接近零；",
+          "start": 28.9318,
+          "end": 40.4773,
+          "region": [
+            0.03,
+            0.37,
+            0.41,
+            0.62
+          ]
+        },
+        {
+          "text": "47l中语言到语言与数学到数学差异不显著（P=0.064）。",
+          "start": 40.4773,
+          "end": 46.3636,
+          "region": [
+            0.03,
+            0.72,
+            0.2,
+            0.27
+          ]
+        },
+        {
+          "text": "右边D是数学脑区箱线图，红色数学到数学一栏在左右AIP和左6r都最高；",
+          "start": 46.3636,
+          "end": 53.1591,
+          "region": [
+            0.5,
+            0.37,
+            0.48,
+            0.62
+          ]
+        },
+        {
+          "text": "p9-46v只是部分一致，与语言到语言相比P=0.180。",
+          "start": 53.1591,
+          "end": 59.3636,
+          "region": [
+            0.5,
+            0.72,
+            0.2,
+            0.27
+          ]
+        },
+        {
+          "text": "这与“语言偏额颞、数学偏额顶”的经典印象吻合。",
+          "start": 59.3636,
+          "end": 63.6136,
+          "region": null
+        },
+        {
+          "text": "但这是预测准确度的差异，不能直接说成这些区域“只”处理一种任务。",
+          "start": 63.6136,
+          "end": 69.336,
+          "region": null
+        }
+      ],
+      "alignment": {
+        "version": "word-clause-v3",
+        "coverage": 1.0,
+        "words": 190
+      },
+      "figure_source": "原论文插图 · PDF 第6页",
+      "sources": [
+        {
+          "label": "原论文 · PDF 第5页",
+          "url": "source/paper.pdf#page=5",
+          "page": 5
+        },
+        {
+          "label": "原论文 · PDF 第6页",
+          "url": "source/paper.pdf#page=6",
+          "page": 6
+        }
+      ]
+    },
+    {
+      "id": "segment-9",
+      "index": 8,
+      "title": "模型权重：共享区同向，专属区反向",
+      "summary": "预测之外，模型权重能告诉我们：这100个特征维度是怎样映射到各脑区的。左上A是权重相关图，每个顶点比较语言和数学模型的权重，黄色为正相关，紫色为负相关，标出了55b、AIP和TF。B在右上，是左55b的散点，横轴语言权重，纵轴数学权重，ρ为0.738。C有两张，左边是左TF，ρ为−0.542；右边是左AIP，ρ为−0.575，趋势线向下。D在左下，是主成分得分映射，绿色代表PC1，红色PC2，蓝色PC3，下方有颜色立方体图例。E在右下，是三维散点：上排语言、下排数学，三列分别是55b、TF和AIP，红色表示正权重，灰色为负权重，点的大小表示权重绝对值。按论文描述，55b在两行的PC1方向都有正权重；TF主要在语言行；AIP更强地出现在数学行。PC1与共享图最相关，PC2与数学特异图最相关，PC3同时与语言特异和共享图相关。这是与预测结果一致的可视化，不是唯一机制；右PF和左STSda就不符合这一模式。",
+      "start": 523.848,
+      "end": 605.448,
+      "duration": 81.6,
+      "figure": true,
+      "visual": {
+        "kind": "figure",
+        "url": "figures/fig_05.png",
+        "pointer_style": "sage-paper-v2"
+      },
+      "cues": [
+        {
+          "text": "预测之外，模型权重能告诉我们：这100个特征维度是怎样映射到各脑区的。",
+          "start": 0.0,
+          "end": 6.6818,
+          "region": null
+        },
+        {
+          "text": "左上A是权重相关图，每个顶点比较语言和数学模型的权重，黄色为正相关，紫色为负相关，标出了55b、AIP和TF。",
+          "start": 6.6818,
+          "end": 17.3068,
+          "region": [
+            0.04,
+            0.05,
+            0.4,
+            0.58
+          ]
+        },
+        {
+          "text": "B在右上，是左55b的散点，横轴语言权重，纵轴数学权重，ρ为0.738。",
+          "start": 17.3068,
+          "end": 24.6932,
+          "region": [
+            0.42,
+            0.05,
+            0.17,
+            0.45
+          ]
+        },
+        {
+          "text": "C有两张，左边是左TF，ρ为−0.542；",
+          "start": 24.6932,
+          "end": 29.1818,
+          "region": [
+            0.61,
+            0.05,
+            0.18,
+            0.45
+          ]
+        },
+        {
+          "text": "右边是左AIP，ρ为−0.575，趋势线向下。",
+          "start": 29.1818,
+          "end": 34.125,
+          "region": [
+            0.8,
+            0.05,
+            0.19,
+            0.45
+          ]
+        },
+        {
+          "text": "D在左下，是主成分得分映射，绿色代表PC1，红色PC2，蓝色PC3，",
+          "start": 34.125,
+          "end": 41.2386,
+          "region": [
+            0.03,
+            0.44,
+            0.4,
+            0.52
+          ]
+        },
+        {
+          "text": "下方有颜色立方体图例。",
+          "start": 41.2386,
+          "end": 43.625,
+          "region": [
+            0.17,
+            0.78,
+            0.2,
+            0.2
+          ]
+        },
+        {
+          "text": "E在右下，是三维散点：上排语言、下排数学，三列分别是55b、TF和AIP，红色表示正权重，灰色为负权重，点的大小表示权重绝对值。",
+          "start": 43.625,
+          "end": 56.5227,
+          "region": [
+            0.42,
+            0.5,
+            0.57,
+            0.48
+          ]
+        },
+        {
+          "text": "按论文描述，55b在两行的PC1方向都有正权重；",
+          "start": 56.5227,
+          "end": 61.1932,
+          "region": [
+            0.42,
+            0.5,
+            0.19,
+            0.48
+          ]
+        },
+        {
+          "text": "TF主要在语言行；",
+          "start": 61.1932,
+          "end": 62.875,
+          "region": [
+            0.61,
+            0.5,
+            0.18,
+            0.48
+          ]
+        },
+        {
+          "text": "AIP更强地出现在数学行。",
+          "start": 62.875,
+          "end": 65.3068,
+          "region": [
+            0.8,
+            0.5,
+            0.19,
+            0.48
+          ]
+        },
+        {
+          "text": "PC1与共享图最相关，PC2与数学特异图最相关，PC3同时与语言特异和共享图相关。",
+          "start": 65.3068,
+          "end": 73.7841,
+          "region": [
+            0.42,
+            0.5,
+            0.57,
+            0.48
+          ]
+        },
+        {
+          "text": "这是与预测结果一致的可视化，不是唯一机制；",
+          "start": 73.7841,
+          "end": 77.3977,
+          "region": null
+        },
+        {
+          "text": "右PF和左STSda就不符合这一模式。",
+          "start": 77.3977,
+          "end": 81.6,
+          "region": null
+        }
+      ],
+      "alignment": {
+        "version": "word-clause-v3",
+        "coverage": 1.0,
+        "words": 217
+      },
+      "figure_source": "原论文插图 · PDF 第7页",
+      "sources": [
+        {
+          "label": "原论文 · PDF 第5页",
+          "url": "source/paper.pdf#page=5",
+          "page": 5
+        },
+        {
+          "label": "原论文 · PDF 第6页",
+          "url": "source/paper.pdf#page=6",
+          "page": 6
+        },
+        {
+          "label": "原论文 · PDF 第7页",
+          "url": "source/paper.pdf#page=7",
+          "page": 7
+        }
+      ]
+    },
+    {
+      "id": "segment-10",
+      "index": 9,
+      "title": "功能连接：同一个55b，在两种任务里和谁“组队”",
+      "summary": "共享脑区会不会在不同任务里和不同网络协同？作者以左55b为种子区，在语言和数学测试数据中分别计算它与其他脑区时间序列的相关。左上A是真实脑信号：黄色是种子区，蓝色表示语言任务里连接更强，红色表示数学任务里更强，色标为±0.3。论文报告，蓝色出现在额下和颞叶一带，红色出现在顶叶与外侧前额叶一带。左下B是环形图，360个脑区归并为42个区域标签，连线从55b出发：蓝线连向颞叶、听觉和视觉等区域，红线连向顶叶、前运动及背外侧前额叶。右边C和D是同样的分析，但用域内编码模型预测的信号，色标放大到±0.6，格局大体相似。论文还检验了去除任务诱发成分的预测信号，以及种子区与任务的交互作用，趋势仍在；右PF则表现不同。要注意，这是相关，不是因果；预测信号的相似也只说明模型特征抓住了其中一部分协同。",
+      "start": 605.448,
+      "end": 675.336,
+      "duration": 69.888,
+      "figure": true,
+      "visual": {
+        "kind": "figure",
+        "url": "figures/fig_06.png",
+        "pointer_style": "sage-paper-v2"
+      },
+      "cues": [
+        {
+          "text": "共享脑区会不会在不同任务里和不同网络协同？",
+          "start": 0.0,
+          "end": 4.3295,
+          "region": null
+        },
+        {
+          "text": "作者以左55b为种子区，在语言和数学测试数据中分别计算它与其他脑区时间序列的相关。",
+          "start": 4.3295,
+          "end": 12.2273,
+          "region": [
+            0.02,
+            0.03,
+            0.46,
+            0.47
+          ]
+        },
+        {
+          "text": "左上A是真实脑信号：黄色是种子区，蓝色表示语言任务里连接更强，红色表示数学任务里更强，色标为±0.3。",
+          "start": 12.2273,
+          "end": 22.4773,
+          "region": [
+            0.02,
+            0.03,
+            0.46,
+            0.47
+          ]
+        },
+        {
+          "text": "论文报告，蓝色出现在额下和颞叶一带，红色出现在顶叶与外侧前额叶一带。",
+          "start": 22.4773,
+          "end": 29.2045,
+          "region": [
+            0.03,
+            0.1,
+            0.45,
+            0.35
+          ]
+        },
+        {
+          "text": "左下B是环形图，360个脑区归并为42个区域标签，连线从55b出发：蓝线连向颞叶、听觉和视觉等区域，红线连向顶叶、前运动及背外侧前额叶。",
+          "start": 29.2045,
+          "end": 43.4205,
+          "region": [
+            0.02,
+            0.43,
+            0.48,
+            0.55
+          ]
+        },
+        {
+          "text": "右边C和D是同样的分析，但用域内编码模型预测的信号，色标放大到±0.6，格局大体相似。",
+          "start": 43.4205,
+          "end": 52.5909,
+          "region": [
+            0.5,
+            0.03,
+            0.48,
+            0.95
+          ]
+        },
+        {
+          "text": "论文还检验了去除任务诱发成分的预测信号，以及种子区与任务的交互作用，趋势仍在；",
+          "start": 52.5909,
+          "end": 59.5114,
+          "region": null
+        },
+        {
+          "text": "右PF则表现不同。",
+          "start": 59.5114,
+          "end": 61.8636,
+          "region": null
+        },
+        {
+          "text": "要注意，这是相关，不是因果；",
+          "start": 61.8636,
+          "end": 64.75,
+          "region": null
+        },
+        {
+          "text": "预测信号的相似也只说明模型特征抓住了其中一部分协同。",
+          "start": 64.75,
+          "end": 69.888,
+          "region": [
+            0.5,
+            0.03,
+            0.48,
+            0.95
+          ]
+        }
+      ],
+      "alignment": {
+        "version": "word-clause-v3",
+        "coverage": 1.0,
+        "words": 187
+      },
+      "figure_source": "原论文插图 · PDF 第8页",
+      "sources": [
+        {
+          "label": "原论文 · PDF 第7页",
+          "url": "source/paper.pdf#page=7",
+          "page": 7
+        },
+        {
+          "label": "原论文 · PDF 第8页",
+          "url": "source/paper.pdf#page=8",
+          "page": 8
+        },
+        {
+          "label": "原论文 · PDF 第10页",
+          "url": "source/paper.pdf#page=10",
+          "page": 10
+        }
+      ]
+    },
+    {
+      "id": "segment-11",
+      "index": 10,
+      "title": "替代解释与局限：哪些结论还不能说满",
+      "summary": "替代解释有哪些？任务本身牵涉视觉、记忆和注意，但对照条件匹配了呈现数量和记忆需求，AlexNet视觉特征预测不了核心区域，按键试次也已剔除。仍未排除的有更复杂的工作记忆，作者列为后续方向。LO2可能反映更高层的视觉或刺激格式表征；右PF的权重和连接模式与其他区域不同，作者提醒它未必是核心共享区。对55b功能的解释，例如组织序列表征，来自文献类比，是假说，不是本研究检验过的结果。局限还包括：刺激结构单一，只有两个运算符的算式，没有“2+3”这类单运算；句型固定为带关系从句的日语句子，且是书面呈现；只比较了语言与数学两个领域。大语言模型也不是最优模型，其内部的语言与算术表征可能分离，这与脑中的部分共享并不矛盾。最后，绝对预测准确度整体不高，结论是群体水平的统计证据。",
+      "start": 675.336,
+      "end": 739.608,
+      "duration": 64.272,
+      "figure": false,
+      "visual": {
+        "kind": "page",
+        "aspect": "page",
+        "engine": "page-highlight-v4",
+        "pages": {
+          "9": "pages/page_09.png",
+          "10": "pages/page_10.png",
+          "11": "pages/page_11.png"
+        }
+      },
+      "cues": [
+        {
+          "text": "替代解释有哪些？",
+          "start": 0.0,
+          "end": 1.8977,
+          "region": null,
+          "highlight": {
+            "page": 10,
+            "rects": [
+              [
+                0.531,
+                0.4871,
+                0.4083,
+                0.0122
+              ],
+              [
+                0.5107,
+                0.5016,
+                0.4282,
+                0.0122
+              ],
+              [
+                0.5107,
+                0.5162,
+                0.2911,
+                0.0122
+              ]
+            ],
+            "quote": "Second, it would be worth considering the influence of other cognitive factors that may contribute to the shared representations observed between language and mathematics.",
+            "keys": [
+              {
+                "text": "other cognitive factors",
+                "rects": [
+                  [
+                    0.9049,
+                    0.4871,
+                    0.0344,
+                    0.0091
+                  ],
+                  [
+                    0.5107,
+                    0.5016,
+                    0.105,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "任务本身牵涉视觉、记忆和注意，但对照条件匹配了呈现数量和记忆需求，AlexNet视觉特征预测不了核心区域，按键试次也已剔除。",
+          "start": 1.8977,
+          "end": 13.5795,
+          "region": null,
+          "highlight": {
+            "page": 10,
+            "rects": [
+              [
+                0.5104,
+                0.5744,
+                0.4286,
+                0.012
+              ],
+              [
+                0.5106,
+                0.5889,
+                0.4281,
+                0.0122
+              ],
+              [
+                0.5104,
+                0.6035,
+                0.239,
+                0.0122
+              ]
+            ],
+            "quote": "As for motor components related to button responses, the data from 20% of trials with button presses were excluded from the analysis, thereby minimizing their influence.",
+            "keys": [
+              {
+                "text": "button presses",
+                "rects": [
+                  [
+                    0.6304,
+                    0.5889,
+                    0.0918,
+                    0.012
+                  ]
+                ]
+              },
+              {
+                "text": "excluded from the analysis",
+                "rects": [
+                  [
+                    0.7631,
+                    0.5889,
+                    0.1722,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "仍未排除的有更复杂的工作记忆，作者列为后续方向。",
+          "start": 13.5795,
+          "end": 18.4432,
+          "region": null,
+          "highlight": {
+            "page": 10,
+            "rects": [
+              [
+                0.5104,
+                0.6617,
+                0.4286,
+                0.0122
+              ],
+              [
+                0.5108,
+                0.6762,
+                0.428,
+                0.0122
+              ],
+              [
+                0.5104,
+                0.6908,
+                0.3586,
+                0.0122
+              ]
+            ],
+            "quote": "With respect to more complex working memory processes, some studies have proposed that working memory itself contributes to processing structured symbolic information (32, 82, 83).",
+            "keys": [
+              {
+                "text": "complex working memory",
+                "rects": [
+                  [
+                    0.6553,
+                    0.6617,
+                    0.1749,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "LO2可能反映更高层的视觉或刺激格式表征；",
+          "start": 18.4432,
+          "end": 22.2727,
+          "region": null,
+          "highlight": {
+            "page": 10,
+            "rects": [
+              [
+                0.2561,
+                0.1232,
+                0.2336,
+                0.0122
+              ],
+              [
+                0.0606,
+                0.1378,
+                0.4288,
+                0.012
+              ],
+              [
+                0.0608,
+                0.1523,
+                0.1612,
+                0.0122
+              ]
+            ],
+            "quote": "Thus, LO2 may reflect higher-level visual or stimulus-format representations that are shared across the language and math tasks.",
+            "keys": [
+              {
+                "text": "LO2",
+                "rects": [
+                  [
+                    0.2975,
+                    0.1238,
+                    0.0274,
+                    0.0085
+                  ]
+                ]
+              },
+              {
+                "text": "stimulus-format representations",
+                "rects": [
+                  [
+                    0.12,
+                    0.1378,
+                    0.204,
+                    0.012
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "右PF的权重和连接模式与其他区域不同，作者提醒它未必是核心共享区。",
+          "start": 22.2727,
+          "end": 29.0,
+          "region": null,
+          "highlight": {
+            "page": 10,
+            "rects": [
+              [
+                0.4631,
+                0.2396,
+                0.0263,
+                0.0091
+              ],
+              [
+                0.0613,
+                0.2542,
+                0.4285,
+                0.0122
+              ],
+              [
+                0.0607,
+                0.2687,
+                0.2277,
+                0.0122
+              ]
+            ],
+            "quote": "This suggests that the right PF may not represent a core region shared between language and mathematics.",
+            "keys": [
+              {
+                "text": "right PF",
+                "rects": [
+                  [
+                    0.1747,
+                    0.2542,
+                    0.0525,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "core region",
+                "rects": [
+                  [
+                    0.3695,
+                    0.2549,
+                    0.0726,
+                    0.0114
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "对55b功能的解释，例如组织序列表征，来自文献类比，是假说，不是本研究检验过的结果。",
+          "start": 29.0,
+          "end": 36.8182,
+          "region": null,
+          "highlight": {
+            "page": 9,
+            "rects": [
+              [
+                0.531,
+                0.327,
+                0.4078,
+                0.012
+              ],
+              [
+                0.5106,
+                0.3416,
+                0.4285,
+                0.0122
+              ],
+              [
+                0.5106,
+                0.3569,
+                0.1,
+                0.0112
+              ]
+            ],
+            "quote": "One possible functional interpretation of the left 55b is that this region contributes to the generation or organization of sequential representations.",
+            "keys": [
+              {
+                "text": "left 55b",
+                "rects": [
+                  [
+                    0.8211,
+                    0.327,
+                    0.0468,
+                    0.0091
+                  ]
+                ]
+              },
+              {
+                "text": "sequential representations",
+                "rects": [
+                  [
+                    0.875,
+                    0.3416,
+                    0.0641,
+                    0.012
+                  ],
+                  [
+                    0.5106,
+                    0.3569,
+                    0.0968,
+                    0.0112
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "局限还包括：刺激结构单一，只有两个运算符的算式，没有“2+3”这类单运算；",
+          "start": 36.8182,
+          "end": 43.1364,
+          "region": null,
+          "highlight": {
+            "page": 10,
+            "rects": [
+              [
+                0.6381,
+                0.2397,
+                0.3008,
+                0.0122
+              ],
+              [
+                0.5107,
+                0.2542,
+                0.4284,
+                0.0122
+              ],
+              [
+                0.5112,
+                0.2687,
+                0.0927,
+                0.0122
+              ]
+            ],
+            "quote": "We included only mathematical expressions containing two operations and no stimuli with a single operation (e.g., “2 + 3”).",
+            "keys": [
+              {
+                "text": "two operations",
+                "rects": [
+                  [
+                    0.586,
+                    0.255,
+                    0.0981,
+                    0.0112
+                  ]
+                ]
+              },
+              {
+                "text": "single operation",
+                "rects": [
+                  [
+                    0.8331,
+                    0.2542,
+                    0.106,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "句型固定为带关系从句的日语句子，且是书面呈现；",
+          "start": 43.1364,
+          "end": 47.5682,
+          "region": null,
+          "highlight": {
+            "page": 10,
+            "rects": [
+              [
+                0.6167,
+                0.8945,
+                0.3226,
+                0.0122
+              ],
+              [
+                0.5104,
+                0.9091,
+                0.2339,
+                0.012
+              ]
+            ],
+            "quote": "The present language condition was also restricted to written sentence comprehension.",
+            "keys": []
+          }
+        },
+        {
+          "text": "只比较了语言与数学两个领域。",
+          "start": 47.5682,
+          "end": 50.3182,
+          "region": null,
+          "highlight": {
+            "page": 11,
+            "rects": [
+              [
+                0.3029,
+                0.0941,
+                0.1873,
+                0.0122
+              ],
+              [
+                0.0612,
+                0.1087,
+                0.404,
+                0.0122
+              ]
+            ],
+            "quote": "In addition, the present study examined only language and mathematics and therefore cannot de\u0002termine whether the cross-domain effects identified here are spe\u0002cific to these two domains or extend to other cognitive domains.",
+            "keys": []
+          }
+        },
+        {
+          "text": "大语言模型也不是最优模型，其内部的语言与算术表征可能分离，这与脑中的部分共享并不矛盾。",
+          "start": 50.3182,
+          "end": 58.6364,
+          "region": null,
+          "highlight": {
+            "page": 9,
+            "rects": [
+              [
+                0.0846,
+                0.6907,
+                0.4049,
+                0.0122
+              ],
+              [
+                0.0612,
+                0.7053,
+                0.4278,
+                0.0122
+              ]
+            ],
+            "quote": "Therefore, a recent report of distinct representations of language and mathematics in LLMs (52) does not contradict our findings.",
+            "keys": [
+              {
+                "text": "distinct representations",
+                "rects": [
+                  [
+                    0.2653,
+                    0.6907,
+                    0.1481,
+                    0.012
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "最后，绝对预测准确度整体不高，结论是群体水平的统计证据。",
+          "start": 58.6364,
+          "end": 64.272,
+          "region": null,
+          "highlight": null
+        }
+      ],
+      "alignment": {
+        "version": "word-clause-v3",
+        "coverage": 1.0,
+        "words": 180
+      },
+      "figure_source": "原文高亮 · PDF 第9、10、11页",
+      "sources": [
+        {
+          "label": "原论文 · PDF 第9页",
+          "url": "source/paper.pdf#page=9",
+          "page": 9
+        },
+        {
+          "label": "原论文 · PDF 第10页",
+          "url": "source/paper.pdf#page=10",
+          "page": 10
+        },
+        {
+          "label": "原论文 · PDF 第11页",
+          "url": "source/paper.pdf#page=11",
+          "page": 11
+        }
+      ]
+    },
+    {
+      "id": "segment-12",
+      "index": 11,
+      "title": "合理应用、不能推断的内容与结论",
+      "summary": "这项工作合理支持的是：跨领域编码模型可以作为一种定量框架，检验不同任务的脑表征有多少能够互相迁移。它也提示，“共享还是专属”不必二选一，可以在同一特征空间里同时刻画。基于皮层表面的顶点分析，有助于更细地定位到沟回层面。它不能推出的是：数学就是语言，或者55b是语言与数学的“中枢”；大语言模型像大脑一样思考；也不能直接用于诊断、教学或评估个人能力。结果是否适用于英语等语序不同的语言、口语与语言产出、单运算符算术，目前还没有检验，其他认知领域更不清楚。综合来看，本研究的证据是：语言和数学在若干皮层区域有部分共享的表征，尤其是左55b；同时在颞叶、角回与顶内沟等区域表现出各自的专属组织；共享区域还会随任务与不同网络耦合。这有助于调和两派观点，但机制与因果仍待后续研究。",
+      "start": 739.608,
+      "end": 804.144,
+      "duration": 64.536,
+      "figure": false,
+      "visual": {
+        "kind": "page",
+        "aspect": "page",
+        "engine": "page-highlight-v4",
+        "pages": {
+          "9": "pages/page_09.png",
+          "10": "pages/page_10.png",
+          "11": "pages/page_11.png"
+        }
+      },
+      "cues": [
+        {
+          "text": "这项工作合理支持的是：跨领域编码模型可以作为一种定量框架，检验不同任务的脑表征有多少能够互相迁移。",
+          "start": 0.0,
+          "end": 9.3295,
+          "region": null,
+          "highlight": {
+            "page": 9,
+            "rects": [
+              [
+                0.3145,
+                0.4142,
+                0.1749,
+                0.012
+              ],
+              [
+                0.0612,
+                0.4288,
+                0.4289,
+                0.012
+              ],
+              [
+                0.061,
+                0.4433,
+                0.4287,
+                0.0122
+              ],
+              [
+                0.061,
+                0.4579,
+                0.0839,
+                0.0091
+              ]
+            ],
+            "quote": "The present approach helps address these limitations and provides a quantitative framework for evaluating partially shared representations across language and mathematics.",
+            "keys": [
+              {
+                "text": "quantitative framework",
+                "rects": [
+                  [
+                    0.3328,
+                    0.4288,
+                    0.1574,
+                    0.012
+                  ]
+                ]
+              },
+              {
+                "text": "partially shared representations",
+                "rects": [
+                  [
+                    0.1555,
+                    0.4433,
+                    0.2011,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "它也提示，“共享还是专属”不必二选一，可以在同一特征空间里同时刻画。",
+          "start": 9.3295,
+          "end": 15.7955,
+          "region": null,
+          "highlight": {
+            "page": 10,
+            "rects": [
+              [
+                0.4668,
+                0.5015,
+                0.0228,
+                0.0091
+              ],
+              [
+                0.0612,
+                0.5161,
+                0.3018,
+                0.0122
+              ]
+            ],
+            "quote": "The encoding models likely capture both shared and domain-specific in\u0002formation, and our analyses captured distinct contributions from these components.",
+            "keys": []
+          }
+        },
+        {
+          "text": "基于皮层表面的顶点分析，有助于更细地定位到沟回层面。",
+          "start": 15.7955,
+          "end": 20.8409,
+          "region": null,
+          "highlight": {
+            "page": 9,
+            "rects": [
+              [
+                0.5706,
+                0.196,
+                0.3683,
+                0.0122
+              ],
+              [
+                0.5105,
+                0.2106,
+                0.218,
+                0.012
+              ]
+            ],
+            "quote": "This discrepancy in the reported cortical loci may stem from the fact that most previous studies used volume-based analy\u0002ses, which overlook sulcal folding patterns.",
+            "keys": []
+          }
+        },
+        {
+          "text": "它不能推出的是：数学就是语言，或者55b是语言与数学的“中枢”；",
+          "start": 20.8409,
+          "end": 26.2955,
+          "region": null,
+          "highlight": {
+            "page": 9,
+            "rects": [
+              [
+                0.0814,
+                0.4724,
+                0.408,
+                0.0122
+              ],
+              [
+                0.0612,
+                0.487,
+                0.4282,
+                0.0122
+              ],
+              [
+                0.0611,
+                0.5015,
+                0.4286,
+                0.012
+              ],
+              [
+                0.0611,
+                0.5161,
+                0.171,
+                0.0122
+              ]
+            ],
+            "quote": "However, our primary aim was to quantitatively characterize the commonalities and distinctions between language and mathematics in the brain, rather than to claim that these domains are represented identically within the LLM.",
+            "keys": [
+              {
+                "text": "rather than to claim",
+                "rects": [
+                  [
+                    0.1416,
+                    0.5015,
+                    0.1247,
+                    0.0091
+                  ]
+                ]
+              },
+              {
+                "text": "represented identically",
+                "rects": [
+                  [
+                    0.4159,
+                    0.5015,
+                    0.0738,
+                    0.012
+                  ],
+                  [
+                    0.0611,
+                    0.5161,
+                    0.0663,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "大语言模型像大脑一样思考；",
+          "start": 26.2955,
+          "end": 28.9091,
+          "region": null,
+          "highlight": {
+            "page": 9,
+            "rects": [
+              [
+                0.0814,
+                0.4724,
+                0.408,
+                0.0122
+              ],
+              [
+                0.0612,
+                0.487,
+                0.4282,
+                0.0122
+              ],
+              [
+                0.0611,
+                0.5015,
+                0.4286,
+                0.012
+              ],
+              [
+                0.0611,
+                0.5161,
+                0.171,
+                0.0122
+              ]
+            ],
+            "quote": "However, our primary aim was to quantitatively characterize the commonalities and distinctions between language and mathematics in the brain, rather than to claim that these domains are represented identically within the LLM.",
+            "keys": [
+              {
+                "text": "within the LLM",
+                "rects": [
+                  [
+                    0.1302,
+                    0.5161,
+                    0.0987,
+                    0.0091
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "也不能直接用于诊断、教学或评估个人能力。",
+          "start": 28.9091,
+          "end": 32.875,
+          "region": null,
+          "highlight": null
+        },
+        {
+          "text": "结果是否适用于英语等语序不同的语言、口语与语言产出、单运算符算术，目前还没有检验，其他认知领域更不清楚。",
+          "start": 32.875,
+          "end": 42.5,
+          "region": null,
+          "highlight": {
+            "page": 10,
+            "rects": [
+              [
+                0.5104,
+                0.8654,
+                0.4293,
+                0.0122
+              ],
+              [
+                0.5107,
+                0.88,
+                0.4282,
+                0.0122
+              ],
+              [
+                0.5108,
+                0.8945,
+                0.1005,
+                0.0122
+              ]
+            ],
+            "quote": "Nevertheless, future studies should directly test this possibility by applying cross-domain encoding models using head-initial languages such as English.",
+            "keys": [
+              {
+                "text": "head-initial languages",
+                "rects": [
+                  [
+                    0.8024,
+                    0.88,
+                    0.1365,
+                    0.0122
+                  ]
+                ]
+              },
+              {
+                "text": "English",
+                "rects": [
+                  [
+                    0.561,
+                    0.8945,
+                    0.0471,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "综合来看，本研究的证据是：语言和数学在若干皮层区域有部分共享的表征，尤其是左55b；",
+          "start": 42.5,
+          "end": 50.6818,
+          "region": null,
+          "highlight": {
+            "page": 11,
+            "rects": [
+              [
+                0.0814,
+                0.1523,
+                0.4087,
+                0.0122
+              ],
+              [
+                0.0613,
+                0.1669,
+                0.4282,
+                0.0122
+              ],
+              [
+                0.0612,
+                0.1814,
+                0.1061,
+                0.0091
+              ]
+            ],
+            "quote": "In conclusion, the present study provides evidence for partially shared and domain-specific neural representations across language and mathematics.",
+            "keys": [
+              {
+                "text": "partially shared",
+                "rects": [
+                  [
+                    0.4369,
+                    0.1523,
+                    0.0533,
+                    0.0122
+                  ],
+                  [
+                    0.0613,
+                    0.1669,
+                    0.0414,
+                    0.0091
+                  ]
+                ]
+              },
+              {
+                "text": "domain-specific neural representations",
+                "rects": [
+                  [
+                    0.136,
+                    0.1669,
+                    0.2489,
+                    0.012
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "同时在颞叶、角回与顶内沟等区域表现出各自的专属组织；",
+          "start": 50.6818,
+          "end": 55.9432,
+          "region": null,
+          "highlight": {
+            "page": 10,
+            "rects": [
+              [
+                0.0813,
+                0.3269,
+                0.3061,
+                0.0122
+              ]
+            ],
+            "quote": "The language specificity and math specificity analyses revealed in\u0002volvement of the temporal and parietal areas, respectively (Fig.",
+            "keys": [
+              {
+                "text": "language specificity",
+                "rects": [
+                  [
+                    0.1084,
+                    0.3269,
+                    0.1206,
+                    0.0122
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "text": "共享区域还会随任务与不同网络耦合。",
+          "start": 55.9432,
+          "end": 59.5568,
+          "region": null,
+          "highlight": {
+            "page": 10,
+            "rects": [
+              [
+                0.275,
+                0.778,
+                0.2148,
+                0.0122
+              ],
+              [
+                0.0614,
+                0.7926,
+                0.3367,
+                0.0122
+              ]
+            ],
+            "quote": "These findings suggest that the left 55b, left SCEF, right PF, and LO2 exhibit task-dependent connectiv\u0002ity with language- and mathematics-related networks.",
+            "keys": []
+          }
+        },
+        {
+          "text": "这有助于调和两派观点，但机制与因果仍待后续研究。",
+          "start": 59.5568,
+          "end": 64.536,
+          "region": null,
+          "highlight": {
+            "page": 9,
+            "rects": [
+              [
+                0.395,
+                0.1669,
+                0.0945,
+                0.0122
+              ],
+              [
+                0.061,
+                0.1814,
+                0.2079,
+                0.0122
+              ]
+            ],
+            "quote": "Together, these findings help reconcile previous contrasting views on shared and dis\u0002tinct neural representations across language and mathematics.",
+            "keys": [
+              {
+                "text": "reconcile",
+                "rects": [
+                  [
+                    0.1455,
+                    0.1814,
+                    0.0564,
+                    0.0091
+                  ]
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "alignment": {
+        "version": "word-clause-v3",
+        "coverage": 1.0,
+        "words": 179
+      },
+      "figure_source": "原文高亮 · PDF 第9、10、11页",
+      "sources": [
+        {
+          "label": "原论文 · PDF 第9页",
+          "url": "source/paper.pdf#page=9",
+          "page": 9
+        },
+        {
+          "label": "原论文 · PDF 第10页",
+          "url": "source/paper.pdf#page=10",
+          "page": 10
+        },
+        {
+          "label": "原论文 · PDF 第11页",
+          "url": "source/paper.pdf#page=11",
+          "page": 11
+        }
+      ]
+    }
+  ],
+  "doi": "",
+  "script_profile": "deep-science-v1",
+  "pointer_style": "sage-paper-v2",
+  "aspect_ratio": "16:9",
+  "sync_version": "word-clause-v3"
+}
