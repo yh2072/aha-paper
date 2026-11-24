@@ -23,6 +23,7 @@ whatever language it is explained in, so page_highlight.py splits it on
 '(?<=[.!?])\\s+' regardless of the profile in use.
 """
 import re
+import textwrap
 from dataclasses import dataclass, field
 
 
@@ -80,6 +81,7 @@ class Profile:
     chars_per_chapter: int
     chars_per_word: int         # len() per word, for stating a target a writer thinks in
     min_narration_chars: int    # below this a piece is a fragment, not a TTS request
+    glyph_ratio: float          # advance width of one character, as a fraction of the font size
     voice: str                  # the Edge TTS voice this language defaults to
     persona: str                # the writer's system prompt
     default_title: str          # when the model returns none
@@ -117,6 +119,36 @@ class Profile:
             else:
                 merged.append(part)
         return merged
+
+    def subtitle_lines(self, text: str, pixels: int, size: int) -> list[str]:
+        """One subtitle, wrapped to the width it has to fit in.
+
+        Two assumptions in the old code were Chinese ones. A Han glyph is square,
+        so characters-per-line was width/size -- for English that gives about 17
+        characters and the sentence got cut off. And a line could break anywhere,
+        because any Han character may end a line -- for English that produced
+        'ich reduces the s / ixteenth layer c'. glyph_ratio fixes the first and
+        word-aware wrapping the second.
+        """
+        per_line = max(int(pixels / (size * self.glyph_ratio)), 6)
+        if self.code == 'zh':
+            return _wrap_cjk(text, per_line)
+        return textwrap.wrap(text, per_line, break_long_words=False,
+                             break_on_hyphens=False) or [text]
+
+    def subtitle_chunks(self, text: str) -> list[str]:
+        """A long sentence cut into the pieces shown one after another.
+
+        Sized so each piece puts about as much on screen in either language,
+        and cut between words where the language has them -- a chunk boundary
+        inside a word is the same bug as a line break inside one, and it also
+        loses the space when the pieces are rejoined.
+        """
+        limit = max(int(34 / self.glyph_ratio), 12)
+        if self.code == 'zh':
+            return [text[i:i + limit] for i in range(0, len(text), limit)] or [text]
+        return textwrap.wrap(text, limit, break_long_words=False,
+                             break_on_hyphens=False) or [text]
 
     def split_cues(self, text: str) -> list[str]:
         """The units the cursor is driven by, which are finer than sentences.
@@ -226,6 +258,22 @@ class _EnSplitter:
     @staticmethod
     def split(text: str) -> list[str]:
         return _en_split(text)
+
+
+def _wrap_cjk(text: str, per_line: int) -> list[str]:
+    """Chinese wraps anywhere except before a closing punctuation mark, because
+    any Han character may end a line. Moved here from slideshow.py: it is a rule
+    about a language, and keeping it next to the one for English is what stops
+    the next reader assuming it covers both."""
+    lines, cur = [], ""
+    for ch in text.strip():
+        cur += ch
+        if len(cur) >= per_line and ch not in "，。！？、；：":
+            lines.append(cur)
+            cur = ""
+    if cur:
+        lines.append(cur)
+    return lines
 
 
 # ── where the cursor moves inside a sentence ────────────────────────────────
@@ -497,7 +545,7 @@ EN_LABELS = {
 ZH = Profile(
     code='zh', label='中文',
     chars_per_minute=ZH_CHARS_PER_MINUTE, chars_per_chapter=ZH_CHARS_PER_CHAPTER,
-    chars_per_word=1, min_narration_chars=6,
+    chars_per_word=1, min_narration_chars=6, glyph_ratio=1.0,
     voice='zh-CN-XiaoxiaoNeural', persona=ZH_PERSONA,
     default_title='从论文走向理解', labels=ZH_LABELS,
     _split=ZH_SPLIT, _cues=_zh_cues,
@@ -508,7 +556,7 @@ ZH = Profile(
 EN = Profile(
     code='en', label='English',
     chars_per_minute=EN_CHARS_PER_MINUTE, chars_per_chapter=EN_CHARS_PER_CHAPTER,
-    chars_per_word=6, min_narration_chars=12,
+    chars_per_word=6, min_narration_chars=12, glyph_ratio=0.52,
     voice='en-US-AriaNeural', persona=EN_PERSONA,
     default_title='From the paper to understanding', labels=EN_LABELS,
     _split=_EnSplitter, _cues=_en_cues,

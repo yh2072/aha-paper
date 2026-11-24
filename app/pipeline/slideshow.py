@@ -4,6 +4,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageOps
 
+from .. import lang
 from . import anim, figures, tts
 from .cover import _body_font as _font  # 霞鹜文楷：字幕/角标温暖手写风
 from ..bin import ffmpeg as ffmpeg_bin, ffprobe as ffprobe_bin
@@ -53,16 +54,7 @@ def _trim_uniform_border(img: Image.Image, tol: int = 22, max_frac: float = 0.12
     return img.crop((left, top, w - right, h - bot))
 
 
-def _wrap_cjk(text: str, per_line: int) -> list[str]:
-    lines, cur = [], ""
-    for ch in text.strip():
-        cur += ch
-        if len(cur) >= per_line and ch not in "，。！？、；：":
-            lines.append(cur)
-            cur = ""
-    if cur:
-        lines.append(cur)
-    return lines
+_wrap_cjk = lang._wrap_cjk   # 规则搬去了 app/lang.py，这里保留名字
 
 
 # 素材区 = 整个画面。不再留字幕区，素材通屏铺满。
@@ -128,7 +120,7 @@ def _merge_short(sents: list[str], durs: list[float]) -> tuple[list[str], list[f
 
 
 def subtitle_layers(sentences: list[str], durs: list[float], work: Path,
-                    stem: str) -> list[dict]:
+                    stem: str, profile=None) -> list[dict]:
     """逐句字幕图层：一次只显示当前这句，压在画面底部。
 
     素材已经通屏铺满，字幕直接叠在画面上，所以：
@@ -137,9 +129,12 @@ def subtitle_layers(sentences: list[str], durs: list[float], work: Path,
     （之前那版是把整段话一次全铺出来，六七行占掉半屏，才显得像块牛皮癣）
     """
     # Long scientific sentences must wrap into multiple timed captions, never be cut off.
+    # Where a caption may break, and how many characters fit on a line, are both
+    # the narration language's business -- see Profile.subtitle_lines.
+    profile = profile or lang.get(None)
     chunks, times = [], []
     for sentence, duration in zip(sentences, durs):
-        parts=[sentence[i:i+34] for i in range(0,len(sentence),34)] or [sentence]
+        parts=profile.subtitle_chunks(sentence)
         total=sum(len(part) for part in parts) or 1
         chunks.extend(parts)
         times.extend(duration*len(part)/total for part in parts)
@@ -151,10 +146,14 @@ def subtitle_layers(sentences: list[str], durs: list[float], work: Path,
             t0 += d
             continue
         for size in (SUB_SIZE, 46, 40, 34):
-            lines = _wrap_cjk(s, max((W - 180) // size, 6))
+            lines = profile.subtitle_lines(s, W - 180, size)
             if len(lines) <= SUB_MAXLINES:
                 break
-        lines = lines[:SUB_MAXLINES]
+        if len(lines) > SUB_MAXLINES:
+            # Dropping the tail silently is how 'which reduces the search space'
+            # became 'ich reduces the s'. Say that something was cut.
+            lines = lines[:SUB_MAXLINES]
+            lines[-1] = lines[-1].rstrip() + '…'
         font = _font(size)
         line_h = int(size * 1.5)
         probe = ImageDraw.Draw(Image.new("RGB", (1, 1)))
@@ -310,7 +309,7 @@ def render_slideshow(scenes: list[dict], images: list[Path | None],
         white_png = work_dir / "_white.png"
         if not white_png.exists():
             Image.new("L", (W, 120), 255).save(white_png)
-        subs = subtitle_layers(sents, durs, work_dir, f"f{i:02d}")
+        subs = subtitle_layers(sents, durs, work_dir, f"f{i:02d}", profile)
         n_sub = len(subs)
         if n_sub:
             cmd += ["-loop", "1", "-framerate", "30", "-i", str(white_png)]

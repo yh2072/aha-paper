@@ -391,5 +391,53 @@ class EveryCallerDeclaresTheLanguage(unittest.TestCase):
         self.assertIn('split_sentences', found)
 
 
+class SubtitlesFitTheLanguage(unittest.TestCase):
+    """What shipped: 'which reduces the search space' rendered as 'ich reduces
+    the s' over two lines, and 'is not overlapping' as 'is notoverlapping'.
+
+    Three Chinese assumptions, stacked. A Han glyph is square, so a line held
+    width/size characters -- about 17 for English, after which the caption was
+    truncated with no sign it had been. A line could break after any character,
+    because in Chinese it can. And a long sentence was cut into 34-character
+    pieces, which in English lands mid-word and loses the space between them.
+    """
+
+    LONG = ('The sixteenth layer of the language model predicts cortical responses, '
+            'which reduces the search space considerably.')
+
+    def test_an_english_line_never_breaks_inside_a_word(self):
+        for line in lang.EN.subtitle_lines(self.LONG, 900, 52):
+            with self.subTest(line=line):
+                self.assertEqual(line, line.strip())
+                for word in line.split():
+                    self.assertIn(word.strip('.,;:'), self.LONG)
+
+    def test_an_english_chunk_never_breaks_inside_a_word(self):
+        for chunk in lang.EN.subtitle_chunks(self.LONG):
+            for word in chunk.split():
+                with self.subTest(word=word):
+                    self.assertIn(word, self.LONG)
+
+    def test_english_gets_about_twice_the_characters_per_line(self):
+        """Because a Latin glyph is about half the advance width of a Han one.
+        Same box, same font size, twice the text -- which is what stops the
+        caption from being cut off."""
+        en = max(len(l) for l in lang.EN.subtitle_lines(self.LONG, 900, 52))
+        zh = max(len(l) for l in lang.ZH.subtitle_lines('模型第十六层的特征' * 6, 900, 52))
+        self.assertGreater(en, zh * 1.6)
+
+    def test_chinese_wrapping_is_unchanged(self):
+        text = '语言模型第十六层的特征能够预测皮层反应，这把搜索空间大大缩小了。'
+        self.assertEqual(lang.ZH.subtitle_lines(text, 900, 52),
+                         lang._wrap_cjk(text, max(int(900 / 52), 6)))
+
+    def test_nothing_is_dropped_by_chunking(self):
+        for profile, text in ((lang.EN, self.LONG),
+                              (lang.ZH, '语言模型第十六层的特征能够预测皮层反应，这把搜索空间缩小了。')):
+            joined = ''.join(profile.subtitle_chunks(text)).replace(' ', '')
+            with self.subTest(lang=profile.code):
+                self.assertEqual(joined, text.replace(' ', ''))
+
+
 if __name__ == '__main__':
     unittest.main()
