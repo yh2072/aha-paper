@@ -49,6 +49,18 @@ ZCOOL KuaiLe · 站酷快乐体 — fonts/ZCOOLKuaiLe-Regular.ttf
     https://fonts.google.com/specimen/ZCOOL+KuaiLe
 
 --------------------------------------------------------------------------------
+演示素材中的论文 · The paper in the demo — docs/media/*
+
+    Tomoya Nakai, Rieko Kubo, Shinji Nishimoto. "Cross-domain encoding models
+    reveal shared and domain-specific neural representations across language
+    and mathematics." Science Advances 12, eaej5555 (2026).
+    https://doi.org/10.1126/sciadv.aej5555
+    (c) the authors. Licensed CC BY-NC 4.0.
+    https://creativecommons.org/licenses/by-nc/4.0/
+    插图与页面原样呈现，未作修改，用于非商业演示。
+    Figures and pages reproduced unaltered for a non-commercial demonstration.
+
+--------------------------------------------------------------------------------
 Fraunces, Nunito, Pinyon Script — web/paint.css（运行时从 Google Fonts 载入）
 
     Licensed under the SIL Open Font License, Version 1.1.

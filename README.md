@@ -21,10 +21,8 @@ It narrates a PDF while marking the sentence it is explaining — on the paper i
 
 ## See it
 
-One paper, read end to end: **“Cross-domain encoding models reveal shared and
-domain-specific neural representations across language and mathematics”**
-(*Science Advances*). The video is three chapters of it, unedited — three different figures, each
-walked panel by panel.
+One paper, read end to end. The video is three chapters of it, unedited —
+three different figures, each walked panel by panel.
 
 <div align="center">
 
@@ -50,6 +48,14 @@ actually sits.
 regions in it; the cursor is already there, and the view has zoomed in.
 
 <img src="docs/media/player-zoom.jpg" width="820" alt="A figure from the paper, zoomed to one panel, with the cursor resting on the region being described">
+
+> **The paper in the demo.** Tomoya Nakai, Rieko Kubo and Shinji Nishimoto,
+> “Cross-domain encoding models reveal shared and domain-specific neural
+> representations across language and mathematics,” *Science Advances* **12**,
+> eaej5555 (2026). [doi:10.1126/sciadv.aej5555](https://doi.org/10.1126/sciadv.aej5555) ·
+> © the authors, licensed [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
+> Its figures and pages appear above as aha-paper displays them, unaltered, in a
+> non-commercial demonstration of the tool.
 
 ---
 
@@ -106,5 +112,4 @@ cached rebuild takes about 2 seconds.
 Fraunces, Nunito and Pinyon Script for the lettering.
 Full attributions and licences in [NOTICE](NOTICE).
 
-Apache-2.0. The paper shown in the demo belongs to its authors; it appears here
-as aha-paper displays it.
+Apache-2.0.

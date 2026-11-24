@@ -21,9 +21,7 @@
 
 ## 看一眼
 
-一篇论文，从头读到尾：**《Cross-domain encoding models reveal shared and
-domain-specific neural representations across language and mathematics》**
-（*Science Advances*）。视频是其中连续三章，未经剪辑——三张不同的图，一张一张逐面板讲过来。
+一篇论文，从头读到尾。视频是其中连续三章，未经剪辑——三张不同的图，一张一张逐面板讲过来。
 
 <div align="center">
 
@@ -46,6 +44,13 @@ domain-specific neural representations across language and mathematics》**
 **讲到哪块，指哪块。** 旁白报出子图编号和里面的脑区，光标已经停在那里，画面也放大到了正在讲的部分。
 
 <img src="docs/media/player-zoom.jpg" width="820" alt="论文插图放大到某个子图，光标停在正在讲的区域上">
+
+> **演示里那篇论文。** Tomoya Nakai、Rieko Kubo、Shinji Nishimoto，
+> 《Cross-domain encoding models reveal shared and domain-specific neural
+> representations across language and mathematics》，*Science Advances* **12**，
+> eaej5555（2026）。[doi:10.1126/sciadv.aej5555](https://doi.org/10.1126/sciadv.aej5555) ·
+> 版权归原作者，依 [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) 授权。
+> 上面的插图与页面是 aha-paper 原样呈现的，未作修改，用于非商业的工具演示。
 
 ---
 
@@ -93,4 +98,4 @@ cp .env.example .env          # 填入 OPENROUTER_API_KEY
 Fraunces、Nunito、Pinyon Script 三款字体。
 完整署名与许可证见 [NOTICE](NOTICE)。
 
-Apache-2.0。演示里那篇论文版权属于原作者，这里只是以 aha-paper 的方式展示它。
+Apache-2.0。
