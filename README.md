@@ -13,7 +13,7 @@ It narrates a PDF while marking the sentence it is explaining — on the paper i
 
 <br>
 
-<img src="docs/media/home.jpg" width="820" alt="The aha-paper studio: a composer for the paper and the focus, over a library of explainers">
+<img src="docs/media/studio.jpg" width="820" alt="The aha-paper studio: a composer for the paper and the focus, over a library of explainers">
 
 </div>
 
@@ -27,15 +27,15 @@ domain-specific neural representations across language and mathematics”**
 
 <div align="center">
 
-<a href="docs/media/demo.mp4"><img src="docs/media/demo-poster.jpg" width="320" alt="Poster frame of the demo: a figure from the paper with the cursor on it and a caption beneath"></a>
+<a href="docs/media/walkthrough.mp4"><img src="docs/media/walkthrough-poster.jpg" width="320" alt="Poster frame of the demo: a figure from the paper with the cursor on it and a caption beneath"></a>
 
-**[▶ Watch the demo](docs/media/demo.mp4)** &nbsp;·&nbsp; 92 seconds
+**[▶ Watch the demo](docs/media/walkthrough.mp4)** &nbsp;·&nbsp; 92 seconds
 
 <sub>GitHub strips <code>&lt;video&gt;</code> from a README, so the file opens on its own page — where it plays.</sub>
 
 <br>
 
-<img src="docs/media/cursor.gif" width="660" alt="The cursor moving across a figure from the paper while the caption names the panel it is on">
+<img src="docs/media/cursor-walk.gif" width="660" alt="The cursor moving across a figure from the paper while the caption names the panel it is on">
 
 </div>
 

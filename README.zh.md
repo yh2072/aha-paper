@@ -13,7 +13,7 @@
 
 <br>
 
-<img src="docs/media/home.jpg" width="820" alt="aha-paper 工作台：上方是论文与讲解重点的输入区，下方是已生成的讲解">
+<img src="docs/media/studio.jpg" width="820" alt="aha-paper 工作台：上方是论文与讲解重点的输入区，下方是已生成的讲解">
 
 </div>
 
@@ -27,15 +27,15 @@ domain-specific neural representations across language and mathematics》**
 
 <div align="center">
 
-<a href="docs/media/demo.mp4"><img src="docs/media/demo-poster.jpg" width="320" alt="演示视频封面：论文插图上停着讲解光标，下方是字幕"></a>
+<a href="docs/media/walkthrough.mp4"><img src="docs/media/walkthrough-poster.jpg" width="320" alt="演示视频封面：论文插图上停着讲解光标，下方是字幕"></a>
 
-**[▶ 看演示](docs/media/demo.mp4)** &nbsp;·&nbsp; 92 秒
+**[▶ 看演示](docs/media/walkthrough.mp4)** &nbsp;·&nbsp; 92 秒
 
 <sub>GitHub 会把 README 里的 <code>&lt;video&gt;</code> 删掉，所以视频单独打开——在它自己的页面上可以直接播放。</sub>
 
 <br>
 
-<img src="docs/media/cursor.gif" width="660" alt="光标在论文插图上移动，字幕正念到它所指的那一块">
+<img src="docs/media/cursor-walk.gif" width="660" alt="光标在论文插图上移动，字幕正念到它所指的那一块">
 
 </div>
 
