@@ -23,13 +23,13 @@
 
 一篇论文，从头读到尾：**《Cross-domain encoding models reveal shared and
 domain-specific neural representations across language and mathematics》**
-（*Science Advances*）。下面都是真实生成的讲解，没有为截图摆拍。
+（*Science Advances*）。视频是其中连续三章，未经剪辑——三张不同的图，一张一张逐面板讲过来。
 
 <div align="center">
 
-<a href="docs/media/walkthrough.mp4"><img src="docs/media/walkthrough-poster.jpg" width="320" alt="演示视频封面：论文插图上停着讲解光标，下方是字幕"></a>
+<a href="docs/media/figure-walkthrough.mp4"><img src="docs/media/figure-walkthrough-poster.jpg" width="320" alt="演示视频封面：论文插图上停着讲解光标，下方是字幕"></a>
 
-**[▶ 看演示](docs/media/walkthrough.mp4)** &nbsp;·&nbsp; 92 秒
+**[▶ 看讲图演示](docs/media/figure-walkthrough.mp4)** &nbsp;·&nbsp; 3 分 42 秒
 
 <sub>GitHub 会把 README 里的 <code>&lt;video&gt;</code> 删掉，所以视频单独打开——在它自己的页面上可以直接播放。</sub>
 

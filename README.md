@@ -23,13 +23,14 @@ It narrates a PDF while marking the sentence it is explaining — on the paper i
 
 One paper, read end to end: **“Cross-domain encoding models reveal shared and
 domain-specific neural representations across language and mathematics”**
-(*Science Advances*). A real explainer, played back — nothing staged.
+(*Science Advances*). The video is three chapters of it, unedited — three different figures, each
+walked panel by panel.
 
 <div align="center">
 
-<a href="docs/media/walkthrough.mp4"><img src="docs/media/walkthrough-poster.jpg" width="320" alt="Poster frame of the demo: a figure from the paper with the cursor on it and a caption beneath"></a>
+<a href="docs/media/figure-walkthrough.mp4"><img src="docs/media/figure-walkthrough-poster.jpg" width="320" alt="Poster frame of the demo: a figure from the paper with the cursor on it and a caption beneath"></a>
 
-**[▶ Watch the demo](docs/media/walkthrough.mp4)** &nbsp;·&nbsp; 92 seconds
+**[▶ Watch the walkthrough](docs/media/figure-walkthrough.mp4)** &nbsp;·&nbsp; 3 min 42 s
 
 <sub>GitHub strips <code>&lt;video&gt;</code> from a README, so the file opens on its own page — where it plays.</sub>
 
