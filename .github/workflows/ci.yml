@@ -23,7 +23,18 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
       - run: pip install -r requirements.txt
+      # The model catalogue is served by a Node bridge (scripts/pi-models.mjs),
+      # so the suite needs its one runtime dependency or seventeen tests fail on
+      # ERR_MODULE_NOT_FOUND. --omit=dev leaves out electron and
+      # electron-builder: ~200 MB that only the desktop build touches.
+      # --ignore-scripts is what the README's own setup uses, and it keeps
+      # electron's postinstall from downloading a browser we never run.
+      - run: npm ci --ignore-scripts --omit=dev
       # unittest, not pytest: the suite is stdlib and the project does not
       # depend on a test runner it would then have to pin.
       - run: python -m unittest discover -s tests -q
