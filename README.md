@@ -22,18 +22,25 @@ It narrates a PDF while marking the sentence it is explaining — on the paper i
 
 ## See it
 
-The demo below reads one paper end to end:
-**“Cross-domain encoding models reveal shared and domain-specific neural
-representations across language and mathematics.”**
-Twelve chapters, thirteen minutes, every claim pinned to a page.
+One paper, read end to end: **“Cross-domain encoding models reveal shared and
+domain-specific neural representations across language and mathematics”**
+(*Science Advances*). Nothing below was staged for a screenshot — it is a real
+explainer, played back.
 
 <div align="center">
 
-<img src="docs/media/cursor.gif" width="700" alt="The cursor moving across a figure from the paper, resting on each region as the narration names it">
+<a href="docs/media/demo.mp4"><img src="docs/media/demo-poster.jpg" width="340" alt="Poster frame of the demo: a figure from the paper with the cursor on it and a caption beneath"></a>
 
-<sub><i>Not a recording of a cursor being dragged. Each position is a region the
-model was asked to name for one sentence of narration, and the path between them
-is interpolated — so the pointer arrives before the voice does.</i></sub>
+**[▶ Watch the 92-second demo](docs/media/demo.mp4)** &nbsp;·&nbsp; 720×960 · 2.7 MB
+
+<sub>GitHub strips <code>&lt;video&gt;</code> from a README, so the file opens on its own page — where it plays.</sub>
+
+<br>
+
+<img src="docs/media/cursor.gif" width="660" alt="The cursor moving across a figure from the paper while the caption names the panel it is on">
+
+<sub><i>The pointer is not being dragged. Each position is a region the model was
+asked to name for one sentence of narration, so it arrives before the voice does.</i></sub>
 
 </div>
 
@@ -51,19 +58,13 @@ the paper's own pages. Every chapter cites the PDF pages it rests on.
 
 **两种语言 · Either language**
 
-The same paper, read again in English: a different writer's persona, a different
-voice, a different rule for where a sentence ends. The stills below are from the
-Chinese read; the animation above is from the English one.
+The same paper, read again in English — a different writer's persona, a
+different voice, a different rule for where a sentence ends. The video and the
+animation are the English read; the two stills below are the Chinese one.
 
 </td>
 </tr>
 </table>
-
-> The paper is *Cross-domain encoding models reveal shared and domain-specific
-> neural representations across language and mathematics*, published in **Science
-> Advances**. Its figures and pages appear here as aha-paper shows them — which is
-> the point: they are the paper's own, not illustrations of it.
-
 
 ### It marks the sentence it is saying
 
