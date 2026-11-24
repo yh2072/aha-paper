@@ -27,15 +27,15 @@ domain-specific neural representations across language and mathematics》**
 
 <div align="center">
 
-<a href="docs/media/figure-walkthrough.mp4"><img src="docs/media/figure-walkthrough-poster.jpg" width="320" alt="演示视频封面：论文插图上停着讲解光标，下方是字幕"></a>
+<a href="docs/media/walkthrough-16x9.mp4"><img src="docs/media/walkthrough-16x9.jpg" width="320" alt="演示视频封面：论文插图上停着讲解光标，下方是字幕"></a>
 
-**[▶ 看讲图演示](docs/media/figure-walkthrough.mp4)** &nbsp;·&nbsp; 3 分 42 秒
+**[▶ 看讲图演示](docs/media/walkthrough-16x9.mp4)** &nbsp;·&nbsp; 3 分 42 秒 · 1280×720
 
 <sub>GitHub 会把 README 里的 <code>&lt;video&gt;</code> 删掉，所以视频单独打开——在它自己的页面上可以直接播放。</sub>
 
 <br>
 
-<img src="docs/media/cursor-walk.gif" width="660" alt="光标在论文插图上移动，字幕正念到它所指的那一块">
+<img src="docs/media/cursor-16x9.gif" width="660" alt="光标在论文插图上移动，字幕正念到它所指的那一块">
 
 </div>
 
@@ -45,7 +45,7 @@ domain-specific neural representations across language and mathematics》**
 
 **讲到哪块，指哪块。** 旁白报出子图编号和里面的脑区，光标已经停在那里，画面也放大到了正在讲的部分。
 
-<img src="docs/media/player-figure.jpg" width="820" alt="论文插图放大到某个子图，光标停在正在讲的区域上">
+<img src="docs/media/player-zoom.jpg" width="820" alt="论文插图放大到某个子图，光标停在正在讲的区域上">
 
 ---
 

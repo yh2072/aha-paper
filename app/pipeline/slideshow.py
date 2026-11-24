@@ -9,7 +9,7 @@ from . import anim, figures, tts
 from .cover import _body_font as _font  # 霞鹜文楷：字幕/角标温暖手写风
 from ..bin import ffmpeg as ffmpeg_bin, ffprobe as ffprobe_bin
 
-W, H = 1080, 1440  # 3:4 竖版
+W, H = 1920, 1080  # 16:9 横版：论文插图几乎都是横的，竖画幅把它们挤成了一条
 BG = (250, 244, 230)
 INK = (61, 47, 38)
 SUB_GRAY = (201, 193, 178)  # 字幕未读态：淡灰
@@ -58,8 +58,8 @@ _wrap_cjk = lang._wrap_cjk   # 规则搬去了 app/lang.py，这里保留名字
 
 
 # 素材区 = 整个画面。不再留字幕区，素材通屏铺满。
-CARD_BOX = (0, 0, 1080, 1440)
-CARD_FIT = (1080, 1440)
+CARD_BOX = (0, 0, W, H)
+CARD_FIT = (W, H)
 TOP_SAFE = 92                   # 角标下沿，避开顶部进度条
 
 
@@ -80,6 +80,9 @@ def badge_layer(idx: int, total: int, out_path: Path) -> Path:
     return out_path
 
 
+# 字幕带宽：窄画幅用满（减去左右边距），宽画幅不跟着拉满——1920 宽的一行
+# 能塞 33 个汉字，读起来像在扫一条横幅，不像在看字幕。
+SUB_WIDTH = min(W - 180, 1400)
 SUB_SIZE = 52          # 字幕字号
 SUB_MAXLINES = 2       # 一句最多折两行，再长就缩字号
 SUB_BOTTOM = 96        # 字幕块距画面底部
@@ -146,7 +149,7 @@ def subtitle_layers(sentences: list[str], durs: list[float], work: Path,
             t0 += d
             continue
         for size in (SUB_SIZE, 46, 40, 34):
-            lines = profile.subtitle_lines(s, W - 180, size)
+            lines = profile.subtitle_lines(s, SUB_WIDTH, size)
             if len(lines) <= SUB_MAXLINES:
                 break
         if len(lines) > SUB_MAXLINES:
@@ -258,7 +261,7 @@ def render_slideshow(scenes: list[dict], images: list[Path | None],
             regions = figures.map_sentences_to_regions(fig_path, sents, log=log)
             overlay_vid = anim.render_guided_pointer(
                 fig_path, list(zip(durs, regions)),
-                work_dir / f"guided_{i:02d}.mp4", log=log)
+                work_dir / f"guided_{i:02d}.mp4", log=log, max_size=CARD_FIT)
         else:
             sents = tts.split_sentences(scene["text"], profile=profile)
             if cached:

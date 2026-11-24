@@ -5,7 +5,7 @@ import math
 import subprocess
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageOps
 from ..bin import ffmpeg as ffmpeg_bin
 
 FPS = 15
@@ -64,13 +64,19 @@ def _smoothstep(t: float) -> float:
 
 
 def render_guided_pointer(fig_path: Path, segments: list[tuple[float, list | None]],
-                          out_mp4: Path, log=print) -> Path:
+                          out_mp4: Path, log=print, max_size=None) -> Path:
     """跟随讲解的光标：segments = [(该句时长, 该句讲的区域bbox或None)]。
 
     每句开头 0.7s 光标平滑滑到该句区域，随后在区域内小幅游走；
-    None 区域 = 停在原处轻微悬浮。非循环，总长 = 各句时长之和。
+    None 区域 = 停在原处轻移浮。非循环，总长 = 各句时长之和。
+
+    max_size 是合成时这一层最终会被缩到的尺寸。图现在按两倍分辨率抠出来，
+    所以不设上限就会按 2000px 以上逐帧渲染，再在合成时缩回去——四倍的像素量，
+    换不来一个像素的清晰度。区域坐标是归一化的，缩放不影响它们。
     """
     img = Image.open(fig_path).convert("RGB")
+    if max_size:
+        img = ImageOps.contain(img, tuple(max_size), Image.Resampling.LANCZOS)
     W, H = img.size
     W -= W % 2
     H -= H % 2

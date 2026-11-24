@@ -28,15 +28,15 @@ walked panel by panel.
 
 <div align="center">
 
-<a href="docs/media/figure-walkthrough.mp4"><img src="docs/media/figure-walkthrough-poster.jpg" width="320" alt="Poster frame of the demo: a figure from the paper with the cursor on it and a caption beneath"></a>
+<a href="docs/media/walkthrough-16x9.mp4"><img src="docs/media/walkthrough-16x9.jpg" width="320" alt="Poster frame of the demo: a figure from the paper with the cursor on it and a caption beneath"></a>
 
-**[▶ Watch the walkthrough](docs/media/figure-walkthrough.mp4)** &nbsp;·&nbsp; 3 min 42 s
+**[▶ Watch the walkthrough](docs/media/walkthrough-16x9.mp4)** &nbsp;·&nbsp; 3 min 42 s · 1280×720
 
 <sub>GitHub strips <code>&lt;video&gt;</code> from a README, so the file opens on its own page — where it plays.</sub>
 
 <br>
 
-<img src="docs/media/cursor-walk.gif" width="660" alt="The cursor moving across a figure from the paper while the caption names the panel it is on">
+<img src="docs/media/cursor-16x9.gif" width="660" alt="The cursor moving across a figure from the paper while the caption names the panel it is on">
 
 </div>
 
@@ -49,7 +49,7 @@ actually sits.
 **It points at the panel it is describing.** The narration names a panel and the
 regions in it; the cursor is already there, and the view has zoomed in.
 
-<img src="docs/media/player-figure.jpg" width="820" alt="A figure from the paper, zoomed to one panel, with the cursor resting on the region being described">
+<img src="docs/media/player-zoom.jpg" width="820" alt="A figure from the paper, zoomed to one panel, with the cursor resting on the region being described">
 
 ---
 

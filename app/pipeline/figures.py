@@ -89,17 +89,31 @@ def _detect(page_img: Image.Image) -> list[tuple[float, float, float, float, flo
     return results
 
 
+# The detector is tuned on this render scale; the crops come off a sharper one.
+DETECT_SCALE = 2.2
+CROP_SCALE = 4.4
+
+
 def extract_main_figures(pdf_path: Path, out_dir: Path, log=print) -> list[dict]:
     """抠出主图存盘，返回 [{"file", "page", "conf"}]，按 (页码, 纵向位置) 排序。"""
     out_dir.mkdir(parents=True, exist_ok=True)
     doc = pdfium.PdfDocument(str(pdf_path))
     found = []
     for pno in range(min(len(doc), MAX_PAGES)):
-        page_img = doc[pno].render(scale=2.2).to_pil().convert("RGB")
-        for (x1, y1, x2, y2, conf) in _detect(page_img):
-            found.append((pno, y1, conf, page_img.crop(
-                (max(x1 - 8, 0), max(y1 - 8, 0),
-                 min(x2 + 8, page_img.width), min(y2 + 8, page_img.height)))))
+        page_img = doc[pno].render(scale=DETECT_SCALE).to_pil().convert("RGB")
+        boxes = _detect(page_img)
+        if not boxes:
+            continue
+        # Detect at one scale, crop at another. The detector keeps the input it
+        # was tuned on, while the saved figure comes off a sharper render: a
+        # crop at DETECT_SCALE is 600-1200px wide, and the 16:9 export scales it
+        # up to fill 1920 -- which is what made the figures soft on screen.
+        hi = doc[pno].render(scale=CROP_SCALE).to_pil().convert("RGB")
+        k = CROP_SCALE / DETECT_SCALE
+        for (x1, y1, x2, y2, conf) in boxes:
+            box = (max(int((x1 - 8) * k), 0), max(int((y1 - 8) * k), 0),
+                   min(int((x2 + 8) * k), hi.width), min(int((y2 + 8) * k), hi.height))
+            found.append((pno, y1, conf, hi.crop(box)))
     found.sort(key=lambda t: (t[0], t[1]))
     figs = []
     for i, (pno, _, conf, crop) in enumerate(found[:MAX_FIGS]):
