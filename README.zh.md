@@ -9,7 +9,9 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Narration](https://img.shields.io/badge/讲解语言-中文%20%C2%B7%20English-c2824c.svg)](app/lang.py)
 
-[English](README.md)
+**[▶ 在线试用](https://aha-paper.vercel.app)** &nbsp;·&nbsp; [English](README.md)
+
+<sub>一份真实生成的讲解，直接在浏览器里播：12 章、13 分钟，不用注册也不用 Key。</sub>
 
 <br>
 
@@ -21,7 +23,8 @@
 
 ## 看一眼
 
-一篇论文，从头读到尾。视频是其中连续三章，未经剪辑——三张不同的图，一张一张逐面板讲过来。
+**[演示在 aha-paper.vercel.app](https://aha-paper.vercel.app)** —— 就是这份讲解导出的
+互动包，作为纯静态站托管，没有任何后端。一篇论文，从头读到尾。视频是其中连续三章，未经剪辑——三张不同的图，一张一张逐面板讲过来。
 
 <div align="center">
 

@@ -9,7 +9,9 @@ It narrates a PDF while marking the sentence it is explaining — on the paper i
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Narration](https://img.shields.io/badge/narration-中文%20%C2%B7%20English-c2824c.svg)](app/lang.py)
 
-[中文说明](README.zh.md)
+**[▶ Try it live](https://aha-paper.vercel.app)** &nbsp;·&nbsp; [中文说明](README.zh.md)
+
+<sub>A real explainer, playing in your browser: 12 chapters, 13 minutes, no sign-up and no key.</sub>
 
 <br>
 
@@ -21,7 +23,9 @@ It narrates a PDF while marking the sentence it is explaining — on the paper i
 
 ## See it
 
-One paper, read end to end. The video is three chapters of it, unedited —
+**[The demo is live at aha-paper.vercel.app](https://aha-paper.vercel.app)** — the
+exported bundle of this very explainer, served as a static site with no backend
+at all. One paper, read end to end. The video is three chapters of it, unedited —
 three different figures, each walked panel by panel.
 
 <div align="center">
