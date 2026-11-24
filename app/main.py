@@ -531,6 +531,25 @@ def interactive_bundle(pid: str):
     return FileResponse(path,media_type="application/zip",filename="aha-paper-interactive.zip")
 
 
+@app.get("/api/projects/{pid}/cards.zip")
+def card_deck(pid: str):
+    """The explainer as 3:4 cards: a cover from the paper's own title, then one
+    card a chapter. Rendered on the way out rather than stored, because it takes
+    under two seconds and is always in step with the explainer."""
+    from .pipeline import cards
+    project = jobs.Project(pid)
+    if not project.meta_path.exists():
+        raise HTTPException(404)
+    if jobs._pending(pid):
+        raise HTTPException(409, "生成进行中，完成后再导出图文卡片")
+    try:
+        path = cards.export_zip(project.dir, project.load(), log=project.log)
+    except ValueError as error:
+        raise HTTPException(400, str(error)) from error
+    return FileResponse(path, media_type="application/zip",
+                        filename="aha-paper-cards.zip")
+
+
 @app.get("/api/settings/models")
 def setting_models(usage: str = "language", provider: str | None = None):
     if usage not in ("language","image","code"):raise HTTPException(400,"未知模型用途")

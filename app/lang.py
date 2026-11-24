@@ -260,15 +260,42 @@ class _EnSplitter:
         return _en_split(text)
 
 
+# A run of Latin letters, digits and the punctuation that lives inside a word.
+# Chinese text is full of them -- author names, model names, journal titles,
+# numbers with units -- and they are the one thing a character-counting wrap
+# must not cut through.
+_LATIN_RUN = re.compile(r"[A-Za-z0-9][A-Za-z0-9.\-_/+%']*")
+
+
 def _wrap_cjk(text: str, per_line: int) -> list[str]:
     """Chinese wraps anywhere except before a closing punctuation mark, because
     any Han character may end a line. Moved here from slideshow.py: it is a rule
     about a language, and keeping it next to the one for English is what stops
-    the next reader assuming it covers both."""
+    the next reader assuming it covers both.
+
+    "Anywhere" has one exception, and leaving it out produced 'Nakai、K / ubo'
+    and '《Science Ad / vances》' on a real card. A Latin word embedded in
+    Chinese is a unit even though none of its characters is Han, so the run is
+    taken whole: it starts a new line rather than being split across two.
+    """
+    tokens: list[str] = []
+    index = 0
+    for match in _LATIN_RUN.finditer(text.strip()):
+        tokens.extend(text.strip()[index:match.start()])
+        tokens.append(match.group(0))
+        index = match.end()
+    tokens.extend(text.strip()[index:])
+
     lines, cur = [], ""
-    for ch in text.strip():
-        cur += ch
-        if len(cur) >= per_line and ch not in "，。！？、；：":
+    for token in tokens:
+        # A run longer than the line gets a line of its own rather than
+        # stretching one: nothing can be done for it, and breaking it is worse.
+        if cur and len(cur) + len(token) > per_line and token.strip():
+            if cur[-1] not in "，。！？、；：":
+                lines.append(cur)
+                cur = ""
+        cur += token
+        if len(cur) >= per_line and cur[-1] not in "，。！？、；：":
             lines.append(cur)
             cur = ""
     if cur:

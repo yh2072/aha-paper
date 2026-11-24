@@ -455,6 +455,12 @@
     '独立核对这一轮': 'The independent check',
     '写完后再对着原文和真图核一遍数值、图号和来源页码。实测约多花 2 分钟，是整条流水线最慢的一步。关掉时写作人格里的准确性约束仍然生效。':
       'After the draft, check the numbers, figure labels and source pages once more against the paper and the real figures. Measured at about 2 extra minutes — the slowest step in the pipeline. With it off, the accuracy constraints in the writing persona still apply.',
+
+    /* ---- the 3:4 card deck ---- */
+    '图文卡片 ↓': 'Card deck ↓',
+    '生成进行中，完成后再导出图文卡片': 'Creation in progress — export the cards once it finishes',
+    '还没有生成互动讲解，无法导出图文卡片': 'No interactive explainer yet, so there are no cards to export',
+    '讲解里没有章节，无法导出图文卡片': 'The explainer has no chapters, so there are no cards to export',
   };
 
   /* Interpolated strings. A template's {} matches one run of text; the English
@@ -618,6 +624,10 @@
     ['章节{}：原文高亮{}条对不上{}句讲解，这一章只显示页面',
       'Chapter {}: {} source highlights do not line up with {} narration cues, so this chapter just shows the page'],
     ['口令至少 {} 位', 'The passphrase needs at least {} characters'],
+    ['图文卡片 {}/{}：封面', 'Card {} of {}: the cover'],
+    ['图文卡片 {}/{}：第{}章', 'Card {} of {}: chapter {}'],
+    ['图文讲解卡片完成：{} 张 3:4 图片', 'Card deck finished: {} images at 3:4'],
+    ['标题截图跳过: {}', 'Title screenshot skipped: {}'],
   ];
 
   const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

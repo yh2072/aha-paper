@@ -221,6 +221,16 @@ def _st_figures(proj: "Project", ctx: dict):
         except Exception as e:  # noqa: BLE001 - 主图提取失败不阻塞主流程
             proj.log(f"主图提取失败（继续无图流程）: {e}")
             figs = []
+    # The paper's own title, cropped off page one. The card deck's cover is
+    # built from it, and it costs a pdfium text search rather than a model call
+    # whenever the title is in the text layer -- which it is, for a born-digital
+    # paper. Never fatal: a cover falls back to setting the title as text.
+    try:
+        figures.extract_title_snippet(proj.dir / "paper.pdf",
+                                      proj.dir / "images" / "title_snippet.png",
+                                      ctx.get("paper_title") or "", log=proj.log)
+    except Exception as e:  # noqa: BLE001
+        proj.log(f"  标题截图跳过: {e}")
     ctx["figs"] = figs
     proj.save(figures=figs)
 
