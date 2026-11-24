@@ -29,7 +29,7 @@ domain-specific neural representations across language and mathematics》**
 
 <a href="docs/media/demo.mp4"><img src="docs/media/demo-poster.jpg" width="320" alt="演示视频封面：论文插图上停着讲解光标，下方是字幕"></a>
 
-**[▶ 看演示](docs/media/demo.mp4)**
+**[▶ 看演示](docs/media/demo.mp4)** &nbsp;·&nbsp; 92 秒
 
 <sub>GitHub 会把 README 里的 <code>&lt;video&gt;</code> 删掉，所以视频单独打开——在它自己的页面上可以直接播放。</sub>
 

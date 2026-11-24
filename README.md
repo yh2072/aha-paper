@@ -29,7 +29,7 @@ domain-specific neural representations across language and mathematics”**
 
 <a href="docs/media/demo.mp4"><img src="docs/media/demo-poster.jpg" width="320" alt="Poster frame of the demo: a figure from the paper with the cursor on it and a caption beneath"></a>
 
-**[▶ Watch the demo](docs/media/demo.mp4)**
+**[▶ Watch the demo](docs/media/demo.mp4)** &nbsp;·&nbsp; 92 seconds
 
 <sub>GitHub strips <code>&lt;video&gt;</code> from a README, so the file opens on its own page — where it plays.</sub>
 
