@@ -134,7 +134,86 @@ document.addEventListener('i18n:languagechange',loadPrompts);
 loadPrompts();
 $('#openSettingsInline').onclick=()=>showSettings();
 $('#projects').addEventListener('error',event=>{const img=event.target;if(img.tagName!=='IMG')return;const card=img.closest('[data-id]'),p=projects.find(p=>p.id===card?.dataset.id);if(!p)return;const step=Number(img.dataset.fallback||0);img.dataset.fallback=step+1;if(step===0)img.src=file(p,'images/cover_art.png');else if(step===1&&p.figures?.[0]?.file)img.src=file(p,'figures/'+p.figures[0].file);else img.replaceWith(Object.assign(document.createElement('div'),{className:'project-placeholder',textContent:p.title||p.paper_title||'论文讲解'}))},true);
-$('#projects').addEventListener('click',async event=>{const button=event.target.closest('[data-action]');if(!button)return;const p=projects.find(p=>p.id===button.closest('[data-id]').dataset.id);if(!p)return;try{switch(button.dataset.action){case 'generate':button.disabled=true;try{await generate(p)}finally{button.disabled=false}break;case 'mp4':await api('/api/tts_video/'+encodeURIComponent(p.id),{method:'POST'});toast('已开始按需渲染 MP4；互动网页版可直接观看。');await refresh(true);break;case 'preview':modal(`<h2>${escapeHtml(p.title||'论文短片')}</h2><video controls autoplay playsinline src="${file(p,p.tts_output||p.output)}"></video><p>论文原图 · 光标随讲解移动</p>`);break;case 'cover':modal(`<h2>作品封面</h2><img class="cover-preview" src="${file(p,'images/'+p.cover)}" alt="作品封面"><div class="dialog-actions"><a class="small-button" download href="${file(p,'images/'+p.cover)}">下载封面 ↓</a></div>`);break;case 'log':{const data=await api('/api/projects/'+encodeURIComponent(p.id)+'/log');modal(`<h2>运行日志</h2><pre class="log">${escapeHtml(data.log||'尚未开始生成。')}</pre>`);break}case 'script':modal(`<h2>讲稿</h2><textarea class="script-editor" id="scriptEditor" ${busy(p)?'readonly':''}>${escapeHtml(p.script)}</textarea><p>保存后需要重做分镜与下游环节，改动才会进到讲解里。</p><div class="dialog-actions"><button class="primary" id="saveScript" ${busy(p)?'disabled':''}>保存文稿</button></div>`);$('#saveScript').onclick=async()=>{try{await api('/api/projects/'+encodeURIComponent(p.id)+'/script',jsonOptions('PUT',{script:$('#scriptEditor').value}));toast('文稿已保存');$('#modal').close();await refresh(true)}catch(e){toast(e.message)}};break}}catch(e){toast(e.message)}});
+$('#projects').addEventListener('click',async event=>{const button=event.target.closest('[data-action]');if(!button)return;const p=projects.find(p=>p.id===button.closest('[data-id]').dataset.id);if(!p)return;try{switch(button.dataset.action){case 'generate':button.disabled=true;try{await generate(p)}finally{button.disabled=false}break;case 'mp4':await api('/api/tts_video/'+encodeURIComponent(p.id),{method:'POST'});toast('已开始按需渲染 MP4；互动网页版可直接观看。');await refresh(true);break;case 'preview':modal(`<h2>${escapeHtml(p.title||'论文短片')}</h2><video controls autoplay playsinline src="${file(p,p.tts_output||p.output)}"></video><p>论文原图 · 光标随讲解移动</p>`);break;case 'cover':modal(`<h2>作品封面</h2><img class="cover-preview" src="${file(p,'images/'+p.cover)}" alt="作品封面"><div class="dialog-actions"><a class="small-button" download href="${file(p,'images/'+p.cover)}">下载封面 ↓</a></div>`);break;case 'log':await showLog(p);break;case 'script':modal(`<h2>讲稿</h2><textarea class="script-editor" id="scriptEditor" ${busy(p)?'readonly':''}>${escapeHtml(p.script)}</textarea><p>保存后需要重做分镜与下游环节，改动才会进到讲解里。</p><div class="dialog-actions"><button class="primary" id="saveScript" ${busy(p)?'disabled':''}>保存文稿</button></div>`);$('#saveScript').onclick=async()=>{try{await api('/api/projects/'+encodeURIComponent(p.id)+'/script',jsonOptions('PUT',{script:$('#scriptEditor').value}));toast('文稿已保存');$('#modal').close();await refresh(true)}catch(e){toast(e.message)}};break}}catch(e){toast(e.message)}});
+// ── 运行日志 ──────────────────────────────────────────────────────────
+// The log is written to log.txt in Chinese by the pipeline, and <pre> is in
+// i18n.js's SKIP set on purpose -- the content of a <pre> is usually data, not
+// interface. But this particular <pre> holds sentences the pipeline wrote to be
+// read, so it is translated here instead: explicitly, a line at a time, with
+// the [HH:MM:SS] stamp and the indentation split off first so the message
+// itself is what the dictionary is asked about.
+const tt=s=>(window.i18n?window.i18n.t(s):s);
+const LOG_STAMP=/^\[(\d{2}:\d{2}:\d{2})\]\s?/;
+
+function logText(raw){
+ return String(raw||'').replace(/\s+$/,'').split('\n').map(line=>{
+  const stamp=line.match(LOG_STAMP);
+  if(!stamp)return tt(line);
+  const rest=line.slice(stamp[0].length);
+  const indent=(rest.match(/^\s*/)||[''])[0];
+  return `[${stamp[1]}] ${indent}${tt(rest.trim())}`}).join('\n')}
+
+// Elapsed since the first stamped line. Only shown while the job is actually
+// running: on a finished project the first stamp is from whenever it last ran,
+// and the difference from now would be a number that means nothing.
+function logElapsed(raw){
+ const first=String(raw||'').match(/^\[(\d{2}):(\d{2}):(\d{2})\]/m);
+ if(!first)return '';
+ const now=new Date();
+ let seconds=(now.getHours()*3600+now.getMinutes()*60+now.getSeconds())
+   -(+first[1]*3600 + +first[2]*60 + +first[3]);
+ if(seconds<0)seconds+=86400;                       // 跨零点
+ const m=Math.floor(seconds/60),sec=seconds%60;
+ return `${m}:${String(sec).padStart(2,'0')}`}
+
+let stageList=null;
+async function stages(){
+ if(!stageList){try{stageList=await api('/api/stages')}catch(e){stageList=[]}}
+ return stageList}
+
+let logTimer=null;
+function stopLogTail(){if(logTimer){clearInterval(logTimer);logTimer=null}}
+$('#modal').addEventListener('close',stopLogTail);
+
+async function showLog(project){
+ const steps=await stages();
+ const paint=async()=>{
+  // Re-read the project each tick: the stage and the running state move while
+  // the log grows, and the card behind the dialog may be several seconds stale.
+  const live=projects.find(x=>x.id===project.id)||project;
+  const data=await api('/api/projects/'+encodeURIComponent(live.id)+'/log');
+  const index=steps.findIndex(s=>s.name===live.stage);
+  const running=busy(live);
+  const bits=[];
+  if(index>=0)bits.push(`步骤 ${index+1}/${steps.length}`);
+  if(running){const e=logElapsed(data.log);if(e)bits.push(`已运行 ${e}`)}
+  const percent=index>=0?Math.round((index+(running?0:1))/steps.length*100):(running?0:100);
+  const body=$('#logBody');
+  const atBottom=!body||body.scrollHeight-body.scrollTop-body.clientHeight<40;
+  const text=logText(data.log);
+  if(body){
+   // Repaint in place while tailing, so the scroll position survives.
+   $('#logStage').textContent=tt(live.stage||'')||'';
+   $('#logMeta').textContent=bits.map(tt).join(' · ');
+   $('#logBar').style.width=percent+'%';
+   $('#logDialog').classList.toggle('is-running',running);
+   if(body.textContent!==text){body.textContent=text;if(atBottom)body.scrollTop=body.scrollHeight}
+  }else{
+   modal(`<div id="logDialog" class="log-dialog${running?' is-running':''}"><h2>运行日志</h2>
+    <div class="log-head"><div><b id="logStage">${escapeHtml(tt(live.stage||''))}</b>
+    <small id="logMeta">${escapeHtml(bits.map(tt).join(' · '))}</small></div>
+    <span class="log-live">实时跟踪中</span></div>
+    <div class="log-progress"><i id="logBar" style="width:${percent}%"></i></div>
+    ${text?`<pre class="log" id="logBody"></pre>`:'<p class="log-empty">尚未开始生成。</p>'}</div>`);
+   if(text){$('#logBody').textContent=text;$('#logBody').scrollTop=$('#logBody').scrollHeight}
+  }
+  if(!running)stopLogTail()};
+ await paint();
+ stopLogTail();
+ if(busy(project))logTimer=setInterval(()=>{if($('#modal').open)paint().catch(()=>stopLogTail());else stopLogTail()},2000);
+ // The log is translated at render time, so a language switch has to repaint it.
+ document.addEventListener('i18n:languagechange',()=>{if($('#modal').open&&$('#logBody'))paint()})}
+
 // Pi reports where a credential came from; show that instead of a guess.
 const SOURCE_LABELS={'stored credential':'已存储凭据','OAuth':'浏览器登录'};
 const sourceLabel=s=>SOURCE_LABELS[s]||s||'';
@@ -142,7 +221,8 @@ const sourceLabel=s=>SOURCE_LABELS[s]||s||'';
 async function showSettings(){try{settings=await api('/api/settings');connection();
 const providers=await api('/api/providers').then(r=>r.providers.filter(p=>p.methods.some(m=>m.type==='api_key'))).catch(()=>[]);
 const connected=providers.filter(p=>p.configured);
-const usesOf=id=>settings.uses.filter(u=>u.provider===id).map(u=>u.label).join('、')||'未使用';
+const usesOf=id=>{const names=settings.uses.filter(u=>u.provider===id).map(u=>tt(u.label));
+ return names.join((window.i18n&&window.i18n.lang)==='en'?', ':'、')||tt('未使用')};
 // Preselect whatever a use needs but has not got, so the form opens on the real gap.
 const wanted=(settings.uses.find(u=>!u.configured)||{}).provider;
 const card=(id,title,subtitle,body)=>`<section class="provider-card" data-use="${id}"><header class="provider-head"><div><h3>${title}</h3><small>${subtitle}</small></div></header><div class="provider-body">${body}</div></section>`;
@@ -160,12 +240,15 @@ settings.uses.map(u=>`<div class="use-row" data-use="${u.use}"><b>${escapeHtml(u
 <small class="use-note" data-use="${u.use}">${u.configured?'':'该供应商未连接'}</small></div>`).join(''))}
 ${card('speech','旁白 · Edge TTS','逐句时间戳驱动光标与字幕',
 `<div class="field-row"><label class="field">音色<select id="voice"><option value="zh-CN-XiaoxiaoNeural">晓晓 · 自然女声</option><option value="zh-CN-YunxiNeural">云希 · 清朗男声</option><option value="zh-CN-XiaoyiNeural">晓伊 · 温柔女声</option><option value="zh-CN-YunjianNeural">云健 · 稳重男声</option><option value="en-US-AriaNeural">Aria · English</option></select></label><label class="field">语速<select id="rate"><option value="-10%">舒缓 · -10%</option><option value="+0%">自然 · 默认</option><option value="+10%">轻快 · +10%</option><option value="+20%">明快 · +20%</option></select></label></div><small>Edge TTS 不需要 Key，但需要联网。</small>`)}
+${card('quality','文稿质量 · 速度','多一道独立核对，还是快一点出结果',
+`<label class="switch-row"><input type="checkbox" id="scriptAudit"${settings.script_audit?' checked':''}>
+<span><b>独立核对这一轮</b><small>写完后再对着原文和真图核一遍数值、图号和来源页码。实测约多花 2 分钟，是整条流水线最慢的一步。关掉时写作人格里的准确性约束仍然生效。</small></span></label>`)}
 <div class="dialog-actions"><button class="primary" type="submit">保存设置</button><button class="small-button" id="testKey" type="button">测试连接 ↗</button></div><div id="settingsStatus" class="dialog-status" role="status"></div></form>`);
 $('#voice').value=settings.voice;$('#rate').value=settings.rate;
 const status=text=>{$('#settingsStatus').textContent=text};
 const providerField={language:'language_provider',image:'image_provider'};
 const modelField={language:'model_text',image:'model_cover'};
-const payload=()=>{const body={voice:$('#voice').value,rate:$('#rate').value};
+const payload=()=>{const body={voice:$('#voice').value,rate:$('#rate').value,script_audit:$('#scriptAudit').checked};
  for(const row of document.querySelectorAll('.use-provider'))body[providerField[row.dataset.use]]=row.value;
  for(const row of document.querySelectorAll('.use-model'))body[modelField[row.dataset.use]]=row.value;
  return body};

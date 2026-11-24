@@ -190,12 +190,34 @@ class EnforcementTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             deep_script.validate_outline(draft, [], 60, plan=deep_script.budget(5))
 
-    def test_a_draft_that_is_only_too_long_is_caught_by_the_length_band(self):
-        """Five chapters is a fine count for five minutes; 2500 characters is not,
-        so the length rule has to catch it on its own."""
+    def test_a_draft_that_is_only_too_long_is_accepted_and_reported(self):
+        """Over the ceiling the explainer just runs longer than was asked for.
+        That is a preference, and rewriting the whole article to satisfy it costs
+        a full model call -- so it is accepted, flagged, and its real length
+        reported rather than refused."""
         draft = {'title': 't', 'chapters': [chapter(text='一' * 500)] * 5}
-        with self.assertRaisesRegex(ValueError, '深度正文需'):
+        board = deep_script.validate_outline(draft, [], 60, plan=deep_script.budget(5))
+        self.assertEqual(board['total_chars'], 2500)
+        self.assertTrue(board['over_budget'])
+        self.assertAlmostEqual(board['minutes_estimate'], 8.3, places=1)
+
+    def test_a_runaway_draft_is_still_refused(self):
+        """Twice the target is not an overshoot, it is a lost brief."""
+        draft = {'title': 't', 'chapters': [chapter(text='一' * 800)] * 5}
+        with self.assertRaisesRegex(ValueError, '失控'):
             deep_script.validate_outline(draft, [], 60, plan=deep_script.budget(5))
+
+    def test_a_summary_is_still_refused_outright(self):
+        """The floor is the rule this pipeline exists for: a few sentences must
+        never pass as a deep explainer, however much faster that would be."""
+        draft = {'title': 't', 'chapters': [chapter(text='一' * 40)] * 5}
+        with self.assertRaisesRegex(ValueError, '至少'):
+            deep_script.validate_outline(draft, [], 60, plan=deep_script.budget(5))
+
+    def test_a_draft_inside_the_band_is_not_flagged(self):
+        draft = {'title': 't', 'chapters': [chapter(text='一' * 300)] * 5}
+        board = deep_script.validate_outline(draft, [], 60, plan=deep_script.budget(5))
+        self.assertFalse(board['over_budget'])
 
 
 class WriterInputTests(unittest.TestCase):

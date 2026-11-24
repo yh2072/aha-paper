@@ -1,0 +1,329 @@
+/* The painterly skin.
+
+   refine.css argued, at length and correctly, that a reading tool should get
+   out of the way: near-white ground, hairlines, density enough to scan. This
+   sheet keeps that argument's structure and overrules its surface. The grid is
+   still three columns, the card type is still small, the settings rows are
+   still rows. What changes is colour, paper, edge and letterform.
+
+   Two rules make the rest work, and breaking either is what makes a painterly
+   skin look like a broken page instead:
+
+   1. The brush filter never touches text. feDisplacementMap moves pixels, and
+      pixels include glyphs -- an element with filter:url(#brush) on it has
+      wobbly, blurred, unreadable type. So every torn edge here is painted on a
+      ::before layer behind the content, never on the box that holds it. This
+      is also why those boxes get `isolation:isolate`: the -1 layer has to stay
+      inside its own card rather than fall behind the page.
+
+   2. The organic radius is one shape, reused. Four different wonky radii in
+      one view reads as a rendering bug; the same wonky radius at three sizes
+      reads as a hand. --wonk and its variants below are that one shape.
+
+   Loaded after refine.css, so it inherits every structural rule and overrides
+   only what it names. Delete this <link> and the reading-tool look returns. */
+
+/* ── the palette ──────────────────────────────────────────────────────────
+   Named for what they are rather than where they go, then mapped onto the
+   variable names refine.css already uses. That mapping is the whole trick: a
+   few lines here repaint rules in three other sheets that this file never
+   mentions. */
+:root,
+.aha-home {
+  --sky: #7fb9e6;
+  --butter: #f4d77a;
+  --pink: #f98ba9;
+  --lavender: #d6beea;
+  --matcha: #b7c96a;
+  --tangerine: #ff8f45;
+
+  --paper: #f6efe0;          /* the ground: warm, never white */
+  --panel: #efe6d4;          /* the rail, a shade warmer than the page */
+  --card: #fffaf0;           /* a surface lifts by warming */
+  --card-veil: #fffaf0d9;
+  --ink: #3a3552;            /* violet-black; a shadow is never neutral */
+  --muted: #6a6585;
+  --faint: #938ead;
+  --line: rgba(58, 53, 82, .16);
+  --line-soft: rgba(58, 53, 82, .09);
+  --line-cool: rgba(58, 53, 82, .13);
+
+  --accent: var(--tangerine);
+  --accent-ink: #b5551a;
+  --accent-soft: #ffe9d6;
+  --warm: var(--butter);
+  --warm-soft: #fdf3d6;
+  --violet: #8d7fb8;
+
+  --serif: 'Fraunces', 'Songti SC', 'Noto Serif CJK SC', Georgia, serif;
+  --script: 'Pinyon Script', 'Fraunces', cursive;
+  --sans: 'Nunito', 'PingFang SC', 'Noto Sans SC', system-ui, sans-serif;
+
+  /* One hand-cut shape, three sizes. */
+  --wonk: 34px 52px 38px 56px / 46px 36px 54px 40px;
+  --wonk-sm: 18px 26px 20px 28px / 24px 18px 28px 20px;
+  --wonk-xs: 12px 17px 13px 18px / 15px 12px 18px 13px;
+  --pill: 999px 80px 999px 70px;
+}
+
+html { background: var(--paper); }
+body, .aha-home { background: var(--paper); font-family: var(--sans); color: var(--ink); }
+
+/* The brush filter's own SVG carries no size; this keeps it from taking a line. */
+.paint-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* ── letterforms ──────────────────────────────────────────────────────────
+   Fraunces is a variable face, and SOFT/WONK are the axes that make it read as
+   cut by hand rather than set by a machine. They are the reason this is the
+   font and not merely a serif. Chinese has no such axes, so under html[lang=zh]
+   the italic and the wonk come off -- a slanted Songti is a browser faking an
+   italic, which looks like a mistake rather than a voice. */
+h1, h2, h3,
+.aha-home .project h3,
+.home-start h1,
+.explore-card h3,
+dialog h2 {
+  font-family: var(--serif);
+  font-variation-settings: 'SOFT' 100, 'WONK' 1, 'opsz' 72;
+  font-optical-sizing: none;
+  letter-spacing: -.005em;
+  font-weight: 500;
+}
+.home-start h1 { font-style: italic; }
+.home-start h1 span { color: var(--tangerine); }
+html[lang="zh-CN"] h1,
+html[lang="zh-CN"] h2,
+html[lang="zh-CN"] h3 { font-style: normal; font-weight: 400; letter-spacing: .02em; }
+
+/* The wordmark is the one place the script face appears. More than one and it
+   stops being a signature. */
+.home-brand strong, .watch-brand span:last-child {
+  font: 400 30px/1 var(--script);
+  letter-spacing: 0;
+}
+.home-mark {
+  background: linear-gradient(135deg, var(--tangerine), var(--pink));
+  color: #fffaf0;
+  border-radius: 58% 42% 55% 45% / 45% 58% 42% 55%;
+}
+
+/* ── the ground and its rails ─────────────────────────────────────────── */
+.aha-home .sidebar {
+  background: linear-gradient(170deg, var(--panel), #f3ecdd);
+  border-right: 1px solid var(--line);
+}
+.aha-home .nav { border-radius: var(--wonk-xs); color: var(--muted); font-weight: 600; }
+.aha-home .nav:hover { background: #fffaf0a8; }
+.aha-home .nav.active {
+  background: linear-gradient(120deg, var(--butter), #f9e7a8);
+  color: var(--ink);
+  font-weight: 700;
+}
+.aha-home .topbar { color: var(--muted); }
+.aha-home .connection {
+  background: #fffaf0a8;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.local-avatar {
+  background: linear-gradient(135deg, var(--lavender), var(--sky));
+  border-radius: 55% 45% 52% 48%;
+  color: var(--ink);
+}
+.home-side-note span { font-family: var(--serif); font-style: italic; }
+
+/* ── torn-paper surfaces ──────────────────────────────────────────────────
+   The filtered layer sits behind the content, which is what keeps the type
+   crisp while the edge frays. */
+.paper-composer,
+.aha-home .project,
+.explore-card {
+  position: relative;
+  isolation: isolate;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+.paper-composer::before,
+.aha-home .project::before,
+.explore-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--card);
+  border-radius: var(--wonk);
+  box-shadow: 0 12px 34px -14px rgba(58, 53, 82, .3);
+  filter: url(#brush);
+}
+.aha-home .project::before, .explore-card::before { border-radius: var(--wonk-sm); }
+.paper-composer.dragging::before { background: #fdf6e4; box-shadow: 0 0 0 2px var(--matcha); }
+
+/* A cover photo still needs a straight-ish crop, or the image tears instead of
+   the paper. The card behind it is what frays. */
+.aha-home .project-cover { border-radius: var(--wonk-sm); overflow: hidden; }
+.aha-home .project:hover { transform: translateY(-3px) rotate(-.35deg); }
+.aha-home .project h3 { font-size: 15px; line-height: 1.5; }
+.aha-home .project-source, .aha-home .project-figures { color: var(--muted); }
+
+.explore-card {
+  color: var(--ink);
+  border-radius: 0;
+}
+.explore-card::before { background: linear-gradient(145deg, var(--lavender), var(--sky)); }
+.explore-figure::before { background: linear-gradient(145deg, var(--butter), var(--pink)); }
+.explore-card h3 { font-style: italic; }
+.explore-art { color: #fffaf07a; }
+
+/* ── the composer ─────────────────────────────────────────────────────── */
+.paper-composer textarea { color: var(--ink); font-family: var(--sans); }
+.paper-composer textarea::placeholder { color: var(--faint); }
+.attach-paper, .composer-time {
+  background: #fff6e2;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-weight: 700;
+}
+.attach-paper:hover, .composer-time:hover { background: var(--butter); color: var(--ink); }
+.composer-chip {
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-weight: 700;
+  background: #fffaf08a;
+}
+.composer-footnote, .composer-footnote button { color: var(--muted); }
+
+/* ── buttons ──────────────────────────────────────────────────────────── */
+.composer-submit,
+.aha-home .dialog-actions .primary,
+.dialog-actions .primary,
+.aha-home .project-footer .primary {
+  background: linear-gradient(120deg, var(--butter), var(--tangerine));
+  color: var(--ink);
+  border: 0;
+  border-radius: 999px;
+  font-weight: 700;
+  box-shadow: 0 6px 16px -6px rgba(255, 143, 69, .7);
+  transition: transform .25s cubic-bezier(.2, .7, .2, 1), box-shadow .25s;
+}
+.composer-submit:hover,
+.dialog-actions .primary:hover,
+.aha-home .project-footer .primary:hover { transform: translateY(-2px) rotate(-.6deg); }
+.composer-submit:disabled {
+  background: #ece3d2;
+  color: var(--faint);
+  box-shadow: none;
+  transform: none;
+}
+.small-button, .view-all, .aha-home .project-footer a, .recbtn {
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  background: #fffaf0a8;
+  color: var(--muted);
+  font-weight: 700;
+}
+.small-button:hover, .aha-home .project-footer a:hover { background: var(--butter); color: var(--ink); }
+
+/* ── focus chips ──────────────────────────────────────────────────────── */
+.starter-prompts button {
+  border: 1.5px solid var(--line);
+  background: #fffaf0a8;
+  color: var(--muted);
+  border-radius: var(--pill);
+  font-weight: 600;
+  transition: transform .2s cubic-bezier(.2, .7, .2, 1), background .2s;
+}
+.starter-prompts button:nth-child(even) { border-radius: 80px 999px 70px 999px; }
+.starter-prompts button:hover {
+  transform: translateY(-2px) rotate(-1deg);
+  background: linear-gradient(120deg, var(--butter), #fbe6ad);
+  color: var(--ink);
+}
+.starter-prompts button.prompt-manage { border-style: dashed; }
+.starter-prompts button.prompt-manage:hover { border-style: solid; }
+
+/* ── fields ───────────────────────────────────────────────────────────── */
+.aha-home .library-tools input,
+.search, .field input, .field select, .prompt-field input, .prompt-field textarea,
+.script-editor, .use-row select {
+  background: #fffaf0cc;
+  border: 1.5px solid var(--line);
+  border-radius: var(--wonk-xs);
+  color: var(--ink);
+  font-family: var(--sans);
+}
+.aha-home .library-tools input { border-radius: 999px; }
+input:focus, textarea:focus, select:focus { outline: 2.5px solid var(--tangerine); outline-offset: 2px; }
+a:focus-visible, button:focus-visible { outline: 2.5px solid var(--ink); outline-offset: 3px; }
+
+/* ── dialogs ──────────────────────────────────────────────────────────── */
+.aha-home dialog, dialog {
+  background: var(--card);
+  border: 0;
+  border-radius: var(--wonk);
+  box-shadow: 0 24px 60px -24px rgba(58, 53, 82, .5);
+  color: var(--ink);
+}
+dialog::backdrop { background: rgba(58, 53, 82, .3); backdrop-filter: blur(3px); }
+dialog h2 { font-style: italic; }
+html[lang="zh-CN"] dialog h2 { font-style: normal; }
+dialog p, .dialog-status { color: var(--muted); }
+.settings-card, .provider-card, .conn-row, .use-row, .prompt-row, .rec {
+  border: 1.5px solid var(--line);
+  border-radius: var(--wonk-sm);
+  background: #fff7e8a8;
+}
+.switch-row input { accent-color: var(--tangerine); }
+
+/* ── the run log ──────────────────────────────────────────────────────── */
+.log {
+  background: #fff7e6;
+  border: 1.5px solid var(--line);
+  border-radius: var(--wonk-sm);
+  color: var(--ink);
+}
+.log-progress { background: rgba(58, 53, 82, .12); border-radius: 99px; }
+/* No text in the bar, so it can carry the brush itself. */
+.log-progress i {
+  background: linear-gradient(90deg, var(--sky), var(--pink), var(--tangerine));
+  filter: url(#brush);
+}
+.log-dialog.is-running .log-live::before { background: var(--matcha); }
+.log-head b { font-family: var(--serif); font-style: italic; font-size: 15px; }
+html[lang="zh-CN"] .log-head b { font-style: normal; }
+
+/* ── odds and ends ────────────────────────────────────────────────────── */
+.aha-home .toast, .toast {
+  background: var(--ink);
+  color: #fff8e8;
+  border-radius: 999px;
+  font-weight: 700;
+}
+.status-dot { background: var(--matcha); }
+.aha-home .empty { border: 2px dashed var(--line); border-radius: var(--wonk); background: none; }
+.aha-home .empty h3 { font-family: var(--serif); font-style: italic; }
+.aha-home footer { color: var(--faint); }
+.nav-divider { background: var(--line); }
+
+/* ── the player ───────────────────────────────────────────────────────── */
+.theatre, .video-shell { background: var(--paper); }
+.watch-brand span:first-child {
+  background: linear-gradient(135deg, var(--tangerine), var(--pink));
+  border-radius: 58% 42% 55% 45% / 45% 58% 42% 55%;
+  color: #fffaf0;
+}
+.chapter { border-radius: var(--wonk-xs); }
+.chapter.active { background: linear-gradient(120deg, var(--butter), #f9e7a8); }
+.chapter.active .chapter-title { color: var(--ink); }
+.segment-caption h2 { font-family: var(--serif); font-style: italic; }
+html[lang="zh-CN"] .segment-caption h2 { font-style: normal; }
+
+@media (prefers-reduced-motion: reduce) {
+  .aha-home .project:hover,
+  .starter-prompts button:hover,
+  .composer-submit:hover { transform: none; }
+}

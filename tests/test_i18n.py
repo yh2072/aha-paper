@@ -353,9 +353,20 @@ class DictionaryTests(unittest.TestCase):
 
     def test_a_placeholder_translates_a_known_value(self):
         """Placeholders mostly carry numbers and file names, but a step name that is
-        already a key should not come back Chinese inside an English sentence."""
-        self.assertIn('DICT[m[++i]] ?? m[i]', I18N)
+        already a key should not come back Chinese inside an English sentence.
+
+        The fill is the full lookup rather than a dictionary hit, because a
+        placeholder can carry a whole message: a log line's '{}' may hold a
+        validation error that is itself a RULES template, and a dictionary-only
+        fill would leave the inner half of the sentence Chinese."""
+        self.assertIn('lookup(value)', I18N)
         self.assertIn('生成分镜', DICT)
+
+    def test_a_placeholder_fill_cannot_recurse_forever(self):
+        """A degenerate template '{}' would capture its whole input, and a
+        recursive fill on it would never terminate."""
+        self.assertIn('value === text', I18N)
+        self.assertEqual([zh for zh, _ in RULES if zh.strip() == '{}'], [])
 
     def test_a_placeholder_does_not_cross_a_line_break(self):
         """'导出完成 → {}' must not swallow the per-file lines that follow it."""

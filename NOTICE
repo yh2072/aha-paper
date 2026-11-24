@@ -49,6 +49,17 @@ ZCOOL KuaiLe · 站酷快乐体 — fonts/ZCOOLKuaiLe-Regular.ttf
     https://fonts.google.com/specimen/ZCOOL+KuaiLe
 
 --------------------------------------------------------------------------------
+Fraunces, Nunito, Pinyon Script — web/paint.css（运行时从 Google Fonts 载入）
+
+    Licensed under the SIL Open Font License, Version 1.1.
+    全文见 fonts/OFL.txt · Full licence text in fonts/OFL.txt
+    由浏览器从 fonts.googleapis.com 载入，不随本仓库或安装包分发。
+    Loaded by the browser from fonts.googleapis.com; not redistributed here.
+    https://fonts.google.com/specimen/Fraunces
+    https://fonts.google.com/specimen/Nunito
+    https://fonts.google.com/specimen/Pinyon+Script
+
+--------------------------------------------------------------------------------
 RISO colour palette — web/refine.css
 
     MIT License, Copyright (c) 2026 sevenevesai.

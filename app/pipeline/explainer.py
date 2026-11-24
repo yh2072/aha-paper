@@ -21,7 +21,7 @@ def build(project_dir:Path,meta:dict,log=print,progress=None):
         # A chapter with no figure reads the paper itself. There is no second
         # renderer: every picture on screen is either the paper's own figure or
         # the paper's own page.
-        page_highlight.prepare(scenes,project_dir,work,log=log)
+        page_highlight.prepare(scenes,project_dir,work,log=log,profile=profile)
     prefix='/files/'+quote(project_dir.name,safe='')+'/'
     segments=[];start=0.0;audio=[]
     for i,scene in enumerate(scenes):
@@ -62,6 +62,14 @@ def build(project_dir:Path,meta:dict,log=print,progress=None):
         elif (project_dir/'paper.pdf').exists():
             stored=json.loads(Path(scene['page_plan']).read_text(encoding='utf-8')) if scene.get('page_plan') else {}
             highlights=(stored.get('highlights') or [])
+            # One highlight per cue, by position. A count that does not match
+            # means the plan was made from a different split of this narration,
+            # and padding it would silently mark the wrong source sentence for
+            # every cue after the first. Showing the page with nothing marked is
+            # a worse-looking failure and an honest one.
+            if highlights and len(highlights)!=len(cues):
+                log(f'  章节{i+1}：原文高亮{len(highlights)}条对不上{len(cues)}句讲解，这一章只显示页面')
+                highlights=[]
             highlights=(highlights+[None]*len(cues))[:len(cues)]
             used=sorted({h['page'] for h in highlights if h})
             # Nothing matched: show the pages this chapter cites rather than nothing.

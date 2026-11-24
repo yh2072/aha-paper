@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 from PIL import Image
 from pypdf import PdfReader
-from .. import lang, llm
+from .. import config, lang, llm
 from . import outline
 from .figures import _png_bytes
 
@@ -86,11 +86,26 @@ def validate_outline(outline,figs,page_count,plan=None,allowed_pages=None,profil
             'image_prompt':str(chapter.get('visual_concept',''))[:400],
             'source_pages':sorted(set(pages)), 'figure':figure})
     total=sum(len(s['text']) for s in scenes)
-    if not plan['low']<=total<=plan['high']:
-        raise ValueError(f"深度正文需{plan['low']}–{plan['high']}字（约{plan['minutes']}分钟），当前{total}字")
+    # The floor and the ceiling are not the same kind of rule, and treating them
+    # alike is what made a slightly long draft cost a whole extra generation.
+    #
+    # Under the floor, a summary is passing as a deep explainer -- the one thing
+    # this pipeline exists to prevent. Fatal.
+    #
+    # Over the ceiling, the explainer simply runs longer than asked. That is a
+    # preference, and rewriting the whole article to satisfy a preference costs
+    # a full model call. So it is accepted, and the real length is reported.
+    # Only a runaway draft -- twice the target, which means the model lost the
+    # brief rather than overshot it -- is still refused.
+    if total<plan['low']:
+        raise ValueError(f"深度正文需至少{plan['low']}字（约{plan['minutes']}分钟），当前{total}字")
+    if total>plan['target']*2:
+        raise ValueError(f"深度正文{total}字远超{plan['target']}字的目标，疑似失控，请重试")
     if len(allowed)>=3 and len({s['figure'] for s in scenes if s['figure']})<3:
         raise ValueError('深度讲解必须覆盖至少3张关键真实主图')
     return {'title':str(outline.get('title') or profile.default_title)[:40],
+        'minutes_estimate':round(total/profile.chars_per_minute,1),
+        'over_budget':total>plan['high'],
         'subtitle':str(outline.get('subtitle') or '')[:80],
         'cover_prompt':str(outline.get('cover_prompt') or 'Scientific discovery and careful reasoning'),
         'scenes':scenes, 'total_chars':total,
@@ -138,10 +153,18 @@ def generate(pdf_path:Path,figs:list,fig_dir:Path,log=print,guidance="",minutes=
     messages=[{'role':'system','content':profile.persona},{'role':'user','content':content}]
     log(f'  深度科普：规划约{plan["target"]}字、{plan["chapters_low"]}–{plan["chapters_high"]}章（口播约{plan["minutes"]}分钟）')
     draft=llm.chat_json(messages,temperature=.45)
-    audit_prompt=profile.audit(plan)
-    log('  深度科普：独立核对方法、数据、主图与来源页码')
-    reviewed=llm.chat_json(messages+[{'role':'assistant','content':json.dumps(draft,ensure_ascii=False)},
-        {'role':'user','content':audit_prompt}],temperature=.2)
+    if config.SCRIPT_AUDIT:
+        log('  深度科普：独立核对方法、数据、主图与来源页码')
+        reviewed=llm.chat_json(messages+[{'role':'assistant','content':json.dumps(draft,ensure_ascii=False)},
+            {'role':'user','content':profile.audit(plan)}],temperature=.2)
+    else:
+        log('  深度科普：跳过独立核对（可在设置里打开）')
+        reviewed=draft
+    # A structure repair is about length and chapter count, not about what the
+    # figures show. Re-sending six base64 images to settle an arithmetic problem
+    # pays the slowest part of the request twice, so the repair carries the text
+    # only -- the paper included, because the rewrite still has to be accurate.
+    lean=[messages[0],{'role':'user','content':[part for part in content if part['type']=='text']}]
     for attempt in range(2):
         try:
             board=validate_outline(reviewed,figs,len(pages),plan=plan,
@@ -149,11 +172,16 @@ def generate(pdf_path:Path,figs:list,fig_dir:Path,log=print,guidance="",minutes=
         except ValueError as error:
             if attempt:raise
             log('  深度文稿结构修正: '+str(error))
-            reviewed=llm.chat_json(messages+[{'role':'assistant','content':json.dumps(reviewed,ensure_ascii=False)},
+            reviewed=llm.chat_json(lean+[{'role':'assistant','content':json.dumps(reviewed,ensure_ascii=False)},
                 {'role':'user','content':profile.repair(error)}],temperature=.2)
     board['doi']=doi
     board['page_count']=len(pages)
     board['lang']=profile.code
     for change in board['corrections']:log('  深度核对: '+str(change))
+    if board['over_budget']:
+        # Accepted, not hidden: the explainer will run longer than was asked for,
+        # and the person waiting for it should hear that from the log rather than
+        # from the finished audio.
+        log(f"  讲解会比要求的长：{board['total_chars']}字 ≈ {board['minutes_estimate']}分钟（目标{plan['minutes']}分钟）")
     log(f"  深度正文完成：{board['total_chars']}字，{len(board['scenes'])}章，来源页码已附")
     return board

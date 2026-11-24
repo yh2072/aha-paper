@@ -39,6 +39,7 @@ def _use_status():
 
 def public_settings():
     return {'configured':bool(config.API_KEY),'model_text':config.MODEL_TEXT,
+        'script_audit':config.SCRIPT_AUDIT,
         'model_cover':config.MODEL_COVER,
         'voice':config.EDGE_TTS_VOICE,'rate':config.EDGE_TTS_RATE,
         'uses':_use_status(),
@@ -52,6 +53,14 @@ def save_settings(values):
         'image_protocol':('IMAGE_PROTOCOL','IMAGE_PROTOCOL'),'voice':('EDGE_TTS_VOICE','EDGE_TTS_VOICE'),'rate':('EDGE_TTS_RATE','EDGE_TTS_RATE'),
         'language_provider':('LANGUAGE_PROVIDER','LANGUAGE_PROVIDER'),'image_provider':('IMAGE_PROVIDER','IMAGE_PROVIDER'),
         }
+    # A switch, not a string: it has no length, no format and no provider to
+    # validate against, so it is written before the loop below rather than
+    # threaded through validations that mean nothing for a boolean.
+    if values.get('script_audit') is not None:
+        flag='1' if values['script_audit'] in (True,'1','true','on','yes') else '0'
+        set_key(str(config.ENV_FILE),'AHA_SCRIPT_AUDIT',flag)
+        os.environ['AHA_SCRIPT_AUDIT']=flag
+        config.SCRIPT_AUDIT=(flag=='1')
     pending=[]
     for field,(env,attr) in mapping.items():
         value=values.get(field)

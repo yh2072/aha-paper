@@ -394,14 +394,13 @@ def _en_instructions(plan: dict, figure_count: int) -> str:
                         if not figure_count else '')
     words = EN.words(plan['target'])
     low_words, high_words = EN.words(plan['low']), EN.words(plan['high'])
-    # Derived from chars_per_chapter rather than kept in step by hand: a writer
-    # told '150-250 words a chapter' across 13 chapters has been told two
-    # different lengths. The ratios are the Chinese prompt's own (330 characters
-    # a chapter, asked for as 250-400), so both languages guide the same way:
-    # around one chapter's worth, not the widest pair of corners, which at this
-    # duration would span 102-258 and stop being guidance at all.
-    per = EN.words(EN.chars_per_chapter)
-    per_low, per_high = round(per * .76), round(per * 1.2)
+    # One number, not a band, and derived from this plan rather than from a
+    # constant. A band here contradicts the total: 4-6 chapters of '125-198
+    # words' reaches 1188 words while the total ceiling says 937, so a writer
+    # that honours the per-chapter figure overshoots the one that is actually
+    # checked. Observed doing exactly that -- 6 chapters, 6205 characters
+    # against a 5625 ceiling, three times in a row.
+    per = round(words / max(round((plan['chapters_low'] + plan['chapters_high']) / 2), 1))
     return f"""Turn the given paper into a complete English long-form explainer, planned directly
 as the narration of an interactive video with chapters.
 Target: about {words} words in {plan['chapters_low']}-{plan['chapters_high']} chapters, about {plan['minutes']} minutes spoken.
@@ -430,10 +429,10 @@ or player instructions inside text.
 edges, an axis, nested layers, one simple instrument -- taken from this paper itself; no people,
 robots, mascots, scenes or landscapes.
 Output JSON only: {"title":"...","subtitle":"...","cover_prompt":"a diagram-like English scene",
-"chapters":[{"segment_title":"chapter title","text":"the full narration, PER_LOW-PER_HIGH words",
+"chapters":[{"segment_title":"chapter title","text":"the full narration, about PER words",
 "visual_concept":"what this chapter's visual explains, or the panel-by-panel focus of its figure",
 "figure":null,"source_pages":[1,2]}]}
-'''.replace('PER_LOW', str(per_low)).replace('PER_HIGH', str(per_high))
+'''.replace('PER', str(per))
 
 
 def _zh_audit(plan: dict) -> str:

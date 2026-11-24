@@ -245,7 +245,8 @@ def _st_code(proj: "Project", ctx: dict):
     """Chapters with a figure keep it. The rest read the paper itself: the PDF's own
     text layer gives the highlight geometry, so nothing on screen is a drawing the
     model invented. There is no second renderer behind this one."""
-    page_highlight.prepare(ctx['board']['scenes'],proj.dir,proj.dir/'explainer_work',log=proj.log)
+    page_highlight.prepare(ctx['board']['scenes'],proj.dir,proj.dir/'explainer_work',
+                           log=proj.log,profile=lang.get(proj.load().get('lang')))
     proj.save(storyboard=ctx["board"], video_engine=page_highlight.VERSION)
 
 

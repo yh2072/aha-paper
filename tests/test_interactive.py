@@ -5,6 +5,7 @@ that has to stay exact: a seek position is a real rendered duration or it is
 nothing at all, and the bundle a reader downloads reaches no network and carries
 no credential.
 """
+import re
 import tempfile
 import unittest
 import zipfile
@@ -55,5 +56,16 @@ class ManifestTests(unittest.TestCase):
                 # from disk has no network to fetch /assets/ from.
                 self.assertIn('emoji/1f5a5.svg', archive.namelist())
                 self.assertIn('emoji/LICENSE.txt', archive.namelist())
+                # Every stylesheet the page names has to be in the archive, or
+                # the bundle opens unstyled. paint.css was added to the page and
+                # not to the list, and this is what caught it.
+                for sheet in re.findall(r'<link[^>]+href="([^"]+\.css[^"]*)"', html):
+                    self.assertFalse(sheet.startswith(('http', '/')), sheet)
+                    self.assertIn(sheet.split('?')[0], archive.namelist())
+                # README promises the bundle plays offline with no server. A
+                # single external reference makes that false -- and costs a DNS
+                # timeout before the page paints.
+                self.assertNotIn('http://', html)
+                self.assertNotIn('https://', html)
 
 if __name__=='__main__':unittest.main()

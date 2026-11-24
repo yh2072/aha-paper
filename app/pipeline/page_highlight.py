@@ -439,11 +439,19 @@ def relocate(pdf_path, highlights):
     return out
 
 
-def prepare(scenes, project_dir, work_dir, log=print):
+def prepare(scenes, project_dir, work_dir, log=print, profile=None):
     """Plan the paper-reading view for every chapter that has no figure.
 
     Runs before narration timing because it only needs the clause split, and the
-    result is cached so a re-run costs nothing."""
+    result is cached so a re-run costs nothing.
+
+    profile has to be the project's own: the highlights produced here are zipped
+    onto the player's cues position by position, so a clause split that differs
+    from the one explainer.py uses does not degrade the result, it shifts every
+    highlight onto the wrong line of narration. An English chapter split by the
+    Chinese rule yielded 2-4 clauses against 7-8 cues, which is how the paper
+    came to be marking sentences the voice was not explaining.
+    """
     from .cue_alignment import units
     pdf = project_dir / 'paper.pdf'
     if not pdf.exists():
@@ -456,7 +464,7 @@ def prepare(scenes, project_dir, work_dir, log=print):
         pages = [n for n in (scene.get('source_pages') or []) if isinstance(n, int)]
         if not pages:
             continue
-        clauses = units(scene['text'])
+        clauses = units(scene['text'], profile)
         path = work_dir / f'seg_{index:02d}.pages.json'
         key = hashlib.sha256(json.dumps([clauses, pages, identity()],
                                         ensure_ascii=False).encode()).hexdigest()

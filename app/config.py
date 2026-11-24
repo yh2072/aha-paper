@@ -49,6 +49,12 @@ MODEL_HUMANIZER = os.getenv("OPENAI_MODEL_HUMANIZER", "openai/gpt-5.6-sol-pro")
 SCRIPT_ITERATIONS = 3          # 初稿 + 最多 N 轮「评审→修改」
 SCRIPT_PASS_SCORE = 8.5        # 评审平均分达到即提前收工
 
+# 独立核对那一轮：把整篇重写一遍，对着原文和真图核数值、图号和来源页码。
+# 它是质量最高的一道关卡，也是整条流水线最慢的一步——实测 145 秒，占文稿
+# 阶段的一半还多。默认关：写作人格里的准确性约束仍然在，少的是第二双眼睛。
+# 想要那道关卡时在「模型与声音」里打开，或设 AHA_SCRIPT_AUDIT=1。
+SCRIPT_AUDIT = os.getenv("AHA_SCRIPT_AUDIT", "0").strip().lower() in ("1", "true", "yes", "on")
+
 MODEL_COVER = os.getenv("OPENROUTER_MODEL_COVER", "openai/gpt-image-2")
 EDGE_TTS_VOICE = os.getenv("EDGE_TTS_VOICE", "zh-CN-XiaoxiaoNeural")
 EDGE_TTS_RATE = os.getenv("EDGE_TTS_RATE", "+0%")

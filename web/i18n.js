@@ -9,9 +9,15 @@
    never matches a key, and studio.js / watch.js / the backend need no edits.
 
    Deliberately NOT translated, because they are the film and not the interface:
-   narration, subtitles, chapter titles and summaries, the animation canvas
+   narration, subtitles, chapter titles and summaries, and the animation canvas
    (motion-diagrams.js also matches Chinese narration with regexes -- translating
-   it would break which animation gets chosen), and the creation log. */
+   it would break which animation gets chosen).
+
+   The run log used to be on that list, on the grounds that a <pre> holds data.
+   It does not: the pipeline writes those lines for a person to read while they
+   wait. They are translated, but not by the observer -- <pre> stays in SKIP,
+   and studio.js calls t() on each line after splitting off the [HH:MM:SS] stamp
+   and the indentation, so what the dictionary is asked about is the message. */
 (function () {
   const STORE = 'ahaLang';
   const HAN = /[㐀-䶿一-鿿]/;
@@ -419,6 +425,36 @@
     '保存预设': 'Save preset',
     '预设已保存': 'Preset saved',
     '预设已删除': 'Preset deleted',
+
+    /* ---- the run log ----
+       Written to log.txt in Chinese by the pipeline, and rendered by studio.js
+       through t() a line at a time, with the [HH:MM:SS] stamp split off first.
+       So the key here is the trimmed message: no stamp, no leading indent. */
+    '深度科普：独立核对方法、数据、主图与来源页码':
+      'Deep explainer: independently checking method, data, figures and source pages',
+    '复用 Edge TTS 配音': 'Reusing the cached Edge TTS narration',
+    '（复用缓存配音）': '(reusing cached narration)',
+    '视觉兜底：这篇确实没有可讲的主图': 'Visual fallback: this paper really has no figure worth explaining',
+    '这几页没有可用的文字层，跳过原文高亮':
+      'These pages have no usable text layer; skipping source highlighting',
+    '没有 paper.pdf，跳过原文高亮': 'No paper.pdf, so source highlighting is skipped',
+    '（已在队列中，忽略重复触发）': '(already queued — ignoring the repeat)',
+    '使用 faster-whisper 做词级对齐…': 'Aligning word by word with faster-whisper…',
+    '合成数字人圆形角标…': 'Compositing the circular avatar badge…',
+    '叠加顶部进度条…': 'Overlaying the progress bar…',
+
+    /* ---- the run log: the dialog around it ---- */
+    '尚未开始生成。': 'Nothing has been generated yet.',
+    '实时跟踪中': 'Live',
+
+    /* ---- script length and the audit switch ---- */
+    '深度科普：跳过独立核对（可在设置里打开）':
+      'Deep explainer: skipping the independent check (switch it on in settings)',
+    '文稿质量 · 速度': 'Script quality · speed',
+    '多一道独立核对，还是快一点出结果': 'One more independent check, or a faster result',
+    '独立核对这一轮': 'The independent check',
+    '写完后再对着原文和真图核一遍数值、图号和来源页码。实测约多花 2 分钟，是整条流水线最慢的一步。关掉时写作人格里的准确性约束仍然生效。':
+      'After the draft, check the numbers, figure labels and source pages once more against the paper and the real figures. Measured at about 2 extra minutes — the slowest step in the pipeline. With it off, the accuracy constraints in the writing persona still apply.',
   };
 
   /* Interpolated strings. A template's {} matches one run of text; the English
@@ -519,6 +555,68 @@
     ['Edge TTS 音频转换失败: {}', 'Edge TTS audio conversion failed: {}'],
     ['讲解重点请控制在{}字以内', 'Keep the focus under {} characters'],
     ['自定义预设最多{}条，请先删掉一些', 'At most {} custom presets — delete some first'],
+    /* ---- the run log, interpolated ---- */
+    ['主图提取失败（继续无图流程）: {}', 'Figure extraction failed (continuing without figures): {}'],
+    ['{} 定位到相关子图 {}', '{} located the relevant subpanel {}'],
+    ['跳过「{}」（已有产出）', 'Skipping “{}” — already produced'],
+    ['「{}」失败: {}', '“{}” failed: {}'],
+    ['⚠ 重试了上游环节，这些下游产物可能已对不上，需要时请单独重试：{}',
+      '⚠ An upstream step was redone, so these downstream results may no longer match; retry them individually if needed: {}'],
+    ['讲图时段隐藏人像: {}', 'Avatar hidden while a figure is being explained: {}'],
+    ['whisper 对齐失败，退回比例对齐: {}',
+      'Whisper alignment failed; falling back to proportional alignment: {}'],
+    ['比例对齐：说话区间 {}s ~ {}s / 总长 {}s',
+      'Proportional alignment: speech from {}s to {}s of {}s total'],
+    ['跟随式光标动画 {}（{}帧）✓', 'Following cursor animation {} ({} frames) ✓'],
+    ['光标动画 {} ✓', 'Cursor animation {} ✓'],
+    ['AI Image 封面 · {}', 'AI image cover · {}'],
+    ['只讲选定的 {} 个小节：{} 页，{} 张主图',
+      'Explaining only the {} selected sections: {} pages, {} figures'],
+    ['深度科普：规划约{}字、{}–{}章（口播约{}分钟）',
+      'Deep explainer: planning about {} characters in {}–{} chapters (about {} minutes spoken)'],
+    ['深度文稿结构修正: {}', 'Narration structure corrected: {}'],
+    ['深度核对: {}', 'Accuracy check: {}'],
+    ['深度正文完成：{}字，{}章，来源页码已附',
+      'Narration complete: {} characters, {} chapters, source pages attached'],
+    ['分段合成数字人角标（{} 段出镜）…', 'Compositing the avatar badge per segment ({} on camera)…'],
+    ['合成：开头 {}s 全屏人像 → {} 段素材在框内 + 圆形人像压顶…',
+      'Compositing: {}s full-screen presenter, then {} clips in frame with the circular avatar on top…'],
+    ['实时章节 {}/{}：配音与同步，不渲染视频帧',
+      'Live chapter {}/{}: narration and sync, no video frames rendered'],
+    ['实时互动讲解完成：{}章，{}分钟；无需渲染MP4',
+      'Interactive explainer finished: {} chapters, {} minutes — no MP4 needed'],
+    ['ONNX 检出主图 {} 张', 'ONNX detected {} figures'],
+    ['视觉兜底：选页失败（{}），按无图流程继续',
+      'Visual fallback: page selection failed ({}); continuing without figures'],
+    ['视觉兜底：第 {} 页可能有主图，逐页定位…',
+      'Visual fallback: page {} may hold a figure; locating page by page…'],
+    ['第{}页定位失败: {}', 'Locating page {} failed: {}'],
+    ['视觉兜底：补到 {} 张主图', 'Visual fallback: recovered {} figures'],
+    ['pdfium 标题搜索失败: {}', 'pdfium title search failed: {}'],
+    ['标题截图 {}x{} ✓', 'Title screenshot {}x{} ✓'],
+    ['标题截图失败: {}', 'Title screenshot failed: {}'],
+    ['选帧失败用中间帧: {}', 'Frame selection failed; using the middle frame: {}'],
+    ['头像选帧 t={}s ✓', 'Avatar frame chosen at t={}s ✓'],
+    ['图注生成失败 {}: {}', 'Caption generation failed for {}: {}'],
+    ['剔除非插图（标题横幅/页眉等）：{}', 'Dropped non-figures (title banners, headers): {}'],
+    ['逐句区域映射失败: {}', 'Per-sentence region mapping failed: {}'],
+    ['原文高亮 {}/{} 句，关键词 {} 处（共 {} 句可选）',
+      'Source highlighting: {}/{} sentences, {} keyword hits ({} sentences available)'],
+    ['章节{}：绘制参数变了，就地重算位置，没有再请求模型',
+      'Chapter {}: drawing parameters changed, so positions were recomputed locally without calling the model'],
+    ['原文定位：章节{}，{}句，PDF 第{}页', 'Source located: chapter {}, {} sentences, PDF page {}'],
+    ['原文定位失败，改用示意图: {}', 'Source location failed; using a schematic instead: {}'],
+    ['TTS 配音 {}/{}…', 'TTS narration {}/{}…'],
+    ['步骤 {}/{}', 'Step {} of {}'],
+    ['已运行 {}', 'Running for {}'],
+    ['深度正文需至少{}字（约{}分钟），当前{}字',
+      'The narration needs at least {} characters (about {} minutes); this one has {}'],
+    ['深度正文{}字远超{}字的目标，疑似失控，请重试',
+      'The narration ran to {} characters against a {} target — that looks like a lost brief; please retry'],
+    ['讲解会比要求的长：{}字 ≈ {}分钟（目标{}分钟）',
+      'The explainer will run longer than asked: {} characters ≈ {} minutes (target {} minutes)'],
+    ['章节{}：原文高亮{}条对不上{}句讲解，这一章只显示页面',
+      'Chapter {}: {} source highlights do not line up with {} narration cues, so this chapter just shows the page'],
   ];
 
   const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -539,7 +637,21 @@
       // A placeholder usually holds a number or a file name, which passes through
       // untouched -- but it can hold a stage name the dictionary already knows,
       // as in 只重做「生成分镜」.
-      if (m) { let i = 0; return en.replace(/\{\}/g, () => DICT[m[++i]] ?? m[i]); }
+      // A placeholder holds a number or a file name most of the time, and those
+      // pass through untouched. But it can also hold a whole message: the log
+      // line '深度文稿结构修正: {}' carries a validation error that is itself a
+      // translatable template. So the fill is the full lookup, recursively,
+      // not just a dictionary hit -- otherwise the outer half of the sentence
+      // turns English and the inner half stays Chinese.
+      if (m) {
+        let i = 0;
+        return en.replace(/\{\}/g, () => {
+          const value = m[++i];
+          // Guard the degenerate template '{}', whose capture is the whole
+          // input and would recurse forever.
+          return (value === text ? undefined : lookup(value)) ?? value;
+        });
+      }
     }
     return undefined;
   }

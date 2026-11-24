@@ -7,6 +7,7 @@ line and nothing in the product says so. That failure cannot be caught by
 listening to it, which is why it is pinned by assertion instead.
 """
 import unittest
+from pathlib import Path
 
 from app import lang
 from app.pipeline import cue_alignment, deep_script, tts
@@ -330,6 +331,64 @@ class EnglishBuildEndToEnd(unittest.TestCase):
         self.assertTrue(tts.voice_of(asked['profile']).startswith('zh-'))
         self.assertEqual(
             ''.join(c['text'] for c in manifest['segments'][0]['cues']), text)
+
+
+class EveryCallerDeclaresTheLanguage(unittest.TestCase):
+    """The narration's language has to travel to every module that cuts it up.
+
+    What this pins actually shipped. page_highlight.prepare called units(text)
+    with no profile, so an English chapter was cut by the Chinese rule into 2-4
+    clauses while the player drove its cursor from 7-8. The highlights are
+    zipped onto the cues by position, so every highlight landed on a line of
+    narration it did not belong to -- the paper marked sentences the voice was
+    not explaining -- and nothing raised, logged or looked wrong in a test.
+
+    A grep for 'cue_alignment.units(' missed it, because that call site imports
+    the bare name. So this walks the syntax tree instead of the text.
+    """
+
+    LANGUAGE_DEPENDENT = {'units', 'split_sentences', 'cache_identity',
+                          'synthesize_sentences', 'prepare'}
+
+    def calls(self):
+        import ast
+        root = Path(__file__).resolve().parent.parent / 'app'
+        for path in sorted(root.rglob('*.py')):
+            tree = ast.parse(path.read_text(encoding='utf-8'))
+            defined = {n.name for n in ast.walk(tree)
+                       if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Call):
+                    continue
+                func = node.func
+                name = (func.attr if isinstance(func, ast.Attribute)
+                        else func.id if isinstance(func, ast.Name) else None)
+                if name in self.LANGUAGE_DEPENDENT and name not in defined:
+                    yield path.name, node.lineno, name, node
+
+    def test_no_call_falls_back_to_chinese_by_omission(self):
+        import ast
+        offenders = []
+        for filename, line, name, node in self.calls():
+            named = {kw.arg for kw in node.keywords}
+            # Either a keyword, or the profile passed positionally after the text.
+            declared = ('profile' in named or 'lang_code' in named
+                        or len(node.args) >= 2
+                        or (len(node.args) == 1
+                            and isinstance(node.args[0], ast.Name)
+                            and node.args[0].id == 'profile'))
+            if not declared:
+                offenders.append(f'{filename}:{line} {name}()')
+        self.assertEqual(offenders, [], 'these would silently narrate in Chinese: '
+                                        + ', '.join(offenders))
+
+    def test_the_guard_itself_sees_the_calls(self):
+        """A test that scans for offenders is worthless if its scan finds
+        nothing at all, so the scan has to prove it reaches real call sites."""
+        found = {name for _, _, name, _ in self.calls()}
+        self.assertIn('units', found)
+        self.assertIn('prepare', found)
+        self.assertIn('split_sentences', found)
 
 
 if __name__ == '__main__':

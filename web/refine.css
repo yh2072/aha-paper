@@ -510,3 +510,27 @@ dialog { box-shadow: 0 24px 64px #4a447326; }
   border: 1px solid var(--line); border-radius: 11px; background: var(--panel); color: var(--ink);
   resize: vertical; box-sizing: border-box;
 }
+
+/* 运行日志：标题行、进度条、实时标记。
+   日志正文仍是 <pre>（i18n.js 的 SKIP 名单里），由 studio.js 逐行翻译后写入，
+   所以这里只管它外面那一圈。 */
+.log-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin: 16px 0 10px; }
+.log-head b { font-size: 13px; font-weight: 600; display: block; }
+.log-head small { display: block; font-size: 10px; color: var(--muted); margin-top: 5px; }
+.log-live { display: none; flex: none; font-size: 9px; color: var(--muted); letter-spacing: .4px; }
+.log-dialog.is-running .log-live { display: flex; align-items: center; gap: 6px; }
+.log-dialog.is-running .log-live::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: #7fae2b; animation: log-pulse 1.6s ease-in-out infinite;
+}
+@keyframes log-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .log-dialog.is-running .log-live::before { animation: none; } }
+.log-progress { height: 3px; border-radius: 3px; background: var(--line); overflow: hidden; margin-bottom: 12px; }
+.log-progress i { display: block; height: 100%; background: #a8d93a; border-radius: 3px; transition: width .4s ease; }
+.log-empty { font-size: 11px; color: var(--faint); margin: 10px 0 4px; }
+
+/* 设置里的开关行：复选框 + 标题 + 一段说明。 */
+.switch-row { display: flex; gap: 11px; align-items: flex-start; cursor: pointer; }
+.switch-row input { margin-top: 3px; flex: none; width: 15px; height: 15px; accent-color: #a8d93a; }
+.switch-row b { font-size: 12px; font-weight: 600; display: block; }
+.switch-row small { display: block; font-size: 10px; line-height: 1.8; color: var(--muted); margin-top: 5px; }

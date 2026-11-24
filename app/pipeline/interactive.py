@@ -14,9 +14,17 @@ from . import tts
 # listing them twice let i18n.js be referenced but not shipped.
 # The flat emoji the watch page uses are served from web/emoji; a bundle opened
 # from disk has no network, so the ones it references travel with it.
-BUNDLE_ASSETS=('watch.css','refine.css','watch.js',
+BUNDLE_ASSETS=('watch.css','refine.css','paint.css','watch.js',
                'explainer-player.js','i18n.js',
                'emoji/1f5a5.svg','emoji/LICENSE.txt')
+
+# The painterly skin asks for three web fonts. The studio can fetch them; a
+# bundle opened from a file:// path cannot, and leaving the <link> in buys a
+# DNS timeout before the page paints for fonts that will never arrive. So the
+# export drops them and the bundle falls through to the serif and sans
+# fallbacks already named in paint.css -- Songti/Georgia and PingFang.
+_WEBFONT_LINK=re.compile(
+    r'<link[^>]+href="https://fonts\.(?:googleapis|gstatic)\.com[^"]*"[^>]*>')
 
 def _text(value,limit=300):
     return str(value or '').strip()[:limit]
@@ -88,6 +96,7 @@ def export_bundle(project_dir,meta):
     html=(config.ROOT/'web/watch.html').read_text()
     for name in BUNDLE_ASSETS:
         html=html.replace('/assets/'+name,name)
+    html=_WEBFONT_LINK.sub('',html)
     html=html.replace('</head>','<script type="application/json" id="experienceData">'+raw+'</script></head>')
     path=project_dir/'aha-paper-interactive.zip'
     with zipfile.ZipFile(path,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=1) as bundle:
