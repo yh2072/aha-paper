@@ -23,6 +23,18 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
+      # ffmpeg is a real dependency of the suite, not a nicety: explainer.build
+      # concatenates the narration with it, and app/bin.py's resolution tests
+      # ask the OS where it is. Installed from each platform's own package
+      # manager rather than a third-party action, so the only actions this
+      # workflow trusts are GitHub's own.
+      - name: Install ffmpeg
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          else
+            brew install ffmpeg
+          fi
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
