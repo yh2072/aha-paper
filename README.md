@@ -5,9 +5,84 @@
 **Turn a paper into a guided read.**<br>
 It narrates a PDF while marking the sentence it is explaining — on the paper itself.
 
+[![CI](https://github.com/yh2072/aha-paper/actions/workflows/ci.yml/badge.svg)](https://github.com/yh2072/aha-paper/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.12%2B-3776AB.svg)](requirements.txt)
+[![Narration](https://img.shields.io/badge/narration-中文%20%C2%B7%20English-c2824c.svg)](app/lang.py)
+
 [English](#english) · [中文](#中文)
 
+<br>
+
+<img src="docs/media/home.jpg" width="820" alt="The aha-paper studio: a composer for the paper and the focus, over a library of explainers">
+
 </div>
+
+---
+
+## See it
+
+The demo below reads one paper end to end:
+**“Cross-domain encoding models reveal shared and domain-specific neural
+representations across language and mathematics.”**
+Twelve chapters, thirteen minutes, every claim pinned to a page.
+
+<div align="center">
+
+<img src="docs/media/cursor.gif" width="700" alt="The cursor moving across a figure from the paper, resting on each region as the narration names it">
+
+<sub><i>Not a recording of a cursor being dragged. Each position is a region the
+model was asked to name for one sentence of narration, and the path between them
+is interpolated — so the pointer arrives before the voice does.</i></sub>
+
+</div>
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+**读一遍 · The read**
+
+12 chapters · 13 minutes · 4 figures walked panel by panel, 8 chapters read off
+the paper's own pages. Every chapter cites the PDF pages it rests on.
+
+</td>
+<td width="50%" valign="top">
+
+**两种语言 · Either language**
+
+The same paper, read again in English: a different writer's persona, a different
+voice, a different rule for where a sentence ends. The stills below are from the
+Chinese read; the animation above is from the English one.
+
+</td>
+</tr>
+</table>
+
+> The paper is *Cross-domain encoding models reveal shared and domain-specific
+> neural representations across language and mathematics*, published in **Science
+> Advances**. Its figures and pages appear here as aha-paper shows them — which is
+> the point: they are the paper's own, not illustrations of it.
+
+
+### It marks the sentence it is saying
+
+<img src="docs/media/player-page.jpg" width="820" alt="The paper's own page, with one sentence highlighted while the narration below explains it">
+
+The voice says *“32 participants completed sentence-comprehension and calculation
+tasks inside the scanner.”* The page shows **the sentence that claim came from**,
+marked where it actually sits. The highlight is not drawn from the model's idea of
+where the text is — it is computed from the PDF's own text layer, so a quotation the
+model invented resolves to nothing and nothing gets drawn.
+
+### It points at the panel it is describing
+
+<img src="docs/media/player-figure.jpg" width="820" alt="A figure from the paper, zoomed to one panel, with the cursor resting on the region being described">
+
+Same rule, applied to a figure. The narration names panel C and the regions in it;
+the cursor is already there, and the view has zoomed to the part being discussed.
+The figure is the paper's own — nothing on screen is an illustration of the paper,
+because an illustration is a place a mistake can hide.
 
 ---
 
