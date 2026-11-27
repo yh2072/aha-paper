@@ -16,7 +16,7 @@ from . import lang
 from . import tenant
 from . import llm
 from . import pi_models
-from .pipeline import art_cover, icon_cover, interactive, deep_script, explainer, page_highlight
+from .pipeline import art_cover, explainer_video, icon_cover, interactive, deep_script, explainer, page_highlight
 from .pipeline import (align, anim, cover, edit, figures, pdf_extract, slideshow)
 from .bin import ffmpeg as ffmpeg_bin, ffprobe as ffprobe_bin
 
@@ -499,6 +499,9 @@ def start_edit(pid: str) -> None:
     _submit(_EXECUTOR, _run_edit, pid)
 
 
+EXPLAINER_MP4 = "explainer.mp4"
+
+
 @_tracked
 def _run_tts_video(pid: str, force_video: bool = False):
     proj = Project(pid)
@@ -508,9 +511,27 @@ def _run_tts_video(pid: str, force_video: bool = False):
             proj.save(state="editing",stage="实时互动讲解：配音与同步",error="")
             manifest=explainer.build(proj.dir,meta,log=proj.log,
                                      progress=lambda stage:proj.save(stage=stage))
+            # An MP4 recorded from the previous explainer no longer matches this one.
+            stale = {"tts_output": None} if meta.get("tts_output") == EXPLAINER_MP4 else {}
             proj.save(state="done",stage="深度互动讲解完成 ✓",experience_mode="explainer",
                       interactive="experience.json",audio_output="narration.mp3",
-                      segment_count=len(manifest["segments"]),duration=manifest["duration"])
+                      segment_count=len(manifest["segments"]),duration=manifest["duration"],**stale)
+            return
+        if meta.get("experience_mode") == "explainer" and (proj.dir / meta.get("interactive", "")).is_file():
+            # Record the explainer itself -- pages, marker, pointer -- not the
+            # storyboard slideshow below, which would re-voice the script and
+            # show none of what the watch page shows.
+            proj.save(state="editing", stage="导出 MP4 0%", error="")
+            try:
+                explainer_video.render(proj.dir, proj.dir / EXPLAINER_MP4, meta["interactive"], log=proj.log,
+                                       progress=lambda pct: proj.save(stage=f"导出 MP4 {pct}%"))
+            except Exception as error:  # noqa: BLE001
+                # The explainer is still finished and watchable; only its MP4 is missing.
+                proj.log(f"MP4 导出失败: {error}")
+                proj.save(state="done", stage="MP4 导出失败", error=f"MP4 导出失败：{error}")
+                return
+            proj.save(tts_output=EXPLAINER_MP4, state="done", stage="MP4 导出完成 ✓")
+            proj.log("MP4 导出完成 ✓")
             return
         proj.save(state="editing", stage="TTS 配音+渲染", error="")
         scenes = meta["storyboard"]["scenes"]
@@ -584,9 +605,10 @@ def _apply_avatar(proj: Project):
     proj.log("数字人圆形角标已合成 ✓")
 
 
-@_tracked
-@_tracked
 def start_tts_video(pid: str) -> None:
+    # A second click would render the same file from two threads at once.
+    if _pending(pid):
+        return
     Project(pid).save(state="queued", stage="MP4 导出排队中")
     _submit(_EXECUTOR, _run_tts_video, pid, True)
 
@@ -630,6 +652,7 @@ def set_title(pid: str, title: str) -> dict:
 
 EXPORT_KINDS = {  # kind → (源文件, 导出名模板)
     "slideshow": ("slideshow.mp4", "{name}.mp4"),
+    "explainer": (EXPLAINER_MP4, "{name}_讲解版.mp4"),
     "final": ("final.mp4", "{name}_口播版.mp4"),
     "cover": ("images/cover.png", "{name}_封面.png"),
     "narration": ("narration.wav", "{name}_配音.wav"),
