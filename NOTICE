@@ -33,6 +33,17 @@ Twemoji — web/emoji/*.svg
     许可证全文见 web/emoji/LICENSE.txt
 
 --------------------------------------------------------------------------------
+Lucide icons — app/assets/lucide-icons.json (100 icons, lucide-react v0.469.0)
+
+    Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as
+    part of Feather (MIT). All other copyright (c) for Lucide are held by
+    Lucide Contributors 2022.
+    Licensed under the ISC License. https://lucide.dev
+
+    Full text: app/assets/LICENSE-lucide.txt
+    许可证全文见 app/assets/LICENSE-lucide.txt
+
+--------------------------------------------------------------------------------
 LXGW WenKai · 霞鹜文楷 — fonts/LXGWWenKai-Medium.ttf
 
     Copyright (c) 2021 LXGW.

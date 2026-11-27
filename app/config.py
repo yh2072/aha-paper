@@ -54,6 +54,9 @@ SCRIPT_PASS_SCORE = 8.5        # 评审平均分达到即提前收工
 # 阶段的一半还多。默认关：写作人格里的准确性约束仍然在，少的是第二双眼睛。
 # 想要那道关卡时在「模型与声音」里打开，或设 AHA_SCRIPT_AUDIT=1。
 SCRIPT_AUDIT = os.getenv("AHA_SCRIPT_AUDIT", "0").strip().lower() in ("1", "true", "yes", "on")
+# AI 封面：开着且图片供应商已连接时用图片模型画封面；关掉、没连、或出错时，
+# 用开源图标（Lucide）排一张，不花钱也不会让整轮生成卡在最后一步。
+AI_COVER = os.getenv("AHA_AI_COVER", "1").strip().lower() in ("1", "true", "yes", "on")
 
 MODEL_COVER = os.getenv("OPENROUTER_MODEL_COVER", "openai/gpt-image-2")
 EDGE_TTS_VOICE = os.getenv("EDGE_TTS_VOICE", "zh-CN-XiaoxiaoNeural")
@@ -75,7 +78,7 @@ IMAGE_PROTOCOL = os.getenv("IMAGE_PROTOCOL", "openrouter-images")
 OVERRIDABLE = ("MODEL_TEXT", "MODEL_COVER", "EDGE_TTS_VOICE", "EDGE_TTS_RATE",
                "TTS_PROVIDER", "TTS_MODEL", "TTS_VOICE",
                "LANGUAGE_PROVIDER", "IMAGE_PROVIDER", "IMAGE_PROTOCOL",
-               "SCRIPT_AUDIT")
+               "SCRIPT_AUDIT", "AI_COVER")
 
 
 def setting(name: str):

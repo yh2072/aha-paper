@@ -465,6 +465,8 @@ class StudioSettings(BaseModel):
     rate: str | None = None
     tts_provider: str | None = None
     tts_model: str | None = None
+    script_audit: bool | None = None
+    ai_cover: bool | None = None
 
 
 class SpeechKey(BaseModel):

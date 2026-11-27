@@ -49,7 +49,7 @@ def public_settings():
     # env vars, so a key connected on this page used to read as "not set".
     language=next((u for u in uses if u['use']=='language'),{})
     return {'configured':bool(language.get('configured')),'model_text':config.setting('MODEL_TEXT'),
-        'script_audit':config.setting('SCRIPT_AUDIT'),
+        'script_audit':config.setting('SCRIPT_AUDIT'),'ai_cover':config.setting('AI_COVER'),
         'model_cover':config.setting('MODEL_COVER'),
         'tts_provider':_speech().id,'tts_model':_speech().model_for(config.setting('TTS_MODEL')),
         'voice':config.setting(_speech().voice_setting) or '','rate':config.setting('EDGE_TTS_RATE'),
@@ -68,16 +68,17 @@ def save_settings(values):
     # A switch, not a string: it has no length, no format and no provider to
     # validate against, so it is written before the loop below rather than
     # threaded through validations that mean nothing for a boolean.
-    if values.get('script_audit') is not None:
-        on='1' if values['script_audit'] in (True,'1','true','on','yes') else '0'
+    for field,attr in (('script_audit','SCRIPT_AUDIT'),('ai_cover','AI_COVER')):
+        if values.get(field) is None:continue
+        on='1' if values[field] in (True,'1','true','on','yes') else '0'
         if tenant.enabled():
             # One workspace's choice is not every workspace's: it goes in that
             # workspace's own file, and never into the process environment.
-            tenant.save_settings({'SCRIPT_AUDIT': on=='1'})
+            tenant.save_settings({attr: on=='1'})
         else:
-            set_key(str(config.ENV_FILE),'AHA_SCRIPT_AUDIT',on)
-            os.environ['AHA_SCRIPT_AUDIT']=on
-            config.SCRIPT_AUDIT=(on=='1')
+            set_key(str(config.ENV_FILE),'AHA_'+attr,on)
+            os.environ['AHA_'+attr]=on
+            setattr(config,attr,on=='1')
     # The voice belongs to whichever provider the same request leaves selected:
     # Edge keeps its own (EDGE_TTS_VOICE), every other provider shares TTS_VOICE.
     if values.get('tts_provider') is not None and values['tts_provider'] not in speech.PROVIDERS:

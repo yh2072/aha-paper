@@ -16,7 +16,7 @@ from . import lang
 from . import tenant
 from . import llm
 from . import pi_models
-from .pipeline import art_cover, interactive, deep_script, explainer, page_highlight
+from .pipeline import art_cover, icon_cover, interactive, deep_script, explainer, page_highlight
 from .pipeline import (align, anim, cover, edit, figures, pdf_extract, slideshow)
 from .bin import ffmpeg as ffmpeg_bin, ffprobe as ffprobe_bin
 
@@ -301,10 +301,46 @@ def _st_images(proj: "Project", ctx: dict):
     proj.save(images=names)
 
 
+def _ai_cover_ready() -> bool:
+    """AI covers are on and the image use has a connection to draw them with."""
+    if not config.setting("AI_COVER"):
+        return False
+    try:
+        return bool(pi_models.check(config.use_provider("image")).get("configured"))
+    except pi_models.ProviderError:
+        return False
+
+
 def _st_cover(proj: "Project", ctx: dict):
-    if proj.load().get("engine") == "pi-canvas":
-        name=art_cover.generate(proj.load(),proj.dir / "images",log=proj.log)
-        proj.save(cover=name,cover_engine="ai-image")
+    """An AI cover when one is wanted and possible, an icon cover otherwise.
+
+    The cover is the last step of a long, paid run. A missing image provider or
+    a failing image API used to stop the whole run there; now it costs the
+    picture, not the explainer."""
+    meta = proj.load()
+    if meta.get("engine") != "pi-canvas":
+        return
+    out = proj.dir / "images"
+    if _ai_cover_ready():
+        try:
+            name = art_cover.generate(meta, out, log=proj.log)
+            proj.save(cover=name, cover_engine="ai-image")
+            return
+        except Exception as error:  # noqa: BLE001
+            proj.log(f"  AI 封面失败，改用图标封面：{error}")
+    elif config.setting("AI_COVER"):
+        proj.log(f"  图片供应商 {config.use_provider('image')} 未连接，用图标封面")
+    name = icon_cover.generate(meta, out, log=proj.log)
+    proj.save(cover=name, cover_engine="icon")
+
+
+def _cover_done(proj: "Project", m: dict) -> bool:
+    if not (proj.dir / "images" / "cover.png").exists():
+        return False
+    if m.get("engine") != "pi-canvas":
+        return True
+    # An icon cover stands until AI covers are both wanted and possible.
+    return m.get("cover_engine") == "ai-image" or (m.get("cover_engine") == "icon" and not _ai_cover_ready())
 
 
 def _script_done(proj: "Project", m: dict) -> bool:
@@ -351,7 +387,7 @@ STAGES = [
     ("code",       "章节画面",      _st_code,     _code_done, True),
     ("copy",       "摘要与标题",    _st_copy,       lambda p, m: bool(m.get("intro")), False),
     ("images",     "整理章节配图",  _st_images,     lambda p, m: bool(m.get("images")), False),
-    ("cover",      "制作封面",      _st_cover,      lambda p, m: (p.dir / "images" / "cover.png").exists() and (m.get("engine") != "pi-canvas" or m.get("cover_engine") == "ai-image"), False),
+    ("cover",      "制作封面",      _st_cover,      _cover_done,    False),
 ]
 STAGE_NAMES = {k: n for k, n, *_ in STAGES}
 # 下游依赖：重试上游后，这些环节的产物就对不上了，只提示不自动重做（重做要花钱）
@@ -577,7 +613,7 @@ def set_title(pid: str, title: str) -> dict:
     proj = Project(pid)
     meta = proj.save(title=title.strip()[:20])
     art = proj.dir / "images" / "cover_art.png"
-    if art.exists() and meta.get("cover_engine") == "ai-image":
+    if art.exists() and meta.get("cover_engine") in ("ai-image", "icon"):
         art_cover.compose(art,meta,proj.dir / "images" / "cover.png")
         return meta
     if art.exists():

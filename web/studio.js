@@ -248,6 +248,9 @@ ${card('speech','旁白 · 语音','逐句时间戳驱动光标与字幕',
 <div class="field-row" id="ttsKeyRow" hidden><label class="field">API Key<input id="ttsKey" type="password" autocomplete="new-password" placeholder="粘贴后点连接"></label></div>
 <div class="tts-actions"><button class="small-button" id="ttsConnect" type="button" hidden>连接</button><button class="small-button" id="ttsForget" type="button" hidden>断开</button><button class="small-button" id="ttsPreview" type="button">试听 ▶</button></div>
 <small id="ttsNote"></small>`)}
+${card('cover','封面','AI 画一张，或用开源图标排一张',
+`<label class="switch-row"><input type="checkbox" id="aiCover"${settings.ai_cover?' checked':''}>
+<span><b>用图片模型生成封面</b><small>需要上方「封面配图」的供应商已连接，每篇会调用一次图片模型。关掉、没连接或生成失败时，用开源图标（Lucide）配论文主题排一张封面，不花钱。</small></span></label>`)}
 ${card('quality','文稿质量 · 速度','多一道独立核对，还是快一点出结果',
 `<label class="switch-row"><input type="checkbox" id="scriptAudit"${settings.script_audit?' checked':''}>
 <span><b>独立核对这一轮</b><small>写完后再对着原文和真图核一遍数值、图号和来源页码。实测约多花 2 分钟，是整条流水线最慢的一步。关掉时写作人格里的准确性约束仍然生效。</small></span></label>`)}
@@ -274,7 +277,7 @@ renderSpeech();
 const status=text=>{$('#settingsStatus').textContent=text};
 const providerField={language:'language_provider',image:'image_provider'};
 const modelField={language:'model_text',image:'model_cover'};
-const payload=()=>{const body={tts_provider:$('#ttsProvider').value,tts_model:$('#ttsModelField').hidden?'':$('#ttsModel').value.trim(),rate:$('#rate').value,script_audit:$('#scriptAudit').checked};
+const payload=()=>{const body={tts_provider:$('#ttsProvider').value,tts_model:$('#ttsModelField').hidden?'':$('#ttsModel').value.trim(),rate:$('#rate').value,script_audit:$('#scriptAudit').checked,ai_cover:$('#aiCover').checked};
  // An empty voice is left out, so the saved one stays instead of the whole save failing.
  const voice=$('#voice').value.trim();if(voice)body.voice=voice;
  for(const row of document.querySelectorAll('.use-provider'))body[providerField[row.dataset.use]]=row.value;
