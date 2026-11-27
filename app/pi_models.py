@@ -62,6 +62,11 @@ def check(provider: str) -> dict:
     return _run('check', provider) or {'id': provider, 'configured': False}
 
 
+def probe(provider: str, model: str) -> dict:
+    """End-to-end check: one tiny completion through the provider's connection."""
+    return _run('probe', provider, model)
+
+
 def login(provider: str, api_key: str) -> dict:
     """Store an API key for the provider through its own login flow."""
     if not api_key.strip():

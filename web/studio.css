@@ -34,3 +34,7 @@
    font, whose glyphs are glossy and three-dimensional on macOS. */
 .emoji{width:1em;height:1em;display:inline-block;vertical-align:-.14em}
 #refresh .emoji,.close-modal .emoji,.paper-attachment .emoji{width:13px;height:13px}
+
+/* speech card: connect / forget / preview */
+.tts-actions{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 8px}
+.provider-body [hidden]{display:none!important}

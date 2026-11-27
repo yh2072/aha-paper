@@ -57,7 +57,12 @@ SCRIPT_AUDIT = os.getenv("AHA_SCRIPT_AUDIT", "0").strip().lower() in ("1", "true
 
 MODEL_COVER = os.getenv("OPENROUTER_MODEL_COVER", "openai/gpt-image-2")
 EDGE_TTS_VOICE = os.getenv("EDGE_TTS_VOICE", "zh-CN-XiaoxiaoNeural")
-EDGE_TTS_RATE = os.getenv("EDGE_TTS_RATE", "+0%")
+EDGE_TTS_RATE = os.getenv("EDGE_TTS_RATE", "+0%")   # the rate for every speech provider
+# Which service narrates (app/pipeline/speech.py). Edge keeps its own voice in
+# EDGE_TTS_VOICE so switching back to it restores the voice you had.
+TTS_PROVIDER = os.getenv("TTS_PROVIDER", "edge")
+TTS_MODEL = os.getenv("TTS_MODEL", "")       # blank: the provider's default
+TTS_VOICE = os.getenv("TTS_VOICE", "")       # blank: the provider's default for the language
 
 
 
@@ -68,6 +73,7 @@ IMAGE_PROTOCOL = os.getenv("IMAGE_PROTOCOL", "openrouter-images")
 # Read them through setting(), never as attributes, or a workspace gets the
 # operator's model and the operator's voice.
 OVERRIDABLE = ("MODEL_TEXT", "MODEL_COVER", "EDGE_TTS_VOICE", "EDGE_TTS_RATE",
+               "TTS_PROVIDER", "TTS_MODEL", "TTS_VOICE",
                "LANGUAGE_PROVIDER", "IMAGE_PROVIDER", "IMAGE_PROTOCOL",
                "SCRIPT_AUDIT")
 

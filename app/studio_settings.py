@@ -7,8 +7,9 @@ import httpx
 from dotenv import set_key
 from . import config, pi_models, tenant
 from .llm import validate_chat_model
+from .pipeline import speech
 
-VOICES = {'zh-CN-XiaoxiaoNeural','zh-CN-YunxiNeural','zh-CN-XiaoyiNeural','zh-CN-YunjianNeural','en-US-AriaNeural'}
+VOICES = {v.id for v in speech.PROVIDERS['edge'].voices}
 
 
 USES = (('language','文稿与讲解','MODEL_TEXT'),('image','封面配图','MODEL_COVER'))
@@ -37,20 +38,31 @@ def _use_status():
     return rows
 
 
+def _speech():
+    return speech.get(config.setting('TTS_PROVIDER'))
+
+
 def public_settings():
-    return {'configured':bool(config.API_KEY),'model_text':config.setting('MODEL_TEXT'),
+    uses=_use_status()
+    # Connected means the language use's provider has a credential in Pi -- the
+    # same thing jobs.start_full_video gates on. config.API_KEY only sees the
+    # env vars, so a key connected on this page used to read as "not set".
+    language=next((u for u in uses if u['use']=='language'),{})
+    return {'configured':bool(language.get('configured')),'model_text':config.setting('MODEL_TEXT'),
         'script_audit':config.setting('SCRIPT_AUDIT'),
         'model_cover':config.setting('MODEL_COVER'),
-        'voice':config.setting('EDGE_TTS_VOICE'),'rate':config.setting('EDGE_TTS_RATE'),
-        'uses':_use_status(),
+        'tts_provider':_speech().id,'tts_model':_speech().model_for(config.setting('TTS_MODEL')),
+        'voice':config.setting(_speech().voice_setting) or '','rate':config.setting('EDGE_TTS_RATE'),
+        'uses':uses,
         'language_provider':config.setting('LANGUAGE_PROVIDER'),'image_provider':config.setting('IMAGE_PROVIDER'),
-        'engine':'pi-canvas','tts':'edge-tts','base_url':config.BASE_URL,'image_protocol':config.setting('IMAGE_PROTOCOL'),'delivery':'explainer'}
+        'engine':'pi-canvas','tts':_speech().id,'base_url':config.BASE_URL,'image_protocol':config.setting('IMAGE_PROTOCOL'),'delivery':'explainer'}
 
 
 def save_settings(values):
     mapping={'model_text':('OPENAI_MODEL','MODEL_TEXT'),
         'model_cover':('OPENROUTER_MODEL_COVER','MODEL_COVER'),
-        'image_protocol':('IMAGE_PROTOCOL','IMAGE_PROTOCOL'),'voice':('EDGE_TTS_VOICE','EDGE_TTS_VOICE'),'rate':('EDGE_TTS_RATE','EDGE_TTS_RATE'),
+        'image_protocol':('IMAGE_PROTOCOL','IMAGE_PROTOCOL'),'rate':('EDGE_TTS_RATE','EDGE_TTS_RATE'),
+        'tts_provider':('TTS_PROVIDER','TTS_PROVIDER'),'tts_model':('TTS_MODEL','TTS_MODEL'),
         'language_provider':('LANGUAGE_PROVIDER','LANGUAGE_PROVIDER'),'image_provider':('IMAGE_PROVIDER','IMAGE_PROVIDER'),
         }
     # A switch, not a string: it has no length, no format and no provider to
@@ -66,12 +78,18 @@ def save_settings(values):
             set_key(str(config.ENV_FILE),'AHA_SCRIPT_AUDIT',on)
             os.environ['AHA_SCRIPT_AUDIT']=on
             config.SCRIPT_AUDIT=(on=='1')
+    # The voice belongs to whichever provider the same request leaves selected:
+    # Edge keeps its own (EDGE_TTS_VOICE), every other provider shares TTS_VOICE.
+    if values.get('tts_provider') is not None and values['tts_provider'] not in speech.PROVIDERS:
+        raise ValueError('请选择列表中的语音供应商')
+    voice_provider=speech.get(values.get('tts_provider') or config.setting('TTS_PROVIDER'))
+    mapping['voice']=(voice_provider.voice_setting,voice_provider.voice_setting)
     pending=[]
     for field,(env,attr) in mapping.items():
         value=values.get(field)
         if value is None:continue
         value=value.strip()
-        if (not value and field not in ('code_base_url','image_provider')) or len(value)>256 or any(c in value for c in '\n\r\x00'):
+        if (not value and field not in ('code_base_url','image_provider','tts_model')) or len(value)>256 or any(c in value for c in '\n\r\x00'):
             raise ValueError('设置值不能为空或包含换行')
         if field in ('base_url','code_base_url') and value:
             value=normalize_api_root(value)
@@ -81,7 +99,10 @@ def save_settings(values):
             raise ValueError('供应商 ID 无效，请从列表中选择')
         if field.startswith('model_') and not re.fullmatch(r'[A-Za-z0-9_.:/~+\-]+',value):
             raise ValueError('模型 ID 格式无效')
-        if field=='voice' and value not in VOICES:raise ValueError('请选择列表中的 Edge TTS 音色')
+        if field=='voice' and not voice_provider.valid_voice(value):
+            raise ValueError('请选择列表中的 Edge TTS 音色' if voice_provider.id=='edge' else '音色 ID 无效，请从列表中选择')
+        if field=='tts_model' and value and not speech.MODEL_ID.fullmatch(value):
+            raise ValueError('语音模型 ID 格式无效')
         if field=='rate' and not re.fullmatch(r'[+-](?:[0-9]|[1-4][0-9]|50)%',value):
             raise ValueError('语速范围为 -50% 到 +50%')
         pending.append((env,attr,value))
@@ -104,23 +125,23 @@ def save_settings(values):
 
 
 def check_connection():
-    """Report each use's own connection, since they can point at different services."""
-    if not config.API_KEY:raise ValueError('请先填写并保存语言 API Key')
-    validate_chat_model(config.setting('MODEL_TEXT'))
-    language=_probe_language()
-    if language.get('ok') is None:return language
-    return {'ok':True,'message':language['message']}
+    """One tiny real request through the language provider's Pi connection.
 
-
-def _probe_language():
-    host=(urlsplit(config.BASE_URL).hostname or '').lower()
-    official=host=='openrouter.ai' or host.endswith('.openrouter.ai')
-    endpoint='/key' if official else '/models'
-    response=httpx.get(config.BASE_URL+endpoint,headers={'Authorization':'Bearer '+config.API_KEY},timeout=20)
-    if response.status_code==404 and not official:return {'ok':None,'message':'该兼容端点不提供模型目录；可手动配置模型，尚未验证推理权限。'}
-    if response.status_code!=200:
-        raise ValueError(f'语言 API 验证失败（HTTP {response.status_code}），请检查 Key 和额度')
-    return {'ok':True,'message':'语言连接已就绪，文稿与封面使用此账户额度。'}
+    The same connection the pipeline uses: it proves the key, the protocol, the
+    model ID and the entitlement together, for a few tokens."""
+    provider=config.use_provider('language')
+    model=config.setting('MODEL_TEXT')
+    try:
+        connected=pi_models.check(provider).get('configured')
+    except pi_models.ProviderError as error:
+        raise ValueError(f'无法读取供应商状态：{error}') from error
+    if not connected:raise ValueError(f'请先在设置中连接供应商 {provider}')
+    validate_chat_model(model,pi_models.resolve(provider).get('base_url'))
+    try:
+        pi_models.probe(provider,model)
+    except pi_models.ProviderError as error:
+        raise ValueError(f'{provider} 验证失败：{error}') from error
+    return {'ok':True,'message':f'语言连接已就绪：{provider} · {model}'}
 
 
 def _validate_catalog_model(provider,model_id):

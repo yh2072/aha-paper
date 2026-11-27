@@ -11,7 +11,7 @@ function toast(message){$('#toast').textContent=message;$('#toast').classList.ad
 function modal(html){$('#modalBody').innerHTML=html;if(!$('#modal').open)$('#modal').showModal()}
 $('#closeModal').onclick=()=>{$('#modal').close();$('#modalBody').replaceChildren()};
 $('#modal').addEventListener('close',()=>$('#modalBody').replaceChildren());
-function connection(){const configured=settings.configured;$('#connectionText').textContent=configured?'OpenRouter 已配置':'连接 OpenRouter';$('#connection .status-dot').style.background=configured?'#87a170':'#c4a06a'}
+function connection(){const configured=settings.configured;$('#connectionText').textContent=configured?`${settings.language_provider} 已连接`:'连接供应商';$('#connection .status-dot').style.background=configured?'#87a170':'#c4a06a'}
 async function refresh(force=false){try{projects=await api('/api/projects');const signature=JSON.stringify(projects);if(force||lastSignature!==signature){lastSignature=signature;render()}$('#doneNav').textContent=projects.filter(p=>p.interactive||p.tts_output||p.output).length}catch(e){toast(e.message)}}
 function render(){const query=$('#search').value.trim().toLowerCase();const visible=projects.filter(p=>(view!=='done'||p.interactive||p.tts_output||p.output)&&(!query||[p.title,p.paper_title,p.pdf_name].some(x=>String(x||'').toLowerCase().includes(query)))).sort((a,b)=>String(b.created).localeCompare(String(a.created)));
 $('#allNav').textContent=projects.length;$('#projectCount').textContent=visible.length;$('#viewAll').hidden=!!query||view==='done'||visible.length<=6;$('#viewAll').textContent=showAll?'收起 ↑':'查看全部 ↗';$('#empty').hidden=visible.length>0;$('#collectionTitle').firstChild.textContent=view==='done'?'深度讲解 ':showAll?'我的论文 ':'最近项目 ';
@@ -20,7 +20,7 @@ return `<article class="project" data-id="${escapeHtml(p.id)}"><div class="proje
 if(!visible.length){$('#empty h3').textContent=query?'没有匹配的论文。':view==='done'?'还没有完成的讲解。':'还没有讲解。';$('#empty p').textContent=query?'试试论文标题或文件名中的其他关键词。':'添加一篇 PDF，它会按原文逐句讲一遍。'} }
 $('#search').addEventListener('input',render);$('#refresh').onclick=()=>refresh(true);$('#emptyUpload').onclick=()=>$('#paperInput').click();
 document.querySelectorAll('[data-view]').forEach(button=>button.onclick=()=>{view=button.dataset.view;showAll=true;$('#homeNav').classList.remove('active');document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b===button));render();$('#collectionTitle').scrollIntoView({behavior:'smooth',block:'center'})});
-async function generate(p){if(!settings.configured){showSettings();toast('先连接 OpenRouter');return}await api('/api/generate/'+encodeURIComponent(p.id),{method:'POST'});toast('已开始：读取 PDF → 生成讲稿 → 对齐原文 → 合成讲解');await refresh(true)}
+async function generate(p){if(!settings.configured){showSettings();toast('先连接供应商');return}await api('/api/generate/'+encodeURIComponent(p.id),{method:'POST'});toast('已开始：读取 PDF → 生成讲稿 → 对齐原文 → 合成讲解');await refresh(true)}
 function attachments(){
 $('#attachmentList').innerHTML=pendingPapers.map((f,i)=>`<div class="paper-attachment"><span><img class="emoji" src="/assets/emoji/1f4c4.svg" alt=""> ${escapeHtml(f.name)}</span><button data-remove="${i}" aria-label="移除 ${escapeHtml(f.name)}"><img class="emoji" src="/assets/emoji/2716.svg" alt=""></button></div>`).join('');$('#createExplain').disabled=uploading||!pendingPapers.length;
 }
@@ -219,7 +219,8 @@ const SOURCE_LABELS={'stored credential':'已存储凭据','OAuth':'浏览器登
 const sourceLabel=s=>SOURCE_LABELS[s]||s||'';
 
 async function showSettings(){try{settings=await api('/api/settings');connection();
-const providers=await api('/api/providers').then(r=>r.providers.filter(p=>p.methods.some(m=>m.type==='api_key'))).catch(()=>[]);
+const [providers,speechList]=await Promise.all([api('/api/providers').then(r=>r.providers.filter(p=>p.methods.some(m=>m.type==='api_key'))).catch(()=>[]),
+ api('/api/speech').then(r=>r.providers).catch(()=>[{id:'edge',name:'Edge TTS',configured:true,models:[],voices:[],custom_voice:false,needs_own_key:false,note:'Edge TTS 不需要 Key，但需要联网。'}])]);
 const connected=providers.filter(p=>p.configured);
 const usesOf=id=>{const names=settings.uses.filter(u=>u.provider===id).map(u=>tt(u.label));
  return names.join((window.i18n&&window.i18n.lang)==='en'?', ':'、')||tt('未使用')};
@@ -238,17 +239,40 @@ settings.uses.map(u=>`<div class="use-row" data-use="${u.use}"><b>${escapeHtml(u
 <select class="use-provider" data-use="${u.use}">${providers.map(p=>`<option value="${escapeHtml(p.id)}"${p.id===u.provider?' selected':''}>${escapeHtml(p.name)}${p.configured?' ✓':''}</option>`).join('')}</select>
 <select class="use-model" data-use="${u.use}"><option value="${escapeHtml(u.model)}">${escapeHtml(u.model)}</option></select>
 <small class="use-note" data-use="${u.use}">${u.configured?'':'该供应商未连接'}</small></div>`).join(''))}
-${card('speech','旁白 · Edge TTS','逐句时间戳驱动光标与字幕',
-`<div class="field-row"><label class="field">音色<select id="voice"><option value="zh-CN-XiaoxiaoNeural">晓晓 · 自然女声</option><option value="zh-CN-YunxiNeural">云希 · 清朗男声</option><option value="zh-CN-XiaoyiNeural">晓伊 · 温柔女声</option><option value="zh-CN-YunjianNeural">云健 · 稳重男声</option><option value="en-US-AriaNeural">Aria · English</option></select></label><label class="field">语速<select id="rate"><option value="-10%">舒缓 · -10%</option><option value="+0%">自然 · 默认</option><option value="+10%">轻快 · +10%</option><option value="+20%">明快 · +20%</option></select></label></div><small>Edge TTS 不需要 Key，但需要联网。</small>`)}
+${card('speech','旁白 · 语音','逐句时间戳驱动光标与字幕',
+`<div class="field-row"><label class="field">语音供应商<select id="ttsProvider">${speechList.map(p=>`<option value="${escapeHtml(p.id)}"${p.id===settings.tts_provider?' selected':''}>${escapeHtml(p.name)}${p.configured?' ✓':''}</option>`).join('')}</select></label>
+<label class="field" id="ttsModelField">模型<input id="ttsModel" list="ttsModels" autocomplete="off" spellcheck="false"><datalist id="ttsModels"></datalist></label></div>
+<div class="field-row"><label class="field">音色<span id="voiceSlot"></span></label><label class="field">语速<select id="rate"><option value="-10%">舒缓 · -10%</option><option value="+0%">自然 · 默认</option><option value="+10%">轻快 · +10%</option><option value="+20%">明快 · +20%</option></select></label></div>
+<div class="field-row" id="ttsKeyRow" hidden><label class="field">API Key<input id="ttsKey" type="password" autocomplete="new-password" placeholder="粘贴后点连接"></label></div>
+<div class="tts-actions"><button class="small-button" id="ttsConnect" type="button" hidden>连接</button><button class="small-button" id="ttsForget" type="button" hidden>断开</button><button class="small-button" id="ttsPreview" type="button">试听 ▶</button></div>
+<small id="ttsNote"></small>`)}
 ${card('quality','文稿质量 · 速度','多一道独立核对，还是快一点出结果',
 `<label class="switch-row"><input type="checkbox" id="scriptAudit"${settings.script_audit?' checked':''}>
 <span><b>独立核对这一轮</b><small>写完后再对着原文和真图核一遍数值、图号和来源页码。实测约多花 2 分钟，是整条流水线最慢的一步。关掉时写作人格里的准确性约束仍然生效。</small></span></label>`)}
 <div class="dialog-actions"><button class="primary" type="submit">保存设置</button><button class="small-button" id="testKey" type="button">测试连接 ↗</button></div><div id="settingsStatus" class="dialog-status" role="status"></div></form>`);
-$('#voice').value=settings.voice;$('#rate').value=settings.rate;
+$('#rate').value=settings.rate;
+// The speech card is redrawn for whichever provider is selected: its voices,
+// its models, and a key field only for a provider Pi does not connect.
+const speechOf=()=>speechList.find(p=>p.id===$('#ttsProvider').value)||speechList[0];
+const uiLang=()=>(window.i18n&&window.i18n.lang)||'zh';
+const renderSpeech=()=>{const p=speechOf();const mine=p.id===settings.tts_provider;
+ const options=p.voices.map(v=>`<option value="${escapeHtml(v.id)}">${escapeHtml(tt(v.label))}</option>`).join('');
+ $('#voiceSlot').innerHTML=p.custom_voice?`<input id="voice" list="ttsVoices" autocomplete="off" spellcheck="false" placeholder="音色 ID"><datalist id="ttsVoices">${options}</datalist>`:`<select id="voice">${options}</select>`;
+ const fallback=(p.voices.find(v=>!v.lang||v.lang===uiLang())||p.voices[0]||{}).id||'';
+ const wanted=mine&&settings.voice?settings.voice:fallback;
+ $('#voice').value=p.custom_voice||p.voices.some(v=>v.id===wanted)?wanted:fallback;
+ $('#ttsModelField').hidden=!p.models.length;
+ $('#ttsModels').innerHTML=p.models.map(m=>`<option value="${escapeHtml(m)}"></option>`).join('');
+ $('#ttsModel').value=mine&&settings.tts_model?settings.tts_model:(p.models[0]||'');
+ $('#ttsKeyRow').hidden=$('#ttsConnect').hidden=!p.needs_own_key;
+ $('#ttsForget').hidden=!(p.needs_own_key&&p.source==='stored credential');
+ const state=p.configured?'':(p.needs_own_key?'需要 Key':`需先在上方连接 ${p.pi_providers.join(' / ')}`);
+ $('#ttsNote').textContent=[tt(p.note),tt(state)].filter(Boolean).join(' · ')};
+renderSpeech();
 const status=text=>{$('#settingsStatus').textContent=text};
 const providerField={language:'language_provider',image:'image_provider'};
 const modelField={language:'model_text',image:'model_cover'};
-const payload=()=>{const body={voice:$('#voice').value,rate:$('#rate').value,script_audit:$('#scriptAudit').checked};
+const payload=()=>{const body={tts_provider:$('#ttsProvider').value,tts_model:$('#ttsModelField').hidden?'':$('#ttsModel').value.trim(),voice:$('#voice').value.trim(),rate:$('#rate').value,script_audit:$('#scriptAudit').checked};
  for(const row of document.querySelectorAll('.use-provider'))body[providerField[row.dataset.use]]=row.value;
  for(const row of document.querySelectorAll('.use-model'))body[modelField[row.dataset.use]]=row.value;
  return body};
@@ -262,6 +286,16 @@ const loadModels=async use=>{const provider=$(`.use-provider[data-use=${use}]`).
   note.textContent=`${result.models.length} 个模型`}catch(e){note.textContent=e.message}};
 for(const row of document.querySelectorAll('.use-provider'))row.onchange=async()=>{status('正在切换…');try{await loadModels(row.dataset.use);await save();status(`已切到 ${row.value}`)}catch(e){status(e.message)}};
 for(const row of document.querySelectorAll('.use-model'))row.onchange=async()=>{try{await save();status('已保存')}catch(e){status(e.message)}};
+$('#ttsProvider').onchange=async()=>{renderSpeech();status('正在切换…');try{await save();status(`已切到 ${speechOf().name}`)}catch(e){status(e.message)}};
+$('#ttsConnect').onclick=async()=>{const key=$('#ttsKey').value.trim();if(!key){status('请先粘贴 API Key');return}
+ try{const r=await api('/api/speech/'+encodeURIComponent(speechOf().id)+'/login',jsonOptions('POST',{api_key:key}));$('#ttsKey').value='';await save();await showSettings();status(`${r.id} 已连接`)}catch(e){status(e.message)}};
+$('#ttsForget').onclick=async()=>{try{await api('/api/speech/'+encodeURIComponent(speechOf().id)+'/logout',{method:'POST'});await showSettings()}catch(e){status(e.message)}};
+// Saves first, so what plays is what the next job will use.
+$('#ttsPreview').onclick=async()=>{const b=$('#ttsPreview');b.disabled=true;status('正在合成试听…');
+ try{await save();const res=await fetch('/api/speech/preview?lang='+encodeURIComponent(uiLang()),{method:'POST'});
+  if(!res.ok){let detail='请求失败，请稍后重试';try{detail=(await res.json()).detail||detail}catch{}throw Error(detail)}
+  const url=URL.createObjectURL(await res.blob());const audio=new Audio(url);audio.onended=()=>URL.revokeObjectURL(url);await audio.play();status('正在播放试听')}
+ catch(e){status(e.message)}finally{b.disabled=false}};
 $('#connectProvider').onclick=async()=>{const b=$('#connectProvider');const key=$('#providerKey').value.trim();if(!key){status('请先粘贴 API Key');return}
  b.disabled=true;status('正在连接…');try{const r=await api('/api/providers/'+encodeURIComponent($('#newProvider').value)+'/login',jsonOptions('POST',{api_key:key}));$('#providerKey').value='';await showSettings();status(`${r.id} 已连接`)}catch(e){status(e.message)}finally{b.disabled=false}};
 for(const button of document.querySelectorAll('[data-forget]'))button.onclick=async()=>{button.disabled=true;status('正在断开…');try{await api('/api/providers/'+encodeURIComponent(button.dataset.forget)+'/logout',{method:'POST'});await showSettings()}catch(e){status(e.message);button.disabled=false}};

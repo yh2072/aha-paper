@@ -463,6 +463,12 @@ class StudioSettings(BaseModel):
     model_cover: str | None = None
     voice: str | None = None
     rate: str | None = None
+    tts_provider: str | None = None
+    tts_model: str | None = None
+
+
+class SpeechKey(BaseModel):
+    api_key: str
 
 
 @app.get("/api/settings")
@@ -478,6 +484,48 @@ def update_settings(body: StudioSettings):
         return studio_settings.save_settings(body.model_dump(exclude_none=True))
     except ValueError as error:
         raise HTTPException(400,str(error)) from error
+
+
+@app.get("/api/speech")
+def speech_providers():
+    from .pipeline import speech
+    return {"providers": speech.catalog()}
+
+
+@app.post("/api/speech/{provider}/login")
+def speech_login(provider: str, body: SpeechKey):
+    from .pipeline import speech
+    try:
+        return speech.store_key(provider, body.api_key)
+    except speech.SpeechError as error:
+        raise HTTPException(400, str(error)) from error
+
+
+@app.post("/api/speech/{provider}/logout")
+def speech_logout(provider: str):
+    from .pipeline import speech
+    return speech.forget_key(provider)
+
+
+@app.post("/api/speech/preview")
+def speech_preview(lang: str = "zh"):
+    """A few seconds in the current voice, so a voice can be heard before a job uses it."""
+    import tempfile
+    from pathlib import Path as _Path
+    from fastapi.responses import Response
+    from . import lang as languages
+    from .pipeline import tts
+    profile = languages.get(lang)
+    text = ("Here is how the narration will sound." if profile.code == "en"
+            else "这是讲解旁白的声音，光标会跟着我逐句移动。")
+    with tempfile.TemporaryDirectory() as directory:
+        out = _Path(directory) / "preview.wav"
+        try:
+            tts.synthesize_sentences(tts.split_sentences(text, profile=profile), out,
+                                     log=lambda _: None, profile=profile)
+        except (RuntimeError, ValueError) as error:
+            raise HTTPException(400, str(error)) from error
+        return Response(out.read_bytes(), media_type="audio/wav", headers={"Cache-Control": "no-store"})
 
 
 @app.post("/api/settings/test")

@@ -667,6 +667,12 @@ def start_full_video(pid: str):
         raise ValueError(f"无法读取供应商状态：{error}") from error
     if not connected:
         raise ValueError(f"请先在设置中连接供应商 {language}")
+    # The voice is billable work at the end of a long run: find out now, not
+    # after the script has been written and paid for.
+    from .pipeline import speech
+    voice = speech.get(config.setting("TTS_PROVIDER"))
+    if not voice.status().get("configured"):
+        raise ValueError(f"请先在设置中连接语音供应商 {voice.name}")
     if _pending(pid):
         return
     # New pipeline can resume prior projects; original outputs are kept until replacement succeeds.

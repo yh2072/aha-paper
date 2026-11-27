@@ -29,7 +29,7 @@ A chapter that matches nothing still shows the page it cites. There is no third 
 ```
 data/<id>/
 ├── explainer.json   chapters, per-clause timings, highlight geometry, source pages
-├── narration.mp3    Edge TTS narration
+├── narration.mp3    narration (Edge TTS by default)
 ├── pages/           rendered PDF pages
 ├── figures/         detected figures
 └── aha-paper-interactive.zip
@@ -48,9 +48,12 @@ AHA_ACCESS_PASSWORD=                        # blank: no gate, for local use
 LANGUAGE_PROVIDER=openrouter
 OPENAI_MODEL=google/gemini-3.7-flash        # script and narration; needs image input
 OPENROUTER_MODEL_COVER=openai/gpt-image-2   # cover
+TTS_PROVIDER=edge                           # edge | openai | google | elevenlabs | minimax
 EDGE_TTS_VOICE=zh-CN-XiaoxiaoNeural          # a voice for another language hands over
 AHA_SCRIPT_AUDIT=0                          # 1: re-check the draft against the paper (~2 min more)
 ```
+
+Speech providers that return word timestamps (Edge, ElevenLabs) narrate a chapter in one take and the cursor moves clause by clause. The others (OpenAI, Gemini, MiniMax) are synthesized one sentence at a time and each clip's real length is that sentence's duration, so the cursor moves sentence by sentence — never by an estimate. OpenAI, Gemini and MiniMax reuse the provider connection made under Providers; ElevenLabs takes its own key.
 
 The narration's language is a property of each project, chosen when it is created and stored in its metadata; it decides the writer's persona, the pace, the voice and where a sentence ends.
 
@@ -91,7 +94,7 @@ A few need a sample paper under `data/` and skip without one.
 ```
 data/<id>/
 ├── explainer.json   章节、逐句时间轴、高亮坐标、来源页码
-├── narration.mp3    Edge TTS 旁白
+├── narration.mp3    旁白（默认 Edge TTS）
 ├── pages/           渲染出的论文页
 ├── figures/         检出的主图
 └── aha-paper-interactive.zip
@@ -110,9 +113,12 @@ AHA_ACCESS_PASSWORD=                        # 留空＝不设门，本机跑用�
 LANGUAGE_PROVIDER=openrouter
 OPENAI_MODEL=google/gemini-3.7-flash        # 文稿与讲解，需支持图像输入
 OPENROUTER_MODEL_COVER=openai/gpt-image-2   # 封面
+TTS_PROVIDER=edge                           # edge | openai | google | elevenlabs | minimax
 EDGE_TTS_VOICE=zh-CN-XiaoxiaoNeural          # a voice for another language hands over
 AHA_SCRIPT_AUDIT=0                          # 1: re-check the draft against the paper (~2 min more)
 ```
+
+返回词时间戳的语音供应商（Edge、ElevenLabs）整章一次合成，光标按子句移动；其余（OpenAI、Gemini、MiniMax）逐句合成，每段音频的真实长度就是这句的时长，光标按句移动——从不估算。OpenAI、Gemini、MiniMax 复用「供应商」里的连接；ElevenLabs 需要单独的 Key。
 
 讲解语言是每篇项目自己的属性，新建时决定并记在元数据里；它决定写作人格、语速、音色和断句规则。
 

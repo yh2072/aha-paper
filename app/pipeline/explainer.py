@@ -31,7 +31,7 @@ def build(project_dir:Path,meta:dict,log=print,progress=None):
         wav=work/f'seg_{i:02d}.wav';stamp=wav.with_suffix('.key');timing=wav.with_suffix('.durs.json')
         key=hashlib.sha256((tts.cache_identity(profile)+scene['text']).encode()).hexdigest()
         if wav.exists() and stamp.exists() and stamp.read_text()==key and timing.exists():
-            durs=json.loads(timing.read_text());log('    复用 Edge TTS 配音')
+            durs=json.loads(timing.read_text());log('    复用已合成的配音')
         else:
             _,durs=tts.synthesize_sentences(sentences,wav,log=log,profile=profile)
             timing.write_text(json.dumps(durs));stamp.write_text(key)
