@@ -532,6 +532,7 @@
     ['{} 时间戳不完整，无法精确驱动光标', '{} timestamps are incomplete, so the cursor cannot be driven precisely'],
     ['{} 逐句合成 {} 句', '{}: synthesized {} sentences one by one'],
     ['语音音频转换失败: {}', 'Speech audio conversion failed: {}'],
+    ['语音列表读取失败：{}', 'Could not load the speech providers: {}'],
     ['{} 验证失败：{}', '{} check failed: {}'],
     ['语言连接已就绪：{} · {}', 'Language connection ready: {} · {}'],
     ['未知环节: {}', 'Unknown step: {}'],

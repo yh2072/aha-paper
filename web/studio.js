@@ -220,7 +220,9 @@ const sourceLabel=s=>SOURCE_LABELS[s]||s||'';
 
 async function showSettings(){try{settings=await api('/api/settings');connection();
 const [providers,speechList]=await Promise.all([api('/api/providers').then(r=>r.providers.filter(p=>p.methods.some(m=>m.type==='api_key'))).catch(()=>[]),
- api('/api/speech').then(r=>r.providers).catch(()=>[{id:'edge',name:'Edge TTS',configured:true,models:[],voices:[],custom_voice:false,needs_own_key:false,note:'Edge TTS 不需要 Key，但需要联网。'}])]);
+ // Without the list, keep showing the saved voice and say why, rather than an empty picker.
+ api('/api/speech').then(r=>r.providers).catch(e=>{const id=settings.tts_provider||'edge';
+  return [{id,name:id==='edge'?'Edge TTS':id,configured:true,models:[],voices:settings.voice?[{id:settings.voice,label:settings.voice}]:[],custom_voice:false,needs_own_key:false,pi_providers:[],note:`语音列表读取失败：${e.message}`}]})]);
 const connected=providers.filter(p=>p.configured);
 const usesOf=id=>{const names=settings.uses.filter(u=>u.provider===id).map(u=>tt(u.label));
  return names.join((window.i18n&&window.i18n.lang)==='en'?', ':'、')||tt('未使用')};
@@ -272,7 +274,9 @@ renderSpeech();
 const status=text=>{$('#settingsStatus').textContent=text};
 const providerField={language:'language_provider',image:'image_provider'};
 const modelField={language:'model_text',image:'model_cover'};
-const payload=()=>{const body={tts_provider:$('#ttsProvider').value,tts_model:$('#ttsModelField').hidden?'':$('#ttsModel').value.trim(),voice:$('#voice').value.trim(),rate:$('#rate').value,script_audit:$('#scriptAudit').checked};
+const payload=()=>{const body={tts_provider:$('#ttsProvider').value,tts_model:$('#ttsModelField').hidden?'':$('#ttsModel').value.trim(),rate:$('#rate').value,script_audit:$('#scriptAudit').checked};
+ // An empty voice is left out, so the saved one stays instead of the whole save failing.
+ const voice=$('#voice').value.trim();if(voice)body.voice=voice;
  for(const row of document.querySelectorAll('.use-provider'))body[providerField[row.dataset.use]]=row.value;
  for(const row of document.querySelectorAll('.use-model'))body[modelField[row.dataset.use]]=row.value;
  return body};
