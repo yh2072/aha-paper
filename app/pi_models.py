@@ -23,7 +23,7 @@ class ProviderError(RuntimeError):
     """A provider/credential operation the user can act on."""
 
 
-def _run(*args: str, stdin: str | None = None):
+def _run(*args: str, stdin: str | None = None, timeout: float = TIMEOUT):
     try:
         # Not a bare 'node': a desktop build runs this with the Node that Electron
         # already carries, so there is nothing for the user to install separately.
@@ -34,7 +34,7 @@ def _run(*args: str, stdin: str | None = None):
         env = {**os.environ, 'PI_CREDENTIAL_FILE': str(tenant.credential_file())}
         done = subprocess.run([binaries.node(), str(CLI), *args], input=stdin,
                               capture_output=True, env=env,
-                              text=True, timeout=TIMEOUT, cwd=config.ROOT)
+                              text=True, timeout=timeout, cwd=config.ROOT)
     except (FileNotFoundError, RuntimeError) as error:
         raise ProviderError('找不到 node，模型配置需要 Node.js 运行时') from error
     except subprocess.TimeoutExpired as error:
@@ -65,6 +65,31 @@ def check(provider: str) -> dict:
 def probe(provider: str, model: str) -> dict:
     """End-to-end check: one tiny completion through the provider's connection."""
     return _run('probe', provider, model)
+
+
+def model_api(provider: str, model: str) -> str | None:
+    """The protocol Pi speaks to this model ('openai-completions', 'anthropic-messages'...),
+    or None for an ID that is not in the provider's catalog."""
+    if provider not in _apis:
+        try:
+            _apis[provider] = {m['id']: m.get('api') for m in catalog(provider)}
+        except ProviderError:
+            return None  # an unknown provider is not cached: it may be a transient failure
+    return _apis[provider].get(model)
+
+
+# The built-in catalogs ship with the app: per process is as fresh as they get.
+_apis: dict[str, dict[str, str]] = {}
+
+
+def complete(provider: str, model: str, messages: list[dict], temperature: float | None = None,
+             timeout: float = 300) -> dict:
+    """One chat completion through Pi's own client for the provider's protocol.
+
+    Messages are OpenAI-shaped (system/user/assistant, text and data: images), the
+    same list llm.chat takes; the request goes on stdin because it carries images."""
+    request = {'provider': provider, 'model': model, 'messages': messages, 'temperature': temperature}
+    return _run('complete', stdin=json.dumps(request), timeout=timeout)
 
 
 def login(provider: str, api_key: str) -> dict:

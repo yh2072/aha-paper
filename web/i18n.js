@@ -574,6 +574,7 @@
     ['找不到 {}（{}）。', 'Cannot find {} ({}).'],
     ['供应商 {} 未连接：{}', 'Provider {} is not connected: {}'],
     ['模型 {} 请求重试 {} 次仍失败：{}', 'Model {} still failed after {} retries: {}'],
+    ['模型 {} 请求失败：{}', 'Model {} request failed: {}'],
     ['模型 {} 是异步批处理版本，不能用于当前 Chat Completions / Pi 工作流。请在模型与声音中改用 {}。',
       'Model {} is an async batch variant and cannot serve this Chat Completions / Pi workflow. Switch to {} under Models & voice.'],
     ['时长请在 {}–{} 分钟之间', 'Duration must be between {} and {} minutes'],

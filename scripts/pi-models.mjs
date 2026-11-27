@@ -107,6 +107,51 @@ async function probe(models, providerId, modelId, baseUrl) {
            tokens: (usage.input ?? 0) + (usage.output ?? 0) };
 }
 
+const NO_USAGE = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, totalTokens: 0,
+                   cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } };
+
+/** An OpenAI-style chat message list as a pi-ai Context: system text, text and inline images. */
+function toContext(messages, model) {
+  const system = [];
+  const turns = [];
+  for (const message of messages) {
+    const parts = typeof message.content === 'string' ? [{ type: 'text', text: message.content }] : message.content ?? [];
+    if (message.role === 'system') {
+      system.push(parts.filter((part) => part.type === 'text').map((part) => part.text).join('\n'));
+      continue;
+    }
+    const content = parts.map((part) => {
+      if (part.type === 'text') return { type: 'text', text: part.text };
+      const url = part.image_url?.url ?? '';
+      const inline = /^data:([^;,]+);base64,(.*)$/s.exec(url);
+      if (part.type === 'image_url' && inline) return { type: 'image', mimeType: inline[1], data: inline[2] };
+      throw new Error(`Unsupported message part "${part.type}"${url ? ' (only inline data: images are supported)' : ''}`);
+    });
+    if (message.role === 'assistant') {
+      turns.push({ role: 'assistant', content: content.filter((part) => part.type === 'text'),
+                   api: model.api, provider: model.provider, model: model.id,
+                   usage: NO_USAGE, stopReason: 'stop', timestamp: Date.now() });
+    } else turns.push({ role: 'user', content, timestamp: Date.now() });
+  }
+  return { ...(system.length ? { systemPrompt: system.join('\n\n') } : {}), messages: turns };
+}
+
+/**
+ * One chat completion through the provider's own protocol (Anthropic Messages,
+ * Google, Mistral, Bedrock...). The app's own HTTP path only speaks OpenAI Chat
+ * Completions; everything else comes through here. Request on stdin, because it
+ * carries page images and would not fit in argv.
+ */
+async function complete(models, request) {
+  const model = getBuiltinModel(request.provider, request.model);
+  if (!model?.id) throw new Error(`Model "${request.model}" is not in ${request.provider}'s catalog`);
+  const options = request.temperature == null ? {} : { temperature: request.temperature };
+  const answer = await models.completeSimple(model, toContext(request.messages, model), options);
+  if (answer.errorMessage || answer.stopReason === 'error') throw new Error(answer.errorMessage || 'Provider rejected the request');
+  const text = answer.content.filter((part) => part.type === 'text').map((part) => part.text).join('');
+  return { text, stop_reason: answer.stopReason, usage: { input: answer.usage?.input ?? 0, output: answer.usage?.output ?? 0 } };
+}
+
 const [command, argument, extra, extraTwo] = process.argv.slice(2);
 try {
   const models = appModels();
@@ -124,10 +169,12 @@ try {
     result = await resolve(models, argument);
   } else if (command === 'probe') {
     result = await probe(models, argument, extra, extraTwo);
+  } else if (command === 'complete') {
+    result = await complete(models, JSON.parse(await new Response(process.stdin).text()));
   } else if (command === 'check') {
     const check = await models.checkAuth(argument).catch(() => undefined);
     result = { id: argument, configured: Boolean(check), ...(check?.source ? { source: check.source } : {}), ...(check?.type ? { credential_type: check.type } : {}) };
-  } else throw new Error(`Unknown command "${command ?? ''}". Use providers | models <id> | login <id> | logout <id> | check <id> | resolve <id> | probe <id> <model> [baseUrl]`);
+  } else throw new Error(`Unknown command "${command ?? ''}". Use providers | models <id> | login <id> | logout <id> | check <id> | resolve <id> | probe <id> <model> [baseUrl] | complete`);
   process.stdout.write(JSON.stringify(result));
 } catch (error) {
   process.stderr.write(String(error?.message ?? error));

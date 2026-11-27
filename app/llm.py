@@ -1,4 +1,7 @@
-"""Thin OpenRouter client: text chat, JSON chat, and image generation."""
+"""Model client: text chat, JSON chat, and image generation.
+
+Chat goes over OpenAI Chat Completions where the model speaks it, and through
+Pi's own client for every other protocol (Anthropic, Google, Mistral...)."""
 import base64
 import json
 import re
@@ -73,9 +76,46 @@ def _post(payload: dict, timeout: float = 300.0, retries: int = 3, use: str = "l
     raise RuntimeError(f'模型 {model} 请求重试 {retries} 次仍失败：{last_err}')
 
 
+# Pi's error text for a failure worth another try: rate limits, timeouts, overload, 5xx.
+_TRANSIENT = re.compile(r"\b(408|429|5\d\d)\b|overloaded|rate.?limit|timed? ?out|ECONNRESET|ETIMEDOUT", re.I)
+
+
+def _via_pi(provider: str, model: str) -> bool:
+    """Whether this model needs a protocol other than OpenAI Chat Completions.
+
+    _post only speaks Chat Completions, at whatever base URL Pi resolved. For an
+    Anthropic, Google, Mistral or Bedrock model that URL serves another protocol,
+    and appending /chat/completions to it is a 404. Pi speaks all of them. An ID
+    outside the catalog keeps the Chat Completions path it always had."""
+    api = pi_models.model_api(provider, model)
+    return api is not None and api != "openai-completions"
+
+
+def _pi_chat(provider: str, model: str, messages: list[dict], temperature: float, retries: int = 3) -> str:
+    last_err = None
+    for attempt in range(retries):
+        try:
+            return pi_models.complete(provider, model, messages, temperature)["text"] or ""
+        except pi_models.ProviderError as error:
+            message = str(error)
+            for resolved in pi_models._resolved.values():
+                if resolved.get("api_key"):
+                    message = message.replace(resolved["api_key"], "[REDACTED]")
+            last_err = RuntimeError(f"模型 {model} 请求失败：{message}")
+            if not _TRANSIENT.search(message):
+                raise last_err from error
+        if attempt + 1 < retries:
+            time.sleep(2 * (attempt + 1))
+    raise RuntimeError(f"模型 {model} 请求重试 {retries} 次仍失败：{last_err}")
+
+
 def chat(messages: list[dict], model: str | None = None, temperature: float = 0.9) -> str:
+    model = model or config.setting("MODEL_TEXT")
+    provider = config.use_provider("language")
+    if _via_pi(provider, model):
+        return _pi_chat(provider, model, messages, temperature)
     data = _post({
-        "model": model or config.setting("MODEL_TEXT"),
+        "model": model,
         "messages": messages,
         "temperature": temperature,
     })
