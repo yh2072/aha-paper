@@ -158,7 +158,21 @@ class Profile:
         moves at full stops points at the wrong half of the figure for the
         second clause. So a change of referenced panel breaks a cue even
         mid-sentence."""
-        return [s for s in self._cues(text.strip()) if s.strip()]
+        cues = []
+        for piece in self._cues(text.strip()):
+            if not piece.strip():
+                continue
+            # A sentence that ends inside a quotation ("……。”。") leaves '”。' as a
+            # piece of its own. Nothing in it is spoken, so it has no timestamp,
+            # and alignment would reject the whole chapter; it belongs to the
+            # clause it closes.
+            if cues and not any(c.isalnum() for c in piece):
+                cues[-1] += piece
+            else:
+                cues.append(piece)
+        if len(cues) > 1 and not any(c.isalnum() for c in cues[0]):
+            cues[1] = cues.pop(0) + cues[0]
+        return cues
 
     def instructions(self, plan: dict, figure_count: int) -> str:
         return self._instructions(plan, figure_count)

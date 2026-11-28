@@ -439,5 +439,30 @@ class SubtitlesFitTheLanguage(unittest.TestCase):
                 self.assertEqual(joined, text.replace(' ', ''))
 
 
+
+class PunctuationOnlyCueTests(unittest.TestCase):
+    """A sentence ending inside a quotation ("……。”。") split '”。' off as a cue of
+    its own. Nothing in it is spoken, so it had no timestamp and alignment
+    rejected the whole chapter: 有讲解片段无法对应到实际词时间戳."""
+
+    def test_a_trailing_quote_and_stop_stay_with_their_clause(self):
+        self.assertEqual(lang.ZH.split_cues('模型回答“Is it up?”。然后停了。'),
+                         ['模型回答“Is it up?”。', '然后停了。'])
+
+    def test_no_cue_is_left_without_a_spoken_character(self):
+        for text in ('他说“好。”。然后走了。', '……第一句。第二句。', 'He said "yes." Then left.'):
+            for profile in (lang.ZH, lang.EN):
+                with self.subTest(text=text, lang=profile.code):
+                    cues = profile.split_cues(text)
+                    self.assertTrue(all(any(c.isalnum() for c in cue) for cue in cues), cues)
+                    self.assertEqual(''.join(cues), text.strip())
+
+    def test_such_a_chapter_now_aligns(self):
+        from app.pipeline import cue_alignment
+        text = '他说“好。”。然后走了。'
+        events = [{'text': w, 'start': i * .3} for i, w in enumerate(['他', '说', '好', '然后', '走', '了'])]
+        cues, _ = cue_alignment.align(cue_alignment.units(text, lang.ZH), events, 3.0)
+        self.assertEqual([c['text'] for c in cues], ['他说“好。”。', '然后走了。'])
+
 if __name__ == '__main__':
     unittest.main()
