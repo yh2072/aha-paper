@@ -11,6 +11,7 @@ where the pointer keeps breathing -- are redrawn every frame.
 """
 import json
 import math
+import re
 import subprocess
 from functools import lru_cache
 from pathlib import Path
@@ -296,11 +297,13 @@ class Renderer:
             return self._caption
         segment = self.data['segments'][segment_index]
         cues = segment.get('cues') or []
-        text = (cues[cue_index].get('text') if cues else '') or ''
+        # Cues keep the script's paragraph breaks ("\n\n..."). The page's caption
+        # collapses them as HTML does; Pillow cannot measure text that has them.
+        text = re.sub(r'\s*[\r\n]+\s*', ' ', (cues[cue_index].get('text') if cues else '') or '').strip()
         lane = Image.new('RGB', (self.W, CAPTION_H), LANE)
         draw = ImageDraw.Draw(lane)
         draw.line((0, 0, self.W, 0), fill=LANE_RULE, width=2)
-        label = f"{segment_index + 1} / {len(self.data['segments'])} · {segment.get('title', '')}"
+        label = f"{segment_index + 1} / {len(self.data['segments'])} · {' '.join(str(segment.get('title', '')).split())}"
         draw.text((36, 16), label, font=_body_font(22), fill=CHAPTER_INK)
         width = self.W - 160
         for size in (40, 36, 32, 28):
@@ -401,7 +404,15 @@ def render(project_dir: Path, out: Path, manifest_name: str = 'experience.json',
                 progress(percent)
         process.stdin.close()
     except BrokenPipeError:
-        pass
+        pass  # ffmpeg stopped reading; its own error is reported below
+    except BaseException:
+        # A frame that cannot be drawn must not leave ffmpeg waiting on its
+        # input, or half a video where the next export looks for one.
+        process.kill()
+        process.wait()
+        process.stderr.close()
+        partial.unlink(missing_ok=True)
+        raise
     with process.stderr:
         error = process.stderr.read().decode(errors='replace')
     if process.wait():

@@ -25,7 +25,7 @@ def project(directory: Path, seconds: float = 2.0) -> Path:
     manifest = {'duration': seconds, 'audio': 'narration.mp3', 'segments': [
         {'title': '一', 'start': 0, 'end': half, 'visual': {'kind': 'page', 'pages': {'1': 'pages/page_01.png'}},
          'cues': [{'text': '第一句。', 'start': 0, 'end': half / 2, 'highlight': None},
-                  {'text': '第二句。', 'start': half / 2, 'end': half,
+                  {'text': '\n\n第二句，紧跟在一个段落换行之后。', 'start': half / 2, 'end': half,
                    'highlight': {'page': 1, 'rects': [[.1, .3, .5, .02]], 'keys': [{'rects': [[.1, .3, .1, .02]]}]}}]},
         {'title': '二', 'start': half, 'end': seconds, 'visual': {'kind': 'figure', 'url': 'figures/fig_01.png'},
          'cues': [{'text': '看左上角。', 'start': 0, 'end': half, 'region': [.05, .05, .3, .3]}]}]}
@@ -83,6 +83,16 @@ class RenderTests(unittest.TestCase):
             self.assertEqual(set(streams), {'video', 'audio'})
             self.assertAlmostEqual(streams['video'], 2.0, delta=.1)
             self.assertFalse((Path(directory) / 'out.partial.mp4').exists())
+
+
+class FailedFrameTests(unittest.TestCase):
+    def test_a_frame_that_fails_stops_the_encoder_and_leaves_no_partial_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = Path(directory) / 'out.mp4'
+            with patch.object(ev.Renderer, 'frame', side_effect=ValueError("can't measure")):
+                with self.assertRaises(ValueError):
+                    ev.render(project(Path(directory)), out, log=lambda _: None)
+            self.assertEqual([p.name for p in Path(directory).glob('*.mp4')], [])
 
 
 class JobRoutingTests(unittest.TestCase):
