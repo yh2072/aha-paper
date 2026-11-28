@@ -627,7 +627,13 @@ def _main_figure_path(proj: Project, meta: dict) -> Path | None:
 
 def sanitize_filename(name: str) -> str:
     name = re.sub(r'[\\/:*?"<>|\n\r]+', "", str(name)).strip().strip(".")
-    return name[:40] or "未命名"
+    return name[:60] or "未命名"
+
+
+def download_name(meta: dict, suffix: str) -> str:
+    """What a download is saved as: the explainer's title, not 'explainer.mp4'.
+    web/studio.js and web/watch.js apply the same rule to the files they link."""
+    return sanitize_filename(meta.get("title") or meta.get("paper_title") or "") + suffix
 
 
 def set_title(pid: str, title: str) -> dict:

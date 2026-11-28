@@ -103,6 +103,7 @@
     '重新生成 ↗': 'Regenerate ↗',
     '进入互动讲解': 'Open explainer',
     '封面': 'Cover',
+    '旁白': 'Narration',
     '文稿': 'Script',
     '日志': 'Log',
     '仅看视频': 'Video only',

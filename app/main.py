@@ -575,10 +575,11 @@ def interactive_bundle(pid: str):
     try:
         project=jobs.Project(pid)
         if jobs._pending(pid):raise HTTPException(409,"视频生成中，完成后再导出")
-        path=interactive.export_bundle(project.dir,project.load())
+        meta=project.load()
+        path=interactive.export_bundle(project.dir,meta)
     except ValueError as error:
         raise HTTPException(400,str(error)) from error
-    return FileResponse(path,media_type="application/zip",filename="aha-paper-interactive.zip")
+    return FileResponse(path,media_type="application/zip",filename=jobs.download_name(meta,"_互动讲解.zip"))
 
 
 @app.get("/api/projects/{pid}/cards.zip")
@@ -593,11 +594,12 @@ def card_deck(pid: str):
     if jobs._pending(pid):
         raise HTTPException(409, "生成进行中，完成后再导出图文卡片")
     try:
-        path = cards.export_zip(project.dir, project.load(), log=project.log)
+        meta = project.load()
+        path = cards.export_zip(project.dir, meta, log=project.log)
     except ValueError as error:
         raise HTTPException(400, str(error)) from error
     return FileResponse(path, media_type="application/zip",
-                        filename="aha-paper-cards.zip")
+                        filename=jobs.download_name(meta, "_图文卡片.zip"))
 
 
 @app.get("/api/settings/models")
